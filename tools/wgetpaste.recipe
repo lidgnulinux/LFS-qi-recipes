@@ -1,0 +1,27 @@
+# Build recipe for wgetpaste.
+#
+# Exit immediately on any error
+set -e
+
+program=wgetpaste
+version=2.34
+release=0
+description="Command-line interface to various pastebins"
+homepage="http://wgetpaste.zlin.dk/"
+license="MIT"
+pkgcategory=tools
+
+tarname=$version.tar.gz
+fetch="https://github.com/zlin/wgetpaste/archive/$tarname"
+
+build() 
+{
+	unpack "${tardir}/$tarname"
+	
+	cd "$srcdir"
+	
+	# Set sane permissions
+	chmod -R u+w,go-w,a+rX-s .
+
+	install -Dm755 wgetpaste "$destdir"/usr/bin/wgetpaste
+}
