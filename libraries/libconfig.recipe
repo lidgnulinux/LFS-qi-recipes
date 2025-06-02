@@ -1,0 +1,33 @@
+# Build recipe for libconfig.
+#
+# Exit immediately on any error
+set -e
+
+program=libconfig
+version=1.7.3
+release=0
+description="A simple library for manipulating structured configuration files"
+homepage="https://www.hyperrealm.com/libconfig/libconfig.html"
+license="LGPL-2.1-or-later"
+
+tarname=v$version.tar.gz
+fetch="https://github.com/hyperrealm/libconfig/archive/$tarname"
+
+build() 
+{
+	unpack "${tardir}/$tarname"
+	
+	cd "$srcdir"
+	
+	# Set sane permissions
+	chmod -R u+w,go-w,a+rX-s .
+
+	autoreconf -fi
+	CFLAGS="-std=gnu17" ./configure \
+		--prefix=/usr \
+		--libdir=/usr/lib \
+		--mandir=/usr/share/man
+
+	make CFLAGS="-std=gnu17" -j2 
+	make DESTDIR="$destdir" install 
+}
