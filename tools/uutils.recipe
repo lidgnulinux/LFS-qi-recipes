@@ -23,6 +23,7 @@ build()
 	# Set sane permissions
 	chmod -R u+w,go-w,a+rX-s .
     
+	# fix for libstdbuf not found though it's exist.
 	export RUSTFLAGS="$RUSTFLAGS -C target-feature=-crt-static"
 	export RUSTONIG_DYNAMIC_LIBONIG=1 
 
