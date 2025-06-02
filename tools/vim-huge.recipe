@@ -1,0 +1,83 @@
+# Build recipe for vim (huge).
+#
+# Exit immediately on any error
+set -e
+
+program=vim
+version=9.1.1012
+release=0
+
+pkgname=vim-huge
+
+# Define a category for the output of the package name
+pkgcategory=x-apps
+
+# The installation of this package replaces to
+replace=vim-tiny
+
+tarname=${program}-${version}.tar.gz
+
+# Remote source(s)
+fetch=https://github.com/vim/vim/archive/v${version}/$tarname
+
+homepage=https://www.vim.org
+
+description="
+The ubiquitous text editor (huge version, with X11 support).
+
+Vim is a highly configurable text editor built to make creating and
+changing any kind of text very efficient.  It is included as \"vi\"
+with most UNIX systems and with Apple OS X.
+
+For more information, visit:  $homepage
+"
+
+license=Custom
+
+# Source documentation
+docs="CONTRIBUTING.md README.md"
+docsdir="${docdir}/${pkgname}-${version}"
+jobs=4
+
+# Limit parallel jobs in order to build it successfully
+jobs=4
+
+build()
+{
+    unpack "${tardir}/$tarname"
+
+    cd $srcdir
+
+    # Set sane permissions
+    chmod -R u+w,go-w,a+rX-s .
+
+    # Workaround for the special 'srcdir' variable, it is internally
+    # imported and exported from vim's ./configure
+    saved_srcdir=$srcdir
+    unset -v srcdir
+
+    ./configure CPPFLAGS="$QICPPFLAGS" \
+    CFLAGS="$QICFLAGS" LDFLAGS="$QILDFLAGS" \
+     $configure_args \
+     --mandir=$mandir \
+     --docdir=$docsdir \
+     --enable-gui=gtk3 \
+     --enable-multibyte \
+     --disable-perlinterp \
+     --enable-pythoninterp \
+     --enable-python3interp \
+     --disable-rubyinterp \
+     --enable-tclinterp \
+     --disable-netbeans \
+     --with-features=huge \
+     --with-compiledby="LFS User (lidgnulinux)" \
+     --with-x \
+     --build="$(gcc -dumpmachine)"
+
+    # Restore 'srcdir'
+    srcdir=$saved_srcdir
+    unset -v saved_srcdir
+
+    make -j${jobs} V=1
+    make -j${jobs} DESTDIR="$destdir" install
+}

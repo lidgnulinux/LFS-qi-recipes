@@ -1,0 +1,45 @@
+# Build recipe for dconf.
+#
+# Exit immediately on any error
+set -e
+
+program=dconf
+version=0.40.0
+release=0
+
+# Define a category for the output of the package name
+pkgcategory=tool
+
+tarname=${program}-${version}.tar.xz
+
+# Remote source(s)
+fetch=https://download.gnome.org/sources/dconf/${version%.*}/$tarname
+
+description="low-level configuration system"
+
+homepage=https://wiki.gnome.org/Projects/dconf
+license="LGPL-2.1-or-later"
+
+build()
+{
+    unpack "${tardir}/$tarname"
+
+    cd "$srcdir"
+
+    # Set sane permissions
+    chmod -R u+w,go-w,a+rX-s .
+
+    rm -rf BUILD
+    mkdir BUILD
+    cd BUILD
+
+    patch -p1 -d .. < "${worktree}/systemd-userunit.patch"
+
+    CPPFLAGS="$QICPPFLAGS" CFLAGS="$QICFLAGS" LDFLAGS="$QILDFLAGS" \
+    meson setup $configure_args -Dbash_completion=false -Dman=false ..
+
+    ninja -j2
+    DESTDIR="$destdir" ninja -j2 install
+    
+    cd ..
+}

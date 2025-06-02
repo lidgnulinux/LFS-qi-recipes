@@ -1,0 +1,59 @@
+# Build recipe for gnutls.
+#
+# Exit immediately on any error
+set -e
+
+program=gnutls
+version=3.8.9
+release=0
+
+# Define a category for the output of the package name
+pkgcategory=networking
+
+tarname=${program}-${version}.tar.xz
+
+# Remote source(s)
+fetch=https://www.gnupg.org/ftp/gcrypt/gnutls/v3.8/"$tarname"
+
+description="
+The GnuTLS Transport Layer Security Library.
+
+GnuTLS is a secure communications library implementing the SSL, TLS and
+DTLS protocols and technologies around them.  It provides a simple C
+language application programming  interface (API) to access the secure
+communications protocols as well as APIs to parse and write X.509,
+PKCS #12, and other required structures.
+
+The project strives to provide a secure communications back-end, simple
+to use and integrated with the rest of the base Linux libraries.  A
+back-end designed to work and be secure out of the box, keeping the TLS
+and PKI complexity outside the applications. 
+"
+
+homepage=https://gnutls.org/
+license="LGPLv2+, GPLv3+, GFDL1.3"
+
+# Source documentation
+docs="AUTHORS CONTRIBUTING.md ChangeLog LICENSE NEWS README.md THANKS"
+docsdir="${docdir}/${program}-${version}"
+jobs=4
+ 
+build()
+{
+    unpack "${tardir}/$tarname"
+
+    cd "$srcdir"
+
+    # Set sane permissions
+    chmod -R u+w,go-w,a+rX-s .
+
+    ./configure CPPFLAGS="$QICPPFLAGS" \
+    CFLAGS="$QICFLAGS" CXXFLAGS="$QICXXFLAGS" LDFLAGS="$QILDFLAGS" \
+    $configure_args \
+    --enable-static=no \
+    --enable-threads=posix \
+    --build="$(gcc -dumpmachine)"
+
+    make -j${jobs} V=1
+    make -j${jobs} DESTDIR="$destdir" install
+}

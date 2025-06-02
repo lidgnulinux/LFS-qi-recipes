@@ -1,0 +1,33 @@
+# Build recipe for patchelf.
+#
+# Exit immediately on any error
+set -e
+
+program=patchelf
+version=0.18.0
+release=0
+description="Small utility to modify the dynamic linker and RPATH of ELF executables"
+homepage="https://nixos.org/patchelf.html"
+license="GPL-3.0-or-later"
+
+tarname=patchelf-$version.tar.gz
+fetch="https://github.com/NixOS/patchelf/releases/download/$version/$tarname"
+
+build() 
+{
+	unpack "${tardir}/$tarname"
+	
+	cd "$srcdir"
+	
+	# Set sane permissions
+	chmod -R u+w,go-w,a+rX-s .
+	
+	patch -p1 -i ${worktree}/fix-completion.patch
+	./configure \
+		--prefix=/usr \
+		--libdir=/usr/lib \
+		--build="$(gcc -dumpmachine)"
+
+	make 
+	make DESTDIR="$destdir" install 
+}

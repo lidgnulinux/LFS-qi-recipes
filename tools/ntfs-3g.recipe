@@ -1,0 +1,71 @@
+# Build recipe for ntfs-3g.
+#
+# Exit immediately on any error
+set -e
+
+program=ntfs-3g_ntfsprogs
+pkgname=ntfs-3g
+version=2022.10.3
+release=2
+
+# Define a category for the output of the package name
+pkgcategory=tools
+
+tarname=${program}-${version}.tgz
+
+# Remote source(s)
+fetch=https://tuxera.com/opensource/$tarname
+
+description="
+Drivers and utilities for the NTFS file system.
+
+The ntfs-3g package contains a stable, read-write open source driver for
+NTFS partitions.  NTFS partitions are used by most Microsoft operating
+systems, ntfs-3g allows you to mount NTFS partitions in read-write mode
+from your GNU/Linux system.  It uses the FUSE kernel module to be able to
+implement NTFS support in user space.  The package also contains various
+utilities useful for manipulating NTFS partitions.
+"
+
+homepage=https://www.tuxera.com/community/open-source-ntfs-3g/
+license="GPLv2+, LGPLv2+"
+
+# Source documentation
+docs="AUTHORS COPYING* CREDITS ChangeLog NEWS README TODO*"
+docsdir="${docdir}/${pkgname}-${version}"
+
+build()
+{
+    unpack "${tardir}/$tarname"
+
+    cd "$srcdir"
+
+    # Set sane permissions
+    chmod -R u+w,go-w,a+rX-s .
+
+    # Make sure to point to the /usr hierarchy
+    sed -i 's#$(DESTDIR)/sbin#$(DESTDIR)/usr/sbin#g' src/Makefile.in
+
+    ./configure CPPFLAGS="$QICPPFLAGS" \
+    CFLAGS="$QICFLAGS" LDFLAGS="$QILDFLAGS" \
+     $configure_args \
+     --mandir=$mandir \
+     --docdir=$docsdir \
+     --enable-static=no \
+     --enable-extras \
+     --enable-posix-acls \
+     --enable-xattr-mappings \
+     --enable-crypto \
+     --with-fuse=internal \
+     --disable-ldconfig \
+     --build="$(gcc -dumpmachine)" \
+     rootbindir=/usr/bin \
+     rootsbindir=/usr/sbin \
+     rootlibdir=/usr/lib
+
+    make -j${jobs} V=1 \
+     rootbindir=/usr/bin \
+     rootsbindir=/usr/sbin \
+     rootlibdir=/usr/lib \
+     DESTDIR="$destdir" install
+}

@@ -1,0 +1,39 @@
+# Build recipe for yajl.
+#
+
+# Exit immediately on any error
+set -e
+
+program=yajl
+version=2.1.0
+release=0
+description="Yet Another JSON Library (YAJL)"
+homepage="https://lloyd.github.io/yajl/"
+license="MIT"
+
+tarname=$version.tar.gz
+fetch="https://github.com/lloyd/yajl/archive/refs/tags/$tarname"
+
+build() 
+{
+	unpack "${tardir}/$tarname"
+	
+	cd "$srcdir"
+	
+	# Set sane permissions
+	chmod -R u+w,go-w,a+rX-s .
+
+	patch -p1 < "${worktree}/yajl.CVE-2023-33460.patch"
+
+	cmake -B build -G Ninja \
+		-DCMAKE_BUILD_TYPE=MinSizeRel \
+		-DCMAKE_INSTALL_LIBDIR=lib \
+		-DCMAKE_INSTALL_PREFIX=/usr
+	cmake --build build
+
+	DESTDIR="$destdir" cmake --install build
+
+	mkdir -p "$destdir/usr/lib"
+	mv "$destdir/usr/share/pkgconfig" "$destdir/usr/lib/"
+	mv "$destdir/usr/lib/libyajl_s.a" "$destdir/usr/lib/libyajl.a"
+}

@@ -1,0 +1,46 @@
+# Build recipe for screen.
+#
+# Exit immediately on any error
+set -e
+
+program=screen
+version=5.0.0
+release=0
+description="Window manager that multiplexes a physical terminal"
+homepage="https://www.gnu.org/software/screen/"
+license="GPL-3.0-or-later"
+
+tarname=screen-$version.tar.gz
+fetch="https://ftp.gnu.org/gnu/screen/$tarname"
+
+build() 
+{
+	unpack "${tardir}/$tarname"
+	
+	cd "$srcdir"
+	
+	# Set sane permissions
+	chmod -R u+w,go-w,a+rX-s .
+
+	./autogen.sh
+
+	CFLAGS="$CFLAGS -flto=auto" \
+	./configure \
+		--prefix=/usr \
+		--sysconfdir=/etc \
+		--with-system_screenrc=/etc/screenrc \
+		--mandir=/usr/share/man \
+		--infodir=/usr/share/info \
+		--localstatedir=/var \
+		--enable-telnet
+
+	make -j4 
+	make DESTDIR="$destdir" install 
+
+	# remove suid root
+	find "$destdir" -type f -perm -u+s -print0 \
+		| xargs -0 chmod -c -s
+
+	install -Dm644 etc/etcscreenrc "$destdir"/etc/screenrc
+	install -Dm644 etc/screenrc "$destdir"/etc/skel/.screenrc
+}

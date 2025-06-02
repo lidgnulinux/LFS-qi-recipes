@@ -1,0 +1,57 @@
+# Build recipe for libusb.
+#
+# Exit immediately on any error
+set -e
+
+program=libusb
+version=1.0.27
+release=1
+
+# Define a category for the output of the package name
+pkgcategory=libs
+
+tarname=${program}-${version}.tar.bz2
+
+# Remote source(s)
+fetch=https://downloads.sourceforge.net/project/libusb/libusb-1.0/libusb-${version}/$tarname
+
+description="
+C API for USB device access.
+
+The libusb package contains a library used by some applications for
+USB device access.
+"
+
+homepage=https://libusb.info/
+license=LGPLv2.1
+
+# Source documentation
+docs="AUTHORS COPYING ChangeLog NEWS README TODO"
+docsdir="${docdir}/${program}-${version}"
+
+build()
+{
+    unpack "${tardir}/$tarname"
+
+    cd "$srcdir"
+
+    # Set sane permissions
+    chmod -R u+w,go-w,a+rX-s .
+
+    ./configure CPPFLAGS="$QICPPFLAGS" \
+    CFLAGS="$QICFLAGS" LDFLAGS="$QILDFLAGS" \
+     $configure_args \
+     --docdir=$docsdir \
+     --enable-shared \
+     --enable-static \
+     --enable-udev \
+     --enable-system-log \
+     --build="$(gcc -dumpmachine)"
+
+    make -j${jobs} V=1
+    make -j${jobs} DESTDIR="$destdir" install
+
+    # Copy documentation
+    mkdir -p "${destdir}/$docsdir"
+    cp -p $docs "${destdir}/$docsdir"
+}

@@ -1,0 +1,58 @@
+# Build recipe for libXfont2.
+#
+# Exit immediately on any error
+set -e
+
+program=libXfont2
+version=2.0.7
+release=0
+
+# Define a category for the output of the package name
+pkgcategory=xorg_lib
+
+tarname=${program}-${version}.tar.xz
+
+# Remote source(s)
+fetch=https://www.x.org/releases/individual/lib/$tarname
+
+description="
+The core of the legacy X11 font system.
+
+libXfont provides the core of the legacy X11 font system, handling the
+index files (fonts.dir, fonts.alias, fonts.scale), the various font
+file formats, nd rasterizing them.  It is used by the X servers, and
+will eventually be used by the X Font Server (xfs), but should not be
+used by normal X11 clients.  X11 clients access fonts via either the
+new APIs in libXft, or the legacy APIs in libX11.
+"
+
+homepage=https://www.x.org
+license="MIT X Consortium"
+
+# Source documentation
+docs="AUTHORS COPYING ChangeLog README.md"
+docsdir="${docdir}/${program}-${version}"
+
+build()
+{
+    unpack "${tardir}/$tarname"
+
+    cd "$srcdir"
+
+    # Set sane permissions
+    chmod -R u+w,go-w,a+rX-s .
+
+    ./configure CPPFLAGS="$QICPPFLAGS" \
+    CFLAGS="$QICFLAGS" LDFLAGS="$QILDFLAGS" \
+     $configure_args \
+     --mandir=$mandir \
+     --docdir=$docsdir \
+     --enable-shared=yes \
+     --enable-static=no \
+     --enable-ipv6=yes \
+     --with-bzip2 \
+     --build="$(gcc -dumpmachine)"
+
+    make -j${jobs} V=1
+    make -j${jobs} DESTDIR="$destdir" install
+}

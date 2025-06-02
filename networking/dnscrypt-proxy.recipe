@@ -1,0 +1,36 @@
+# Build recipe for .
+#
+
+# Exit immediately on any error
+set -e
+
+program=dnscrypt-proxy
+version=2.1.7
+release=0
+description="A flexible DNS proxy, with support for encrypted DNS protocols."
+homepage="https://dnscrypt.info/"
+license="ISC license"
+pkgcategory=networking
+
+tarname=dnscrypt-proxy-linux_x86_64-2.1.7.tar.gz
+fetch="https://github.com/DNSCrypt/dnscrypt-proxy/releases/download/2.1.7/$tarname"
+
+srcdir=linux-x86_64
+
+build() 
+{
+	unpack "${tardir}/$tarname"
+	
+	cd "$srcdir"
+	
+	# Set sane permissions
+	chmod -R u+w,go-w,a+rX-s .
+	
+	mkdir -p "${destdir}"/usr/bin \
+		"${destdir}/etc/$program" \
+		"${destdir}/var/run/$program" \
+		"${destdir}/var/log/$program"
+
+	install -D -m 0755 $program "${destdir}"/usr/bin/$program
+	install -D -m 0644 example-$program.toml "${destdir}"/etc/$program/$program-example.toml
+}

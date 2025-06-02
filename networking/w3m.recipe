@@ -1,0 +1,58 @@
+# Build recipe for w3m.
+#
+# Exit immediately on any error
+set -e
+
+program=w3m
+version=0.5.3_git20250513
+_gitrev=a80300d5e7fba3e2f3b63b220b8fa431b9629741
+release=1
+description="text-based web & gopher browser, as well as pager"
+homepage="https://sr.ht/~rkta/w3m/"
+license="MIT"
+
+tarname=$_gitrev.tar.gz
+fetch="https://git.sr.ht/~rkta/w3m/archive/$tarname"
+
+srcdir=w3m-$_gitrev
+
+build() 
+{
+	unpack "${tardir}/$tarname"
+	
+	cd "$srcdir"
+	
+	# Set sane permissions
+	chmod -R u+w,go-w,a+rX-s .
+
+	# patch -p1 -i ${worktree}/conflicting-types.patch
+
+	CFLAGS="-std=gnu17" PERL=/usr/bin/perl ./configure \
+		--prefix=/usr \
+		--libexecdir=/usr/lib \
+		--enable-image=fb \
+		--with-ssl \
+		--disable-nntp \
+		--disable-dict \
+		--disable-help-cgi \
+		--enable-mouse \
+		--with-imagelib=imlib2 \
+		--with-termlib=ncurses \
+		--with-editor="/usr/bin/vi" \
+		--with-browser="/usr/bin/xdg-open" \
+		--disable-w3mmailer
+
+	make -j2 
+	make DESTDIR="$destdir" install 
+	make DESTDIR="$destdir" \
+		HELP_ALLFILES="w3mhelp-w3m_en.html w3mhelp-w3m_ja.html" \
+		install-helpfile
+
+	rm "$destdir"/usr/lib/w3m/xface2xpm
+	rm "$destdir"/usr/lib/w3m/cgi-bin/w3mdict.cgi
+	rm "$destdir"/usr/lib/w3m/cgi-bin/multipart.cgi
+	rm "$destdir"/usr/lib/w3m/cgi-bin/w3mmail.cgi
+
+	install -Dvm644 doc/* -t "$destdir"/usr/share/doc/$program/
+	install -Dvm644 COPYING -t "$destdir"/usr/share/licenses/$program/
+}

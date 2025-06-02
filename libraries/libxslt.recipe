@@ -1,0 +1,54 @@
+# Build recipe for libxslt.
+#
+# Exit immediately on any error
+set -e
+
+program=libxslt
+version=1.1.42
+release=0
+
+# Define a category for the output of the package name
+pkgcategory=libs
+
+tarname=${program}-${version}.tar.xz
+
+# Remote source(s)
+fetch=https://download.gnome.org/sources/libxslt/${version%.*}/$tarname
+
+description="
+XSLT support for libxml2.
+
+The libxslt package contains XSLT libraries.  These are useful for
+extending libxml2 libraries in order to support XSLT files.
+"
+
+homepage=https://xmlsoft.org
+license=MIT
+
+docs="AUTHORS ChangeLog Copyright NEWS README TODO"
+docsdir="${docdir}/${program}-${version}"
+
+jobs=2
+
+build()
+{
+    unpack "${tardir}/$tarname"
+
+    cd "$srcdir"
+
+    # Set sane permissions
+    chmod -R u+w,go-w,a+rX-s .
+
+    rm -fv tests/REC/test-10-3.xsl
+    ./configure CPPFLAGS="$QICPPFLAGS" CFLAGS="$QICFLAGS" LDFLAGS="$QILDFLAGS" \
+     $configure_args \
+     --mandir=$mandir \
+     --docdir=$docsdir \
+     --enable-static=no \
+     --enable-shared=yes \
+     --with-python=/usr/bin/python3 \
+     --build="$(gcc -dumpmachine)"
+     
+    make -j${jobs} V=1
+    make -j${jobs} DESTDIR="$destdir" install
+}

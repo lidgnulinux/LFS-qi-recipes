@@ -1,0 +1,51 @@
+# Build recipe for iceauth.
+#
+# Exit immediately on any error
+set -e
+
+program=iceauth
+version=1.0.9
+release=0
+
+# Define a category for the output of the package name
+pkgcategory=xorg_app
+
+tarname=${program}-${version}.tar.gz
+
+# Remote source(s)
+fetch=https://www.x.org/releases/individual/app/$tarname
+
+description="
+ICE authority file utility.
+
+The iceauth program is used to edit and display the authorization
+information used in connecting with ICE.
+"
+
+homepage=https://www.x.org
+license="MIT X Consortium"
+
+# Source documentation
+docs="COPYING ChangeLog README.md"
+docsdir="${docdir}/${program}-${version}"
+
+build()
+{
+    unpack "${tardir}/$tarname"
+
+    cd "$srcdir"
+
+    # Set sane permissions
+    chmod -R u+w,go-w,a+rX-s .
+
+    ./configure CPPFLAGS="$QICPPFLAGS" \
+    CFLAGS="$QICFLAGS" LDFLAGS="$QILDFLAGS" \
+     $configure_args \
+     --infodir=$infodir \
+     --mandir=$mandir \
+     --docdir=$docsdir \
+     || true
+
+    make -j${jobs} V=1
+    make -j${jobs} DESTDIR="$destdir" install
+}

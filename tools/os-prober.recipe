@@ -1,0 +1,42 @@
+# Build recipe for os-prober.
+#
+# Exit immediately on any error
+set -e
+
+program=os-prober
+version=1.83
+release=0
+description="Utility to detect other OSes on a set of drives"
+homepage="https://joeyh.name/code/os-prober/"
+license="GPL-3.0-only"
+
+tarname=os-prober_$version.tar.xz
+fetch="https://deb.debian.org/debian/pool/main/o/os-prober/$tarname"
+
+srcdir=work
+
+build() 
+{
+	unpack "${tardir}/$tarname"
+	
+	cd "$srcdir"
+	
+	# Set sane permissions
+	chmod -R u+w,go-w,a+rX-s .
+
+	make newns 
+
+	install -Dm755 os-prober linux-boot-prober -t "$destdir"/usr/bin
+	install -Dm755 newns "$destdir"/usr/lib/os-prober/newns
+	install -Dm755 common.sh "$destdir"/usr/share/os-prober/common.sh
+
+	for dir in os-probes os-probes/mounted os-probes/init linux-boot-probes linux-boot-probes/mounted; do
+		install -Dm755 -t "$destdir"/usr/lib/"$dir" "$dir"/common/*
+		if [ -d "$dir"/x86 ]; then
+			cp -r "$dir"/x86/* "$destdir"/usr/lib/"$dir"
+		fi
+	done
+
+	install -Dm655 os-probes/mounted/powerpc/20macosx "$destdir"/usr/lib/os-probes/mounted/20macosx
+	install -dm755 "$destdir"/var/lib/os-prober
+}

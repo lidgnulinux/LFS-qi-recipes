@@ -1,0 +1,106 @@
+# Build recipe for gdb.
+#
+# Exit immediately on any error
+set -e
+
+program=gdb
+version=15.2
+release=0
+
+# Define a category for the output of the package name
+pkgcategory=devel
+
+tarname=${program}-${version}.tar.gz
+
+# Remote source(s)
+fetch=https://ftp.gnu.org/gnu/gdb/$tarname
+
+description="
+The GNU debugger.
+
+GDB, the GNU Project debugger, allows you to see what is going on
+inside another program while it executes, or what another program
+was doing at the moment it crashed.
+"
+
+homepage=https://www.gnu.org/software/gdb
+license="GPLv2+, GPLv3+, LGPLv2, LGPLv3"
+
+# Source documentation
+docs="COPYING* ChangeLog README*"
+docsdir="${docdir}/${program}-${version}"
+
+build()
+{
+    unpack "${tardir}/$tarname"
+
+    cd "$srcdir"
+
+    # Set sane permissions
+    chmod -R u+w,go-w,a+rX-s .
+
+    patch -Np1 < "${worktree}/gdb-15.2/gdb.gcore-sh.patch"
+    patch -Np1 < "${worktree}/gdb-15.2/gdb.s390x-use-elf-gdb_fpregset_t.patch"
+    patch -Np1 < "${worktree}/gdb-15.2/gdb.ppc-musl.patch"
+    patch -Np1 < "${worktree}/gdb-15.2/gdb.ppc-ptregs.patch"
+    patch -Np1 < "${worktree}/gdb-15.2/gdb.musl-signals.patch"
+
+    # Create a separate build directory
+    rm -rf BUILD
+    mkdir BUILD
+    cd BUILD
+
+    ../configure CPPFLAGS="$QICPPFLAGS" \
+    CFLAGS="$QICFLAGS" CXXFLAGS="$QICXXFLAGS" LDFLAGS="$QILDFLAGS" \
+     $configure_args \
+     --infodir=$infodir \
+     --mandir=$mandir \
+     --docdir=$docsdir \
+     --enable-compressed-debug-sections=none \
+     --with-python=/usr/bin/python3 \
+     --with-system-zlib \
+     --with-system-readline \
+     --build="$(gcc -dumpmachine)"
+
+    make -j4 V=1
+    make -j4 DESTDIR="$destdir" install
+
+    cd ../
+
+    # Delete generated charset.alias
+    rm -f "${destdir}/usr/lib/charset.alias"
+
+    # Delete files belonging to the binutils package
+    rm -f \
+     "${destdir}"/usr/include/*.h \
+     "${destdir}/usr/lib/libbfd.a" \
+     "${destdir}/usr/lib/libopcodes.a" \
+     "${destdir}/usr/lib/libbfd.la" \
+     "${destdir}/usr/lib/libopcodes.la" \
+     "${destdir}/${infodir}/bdf.info"
+
+    # Compress info documents deleting index file for the package
+    if test -d "${destdir}/$infodir"
+    then
+        rm -f "${destdir}/${infodir}/dir"
+        lzip -9 "${destdir}/${infodir}"/*
+    fi
+
+    # Compress and link man pages (if needed)
+    if test -d "${destdir}/$mandir"
+    then
+        (
+            cd "${destdir}/$mandir"
+            find . -type f -exec lzip -9 {} +
+            find . -type l | while read -r file
+            do
+                ln -sf "$(readlink -- "$file").lz" "${file}.lz"
+                rm -- "$file"
+            done
+        )
+    fi
+
+    # Copy documentation
+    mkdir -p "${destdir}/$docsdir"
+    cp -p $docs "${destdir}/$docsdir"
+}

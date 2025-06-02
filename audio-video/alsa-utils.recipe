@@ -1,0 +1,55 @@
+# Build recipe for alsa-utils.
+#
+# Exit immediately on any error
+set -e
+
+program=alsa-utils
+version=1.2.14
+release=0
+
+# Define a category for the output of the package name
+pkgcategory=tools
+
+tarname=${program}-${version}.tar.bz2
+
+# Remote source(s)
+fetch=https://www.alsa-project.org/files/pub/utils/$tarname
+
+description="
+The ALSA utilities.
+
+The alsa-utils package contains various utilities
+which are useful for controlling your sound card.
+"
+
+homepage=https://alsa-project.org
+license=GPLv2+
+
+# Source documentation
+docs="COPYING ChangeLog TODO"
+docsdir="${docdir}/${program}-${version}"
+
+build()
+{
+	unpack "${tardir}/$tarname"
+	
+	cd "$srcdir"
+	
+	# Set sane permissions
+	chmod -R u+w,go-w,a+rX-s .
+	
+	patch -p1 -i ${worktree}/musl-locale.patch
+	patch -p1 -i ${worktree}/musl-types.patch
+
+	./configure CPPFLAGS="$QICPPFLAGS" \
+	CFLAGS="$QICFLAGS" LDFLAGS="$QILDFLAGS" \
+	 $configure_args \
+	 --libdir=/usr/lib \
+	 --mandir=$mandir \
+	 --disable-nls \
+	 --with-alsactl-lock-dir=/run/lock \
+	 --build="$(gcc -dumpmachine)"
+	
+	make -j${jobs} V=1
+	make -j${jobs} DESTDIR="$destdir" install
+}

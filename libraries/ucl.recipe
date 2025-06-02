@@ -1,0 +1,37 @@
+# Build recipe for ucl.
+#
+# Exit immediately on any error
+set -e
+
+program=ucl
+version=1.03
+release=0
+description="Portable lossless data compression library written in ANSI C"
+homepage="http://www.oberhumer.com/opensource/ucl/"
+license="GPL-2.0"
+
+tarname=$program-$version.tar.gz
+fetch="http://www.oberhumer.com/opensource/$program/download/$tarname"
+
+build() 
+{
+	unpack "${tardir}/$tarname"
+	
+	cd "$srcdir"
+	
+	# Set sane permissions
+	chmod -R u+w,go-w,a+rX-s .
+
+	patch -p1 -i ${worktree}/0001-Static-assert.patch
+
+	export CFLAGS="$CFLAGS -std=gnu99 -fPIC -include stddef.h"
+	./configure \
+		--prefix=/usr \
+		--enable-shared \
+		--enable-static
+	make
+	make DESTDIR="$destdir" install
+
+	mkdir -p "$destdir"/usr/lib/pkgconfig/
+	sed "s|@PKGVER@|$version|" ${worktree}/ucl.pc.in > "$destdir"/usr/lib/pkgconfig/ucl.pc
+}

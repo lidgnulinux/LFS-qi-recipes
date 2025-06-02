@@ -1,0 +1,37 @@
+# Build recipe for libvdpau.
+#
+
+# Exit immediately on any error
+set -e
+
+program=libvdpau
+version=1.5
+release=0
+description="Hardware-accelerated video playback library"
+homepage="https://gitlab.freedesktop.org/vdpau/libvdpau"
+license="MIT"
+
+tarname=$program-$version.tar.gz
+fetch="https://gitlab.freedesktop.org/vdpau/libvdpau/-/archive/$version/$tarname"
+
+build() 
+{
+	unpack "${tardir}/$tarname"
+	
+	cd "$srcdir"
+	
+	# Set sane permissions
+	chmod -R u+w,go-w,a+rX-s .
+
+	rm -rf BUILD
+	mkdir BUILD
+	cd BUILD
+	
+	CPPFLAGS="$QICPPFLAGS" CFLAGS="$QICFLAGS" LDFLAGS="$QILDFLAGS" \
+	meson setup $configure_args ..
+	
+	ninja -j2
+	DESTDIR="$destdir" ninja -j2 install
+	
+	cd ..
+}

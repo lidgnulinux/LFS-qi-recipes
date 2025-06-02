@@ -1,0 +1,43 @@
+# Build recipe for soxr.
+#
+# Exit immediately on any error
+set -e
+
+program=soxr
+version=0.1.3
+release=0
+description="High quality, one-dimensional sample-rate conversion library"
+homepage="https://sourceforge.net/projects/soxr/"
+license="LGPL-2.1-or-later"
+
+tarname=soxr-$version.tar.xz
+fetch="https://sourceforge.net/projects/soxr/files/soxr-$version-Source.tar.xz/download"
+
+srcdir=${program}-${version}-Source
+
+build() 
+{
+	mv "${tardir}/download" "${tardir}/$tarname"
+	unpack "${tardir}/$tarname"
+	
+	cd "$srcdir"
+	
+	# Set sane permissions
+	chmod -R u+w,go-w,a+rX-s .
+
+	cmake -B build-shared -G Ninja \
+		-DBUILD_SHARED_LIBS=ON \
+		-DCMAKE_BUILD_TYPE=MinSizeRel \
+		-DCMAKE_INSTALL_PREFIX=/usr \
+		-DBUILD_TESTING=OFF
+	cmake --build build-shared
+
+	cmake -B build-static -G Ninja \
+		-DBUILD_SHARED_LIBS=OFF \
+		-DCMAKE_INSTALL_PREFIX=/usr \
+		-DBUILD_TESTING="OFF"
+	cmake --build build-static
+
+	DESTDIR="$destdir" cmake --install build-static
+	DESTDIR="$destdir" cmake --install build-shared
+}

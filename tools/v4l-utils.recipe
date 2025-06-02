@@ -1,0 +1,62 @@
+# Build recipe for v4l-utils.
+#
+# Exit immediately on any error
+set -e
+
+program=v4l-utils
+version=1.28.1
+release=0
+
+# Define a category for the output of the package name
+pkgcategory=media
+
+tarname=${program}-${version}.tar.xz
+
+# Remote source(s)
+fetch=https://www.linuxtv.org/downloads/v4l-utils/$tarname
+
+description="
+Utilities and libraries to handle media devices.
+
+Linux utilities and libraries to handle media devices (TV devices,
+capture devices, radio devices, remote controllers).
+"
+
+homepage=https://www.linuxtv.org
+license="GPLv2+, LGPLv2.1"
+
+# Source documentation
+docs="COPYING* ChangeLog README* TODO*"
+docsdir="${docdir}/${program}-${version}"
+
+build()
+{
+	unpack "${tardir}/$tarname"
+	
+	cd "$srcdir"
+	
+	# Set sane permissions
+	chmod -R u+w,go-w,a+rX-s .
+
+	rm -rf BUILD
+	mkdir BUILD
+	cd BUILD
+
+	patch -p1 -d .. < ${worktree}/disable-nls.patch
+	patch -p1 -d .. < ${worktree}/ioctl-types.patch
+	
+	CPPFLAGS="$QICPPFLAGS" CFLAGS="$QICFLAGS" LDFLAGS="$QILDFLAGS" \
+	meson setup $configure_args \
+		--prefix="/usr" \
+		--sysconfdir=/etc \
+		--mandir=/usr/share/man \
+		--infodir=/usr/share/info \
+		--localstatedir=/var \
+		-Dv4l2-tracer=disabled \
+		..
+
+	ninja -j2
+	DESTDIR="$destdir" ninja -j2 install
+	
+	cd ..
+}

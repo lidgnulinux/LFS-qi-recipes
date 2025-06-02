@@ -1,0 +1,49 @@
+# Build recipe for glslang.
+#
+# Exit immediately on any error
+set -e
+
+program=glslang
+version=1.4.304.0
+release=0
+description="Khronos reference front-end for GLSL, ESSL, and sample SPIR-V generator"
+homepage="https://github.com/KhronosGroup/glslang"
+license="BSD-3-Clause"
+
+tarname=vulkan-sdk-$version.tar.gz
+fetch="https://github.com/KhronosGroup/glslang/archive/refs/tags/$tarname"
+
+srcdir=glslang-vulkan-sdk-$version
+
+build() 
+{
+	unpack "${tardir}/$tarname"
+	
+	cd "$srcdir"
+	
+	# Set sane permissions
+	chmod -R u+w,go-w,a+rX-s .
+
+	cmake -B build-shared -G Ninja \
+		-DCMAKE_INSTALL_PREFIX=/usr \
+		-DCMAKE_INSTALL_LIBDIR=lib \
+		-DCMAKE_BUILD_TYPE=MinSizeRel \
+		-DBUILD_EXTERNAL=OFF \
+		-DBUILD_SHARED_LIBS=ON \
+		-DALLOW_EXTERNAL_SPIRV_TOOLS=YES \
+		-DGLSLANG_TESTS="OFF"
+	cmake --build build-shared
+
+	cmake -B build-static -G Ninja \
+		-DCMAKE_INSTALL_PREFIX=/usr \
+		-DCMAKE_INSTALL_LIBDIR=lib \
+		-DCMAKE_BUILD_TYPE=MinSizeRel \
+		-DBUILD_EXTERNAL=OFF \
+		-DBUILD_SHARED_LIBS=OFF \
+		-DALLOW_EXTERNAL_SPIRV_TOOLS=YES \
+		-DGLSLANG_TESTS="OFF" 
+	cmake --build build-static
+
+	DESTDIR="$destdir" cmake --install build-static
+	DESTDIR="$destdir" cmake --install build-shared
+}

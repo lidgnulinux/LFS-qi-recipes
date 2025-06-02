@@ -1,0 +1,76 @@
+# Build recipe for nspr.
+#
+# Exit immediately on any error
+set -e
+
+program=nspr
+version=4.36
+pkgver=4.36
+release=0
+
+# Define a category for the output of the package name
+pkgcategory=networking
+
+tarname=${program}-${version}.tar.gz
+
+# Remote source(s)
+fetch=https://ftp.mozilla.org/pub/mozilla.org/nspr/releases/v$pkgver/src/nspr-$pkgver.tar.gz
+
+description="
+Netscape portable runtime functions.
+
+NSPR is the Netscape Portable Runtime that provides a platform-neutral
+API for system level and libc like functions.
+"
+
+homepage=https://www.mozilla.org/projects/nspr/about-nspr.html
+license="MPL v2.0, GPLv2+"
+jobs=2
+
+# Source documentation
+docs="LICENSE"
+docsdir="${docdir}/${program}-${version}"
+
+build()
+{
+    unpack "${tardir}/$tarname"
+
+    cd "${srcdir}/nspr"
+
+    # Set sane permissions
+    chmod -R u+w,go-w,a+rX-s .
+
+    # This sed disables installing two unneeded scripts
+    # (Thanks to "Beyond Linux From Scratch")
+    sed -ri 's#^(RELEASE_BINS =).*#\1#' pr/src/misc/Makefile.in
+
+    # This sed disables installing the static libraries
+    # (Thanks to "Beyond Linux From Scratch")
+    sed -i 's#$(LIBRARY) ##' config/rules.mk
+
+    # Set specific options for the architecture
+    case $arch in
+    amd64)
+        arch_options="--enable-64bit"
+        ;;
+    x32)
+        arch_options="--enable-64bit --enable-x32"
+        ;;
+    esac
+
+    ./configure CPPFLAGS="$QICPPFLAGS" \
+    CFLAGS="$QICFLAGS" LDFLAGS="$QILDFLAGS" \
+     $configure_args \
+     --libdir=/usr/lib${libSuffix} \
+     --infodir=$infodir \
+     --mandir=$mandir \
+     --docdir=$docsdir \
+     --disable-debug \
+     --with-mozilla \
+     --build="$(gcc -dumpmachine)" \
+     --enable-64bit
+
+    unset -v arch_options
+    make -j${jobs} V=1
+    make -j${jobs} DESTDIR="$destdir" install
+}

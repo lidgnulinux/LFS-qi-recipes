@@ -1,0 +1,52 @@
+# Build recipe for FriBidi.
+#
+# Exit immediately on any error
+set -e
+
+program=fribidi
+version=1.0.16
+release=1
+
+# Define a category for the output of the package name
+pkgcategory=x-libs
+
+tarname=${program}-${version}.tar.xz
+
+# Remote source(s)
+fetch=https://github.com/fribidi/fribidi/releases/download/v${version}/$tarname
+
+description="
+A Free Implementation of the Unicode Bidirectional Algorithm.
+
+This library implements the Unicode BiDirectional algorithm, which
+is needed in order to support right-to-left languages such as Arabic
+and Hebrew.  It is used in display software like KDE's SVG modules.
+"
+
+homepage=https://github.com/fribidi/fribidi/
+license=LGPLv2.1
+
+docs="AUTHORS ChangeLog COPYING NEWS README THANKS TODO"
+docsdir="${docdir}/${program}-${version}"
+
+build()
+{
+    unpack "${tardir}/$tarname"
+
+    cd "$srcdir"
+
+    # Set sane permissions
+    chmod -R u+w,go-w,a+rX-s .
+
+    rm -rf BUILD
+    mkdir BUILD
+    cd BUILD
+    
+    CPPFLAGS="$QICPPFLAGS" CFLAGS="$QICFLAGS" LDFLAGS="$QILDFLAGS" \
+    meson setup $configure_args --buildtype=release ..
+    
+    ninja -j2
+    DESTDIR="$destdir" ninja -j2 install
+    
+    cd ..
+}

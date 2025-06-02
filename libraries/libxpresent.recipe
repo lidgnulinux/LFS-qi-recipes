@@ -1,0 +1,37 @@
+# Build recipe for libxpresent.
+#
+
+# Exit immediately on any error
+set -e
+
+program=libxpresent
+version=1.0.1
+release=0
+description="A Xlib-compatible API for the Present extension"
+homepage="https://xorg.freedesktop.org/"
+license="MIT"
+
+tarname=libXpresent-$version.tar.xz
+fetch="https://www.x.org/releases/individual/lib/$tarname"
+
+srcdir=libXpresent-$version
+
+build() 
+{
+	unpack "${tardir}/$tarname"
+	
+	cd "$srcdir"
+	
+	# Set sane permissions
+	chmod -R u+w,go-w,a+rX-s .
+
+	./configure \
+		--disable-static \
+		--sysconfdir=/etc \
+		--mandir=/usr/share/man \
+		--infodir=/usr/share/info \
+		--prefix=/usr
+
+	make 
+	make DESTDIR="$destdir" install 
+}

@@ -1,0 +1,35 @@
+# Build recipe for utf8proc.
+#
+
+# Exit immediately on any error
+set -e
+
+program=utf8proc
+version=2.10.0
+release=0
+
+# Define a category for the output of the package name
+pkgcategory=libs
+
+tarname=${program}-${version}.tar.gz
+
+# Remote source(s)
+fetch=https://github.com/JuliaLang/utf8proc/archive/v$version/$tarname
+
+description="Clean C library for processing UTF-8 Unicode data"
+
+homepage=https://github.com/JuliaLang/utf8proc
+license="MIT custom"
+
+build()
+{
+    unpack "${tardir}/$tarname"
+
+    cd "$srcdir"
+
+    # Set sane permissions
+    chmod -R u+w,go-w,a+rX-s .
+    
+    make
+    make DESTDIR="$destdir" prefix=/usr install
+}

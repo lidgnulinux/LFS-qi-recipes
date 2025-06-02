@@ -1,0 +1,74 @@
+# Build recipe for shadow.
+#
+# Exit immediately on any error
+set -e
+
+program=shadow
+version=4.17.3
+release=0
+
+# Define a category for the output of the package name
+pkgcategory=tools
+
+tarname=${program}-${version}.tar.xz
+
+# Remote source(s)
+fetch=https://github.com/shadow-maint/shadow/releases/download/${version}/$tarname
+
+description="
+The shadow tool suite.
+
+The shadow package contains programs for handling
+passwords in a secure way.
+"
+
+homepage=https://pkg-shadow.alioth.debian.org
+license=BSD
+
+# Source documentation
+docs="COPYING NEWS README TODO"
+docsdir="${docdir}/${pkgname}"
+jobs=4
+
+build()
+{
+	unpack "${tardir}/$tarname"
+	
+	cd "$srcdir"
+	
+	# Set sane permissions
+	chmod -R u+w,go-w,a+rX-s .
+	
+	# Disable the installation of the groups program and its man pages,
+	# as Coreutils provides a better version.  Also, prevent the
+	# installation of manual pages that were already installed in the
+	# man-pages package (Thanks to "Linux From Scratch" :-)
+	sed -i 's/groups$(EXEEXT) //' src/Makefile.in
+	find man -type f -name Makefile.in -exec sed -i 's/groups\.1 / /'   {} \;
+	find man -type f -name Makefile.in -exec sed -i 's/getspnam\.3 / /' {} \;
+	find man -type f -name Makefile.in -exec sed -i 's/passwd\.5 / /'   {} \;
+	
+	./configure \
+		--prefix=/usr \
+		--libdir=/usr/lib \
+		--sysconfdir=/etc \
+		--mandir=/usr/share/man \
+		--localstatedir=/var \
+		--disable-account-tools-setuid \
+		--disable-nls \
+		--enable-lastlog \
+		--without-audit \
+		--with-libpam \
+		--without-selinux \
+		--without-acl \
+		--without-attr \
+		--without-tcb \
+		--with-yescrypt \
+		--without-nscd \
+		--without-group-name-max-length \
+		--with-fcaps
+	
+	make -j${jobs} V=1
+	make -j${jobs} V=1 check
+	make -j${jobs} DESTDIR="$destdir" install	
+}

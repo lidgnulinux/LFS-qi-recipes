@@ -1,0 +1,71 @@
+# Build recipe for guile.
+#
+# Exit immediately on any error
+set -e
+
+program=guile
+version=3.0.10
+release=0
+
+# Define a category for the output of the package name
+pkgcategory=devel
+
+tarname=${program}-${version}.tar.lz
+
+# Remote source(s)
+fetch=https://ftp.gnu.org/gnu/guile/$tarname
+
+homepage=https://www.gnu.org/software/guile/
+
+description="
+The GNU Guile programming language.
+
+Guile is designed to help programmers create flexible applications that
+can be extended by users or other programmers with plug-ins, modules,
+or scripts.  With Guile you can create applications and games for the
+desktop, the Web, the command-line, and more.
+
+For more information, visit:
+$homepage
+"
+
+license="GPLv3+, LGPLv3+"
+
+# Source documentation
+docs="AUTHORS COPYING* ChangeLog GUILE-VERSION HACKING NEWS README THANKS"
+docsdir="${docdir}/${program}-${version}"
+jobs=4
+
+build()
+{
+    unpack "${tardir}/$tarname"
+
+    cd "$srcdir"
+
+    # Set sane permissions
+    chmod -R u+w,go-w,a+rX-s .
+
+    ./configure CPPFLAGS="$QICPPFLAGS" CFLAGS="$QICFLAGS" \
+    LDFLAGS="$QILDFLAGS" \
+     $configure_args \
+     --infodir=$infodir \
+     --mandir=$mandir \
+     --docdir=$docsdir \
+     --enable-static=no \
+     --enable-shared=yes \
+     --disable-error-on-warning \
+     --build="$(gcc -dumpmachine)"
+
+    make -j${jobs} V=1
+    make -j${jobs} V=1 html
+    make -j${jobs} DESTDIR="$destdir" install
+    make -j${jobs} DESTDIR="$destdir" install-html
+
+    # Delete generated charset.alias
+    rm -f "${destdir}/usr/lib/charset.alias"
+
+    # Move misplaced file(s) for GDB
+    mkdir -p "${destdir}/usr/share/gdb/auto-load/usr/lib"
+    mv "${destdir}/usr/lib"/*-gdb.scm \
+       "${destdir}/usr/share/gdb/auto-load/usr/lib"
+}

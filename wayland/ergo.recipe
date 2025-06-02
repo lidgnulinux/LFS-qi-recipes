@@ -1,0 +1,27 @@
+# Build recipe for ergo.
+#
+# Exit immediately on any error
+set -e
+
+program=ergo
+version=0.0.3
+release=1
+description="A minimal status bar for Wayland compositors."
+homepage="https://github.com/d4yr41n/ergo"
+license="MIT"
+
+tarname=ergo-0.0.3.tar.gz
+fetch="https://github.com/pubfnmain/ergo/releases/download/0.0.3/$tarname"
+
+build() 
+{
+	unpack "${tardir}/$tarname"
+	
+	cd "$srcdir"
+	
+	# Set sane permissions
+	chmod -R u+w,go-w,a+rX-s .
+
+	make 
+	make PREFIX="$destdir/usr/" install 
+}

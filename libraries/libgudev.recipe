@@ -1,0 +1,56 @@
+# Build recipe for libgudev.
+#
+# Exit immediately on any error
+set -e
+
+program=libgudev
+version=238
+release=0
+
+# Define a category for the output of the package name
+pkgcategory=x-libs
+
+tarname=${program}-${version}.tar.xz
+
+# Remote source(s)
+fetch=https://download.gnome.org/sources/libgudev/${version}/$tarname
+
+description="
+GObject bindings for libudev.
+
+It was originally part of udev-extras, then udev, then systemd.
+It is now a project on its own.
+"
+
+homepage=https://wiki.gnome.org/Projects/libgudev
+license=LGPLv2.1
+
+# Source documentation
+docs="COPYING NEWS README*"
+docsdir="${docdir}/${program}-${version}"
+
+build()
+{
+    unpack "${tardir}/$tarname"
+
+    cd "$srcdir"
+
+    # Set sane permissions
+    chmod -R u+w,go-w,a+rX-s .
+
+    rm -rf BUILD
+    mkdir BUILD
+    cd BUILD
+
+    CPPFLAGS="$QICPPFLAGS" \
+    CFLAGS="$QICFLAGS" CXXFLAGS="$QICXXFLAGS" LDFLAGS="$QILDFLAGS" \
+    meson setup $configure_args \
+     --buildtype=release \
+     --strip \
+     ..
+
+    ninja -j${jobs}
+    DESTDIR="$destdir" ninja -j${jobs} install
+
+    cd ..
+}

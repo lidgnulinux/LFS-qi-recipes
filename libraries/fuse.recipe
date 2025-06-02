@@ -1,0 +1,50 @@
+# Build recipe for fuse (version 2).
+#
+# Exit immediately on any error
+set -e
+
+program=fuse
+version=2.9.9
+release=0
+
+# Set custom package name
+pkgname=fuse
+
+# Define a category for the output of the package name
+pkgcategory=libs
+
+tarname=fuse-${version}.tar.gz
+
+# Remote source(s)
+fetch=https://github.com/libfuse/libfuse/releases/download/fuse-${version}/$tarname
+
+description="A library that makes it possible to implement a filesystem in a userspace program."
+
+homepage=https://github.com/libfuse/libfuse/
+license="GPLv2+, LGPLv2.1"
+
+srcdir=fuse-${version}
+
+build()
+{
+	unpack "${tardir}/$tarname"
+	
+	cd "$srcdir"
+	
+	# Set sane permissions
+	chmod -R u+w,go-w,a+rX-s .
+
+	patch -p1 < ${worktree}/fuse.fix-realpath.patch
+
+	UDEV_RULES_PATH='/usr/lib/udev/rules.d' ./configure \
+		--prefix=/usr \
+		--enable-static \
+		--enable-shared \
+		--disable-example \
+		--enable-lib \
+		--enable-util \
+		--bindir=/bin
+	make
+
+	make DESTDIR="$destdir" install
+}

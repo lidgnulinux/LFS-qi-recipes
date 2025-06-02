@@ -1,0 +1,57 @@
+# Build recipe for desktop-file-utils.
+#
+# Exit immediately on any error
+set -e
+
+program=desktop-file-utils
+version=0.28
+release=0
+
+# Define a category for the output of the package name
+pkgcategory=x-libs
+
+tarname=${program}-${version}.tar.xz
+
+# Remote source(s)
+fetch=https://www.freedesktop.org/software/desktop-file-utils/releases/$tarname
+
+description="
+Utilities for manipulating desktop files.
+
+desktop-file-utils contains a few command line utilities for
+working with desktop entries.
+"
+
+homepage=https://www.freedesktop.org/wiki/Software/desktop-file-utils/
+license=GPLv2+
+
+# Source documentation
+docs="AUTHORS COPYING ChangeLog HACKING NEWS README"
+docsdir="${docdir}/${program}-${version}"
+
+build()
+{
+    unpack "${tardir}/$tarname"
+
+    cd "$srcdir"
+
+    # Set sane permissions
+    chmod -R u+w,go-w,a+rX-s .
+
+    mkdir BUILD
+    cd BUILD
+
+    CPPFLAGS="$QICPPFLAGS" CFLAGS="$QICFLAGS" LDFLAGS="$QILDFLAGS" \
+    meson setup $configure_args \
+     --buildtype=release \
+     --strip \
+     ..
+
+    ninja -j${jobs}
+    DESTDIR="$destdir" ninja -j${jobs} install
+
+    cd ..
+
+    # To meet the XDG Base Directory specification
+    mkdir -p "${destdir}/usr/share/applications"
+}

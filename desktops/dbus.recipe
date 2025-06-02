@@ -1,0 +1,56 @@
+# Build recipe for dbus (Use 'dbus-x11' instead for the X11 support).
+#
+# Exit immediately on any error
+set -e
+
+program=dbus
+version=1.16.2
+release=1
+
+# Define a category for the output of the package name
+pkgcategory=daemons
+
+tarname=${program}-${version}.tar.xz
+
+# Remote source(s)
+fetch=https://dbus.freedesktop.org/releases/dbus/$tarname
+
+description="
+A system daemon and a per user login session daemon.
+
+The message bus is built on top of a general one-to-one message passing
+framework, which can be used by any two apps to communicate directly
+(without going through the message bus daemon).
+"
+
+homepage=https://www.freedesktop.org/wiki/Software/dbus/
+license="AFLv2.1 | GPLv2+"
+
+# Source documentation
+docs="AUTHORS CONTRIBUTING.md COPYING NEWS README"
+docsdir="${docdir}/${program}-${version}"
+
+build()
+{
+	unpack "${tardir}/$tarname"
+	
+	cd "$srcdir"
+	
+	# Set sane permissions
+	chmod -R u+w,go-w,a+rX-s .
+    
+	rm -rf BUILD
+	mkdir BUILD
+	cd BUILD
+	
+	CPPFLAGS="$QICPPFLAGS" CFLAGS="$QICFLAGS" LDFLAGS="$QILDFLAGS" \
+	meson setup $configure_args ..
+
+	ninja -j2
+	DESTDIR="$destdir" ninja -j2 install
+
+	chmod 4750 "$destdir"/usr/libexec/dbus-daemon-launch-helper
+	chown root:messagebus "$destdir"/usr/libexec/dbus-daemon-launch-helper
+	
+	cd ..
+}

@@ -1,0 +1,46 @@
+# Build recipe for tllist.
+#
+
+# Exit immediately on any error
+set -e
+
+program=tllist
+version=1.1.0
+release=0
+
+# Define a category for the output of the package name
+pkgcategory=libs
+
+tarname=${version}.tar.gz
+
+# Remote source(s)
+fetch=https://codeberg.org/dnkl/tllist/archive/$tarname
+
+description="A C header file only implementation of a typed linked list"
+
+homepage=https://codeberg.org/dnkl/tllist
+license="MIT"
+
+srcdir=$program
+
+build()
+{
+    unpack "${tardir}/$tarname"
+
+    cd "$srcdir"
+
+    # Set sane permissions
+    chmod -R u+w,go-w,a+rX-s .
+
+    rm -rf BUILD
+    mkdir BUILD
+    cd BUILD
+
+    CPPFLAGS="$QICPPFLAGS" CFLAGS="$QICFLAGS" LDFLAGS="$QILDFLAGS" \
+    meson setup $configure_args ..
+
+    ninja -j2
+    DESTDIR="$destdir" ninja -j2 install
+
+    cd ..
+}

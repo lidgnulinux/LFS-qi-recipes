@@ -1,0 +1,40 @@
+# Build recipe for glad.
+#
+# Exit immediately on any error
+set -e
+
+program=glad
+version=2.0.8
+release=1
+
+pkgname=python-${program}
+
+# Define a category for the output of the package name
+pkgcategory=python
+
+tarname=v${version}.tar.gz
+
+# Remote source(s)
+fetch=https://github.com/Dav1dde/glad/archive/refs/tags/$tarname
+
+description=""
+
+homepage=https://www.makotemplates.org
+license=MIT
+
+docs="AUTHORS CHANGES LICENSE PKG-INFO README.rst"
+docsdir="${docdir}/${pkgname}-${version}"
+
+build()
+{
+    unpack "${tardir}/$tarname"
+
+    cd "$srcdir"
+
+    # Set sane permissions
+    chmod -R u+w,go-w,a+rX-s .
+
+    python -m build --wheel --no-isolation
+    python -m installer --destdir="${destdir}" dist/*.whl
+}
+

@@ -1,0 +1,28 @@
+program=xset
+version=1.2.5
+release=1
+description="X.Org xset application"
+homepage="https://xorg.freedesktop.org/"
+license="MIT"
+# subpackages="$program-doc"
+# makedepends="libxmu-dev libx11-dev libxext-dev util-macros"
+tarname=xset-$version.tar.xz
+fetch="https://www.x.org/releases/individual/app/$tarname"
+
+build() {
+	unpack "${tardir}/$tarname"
+	
+	cd "$srcdir"
+	
+	# Set sane permissions
+	chmod -R u+w,go-w,a+rX-s .
+
+	./configure \
+		--prefix=/usr \
+		--sysconfdir=/etc \
+		--mandir=/usr/share/man \
+		--localstatedir=/var
+
+	make
+	make DESTDIR="$destdir" install
+}

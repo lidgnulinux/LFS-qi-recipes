@@ -1,0 +1,70 @@
+# Build recipe for elogind.
+#
+
+# Exit immediately on any error
+set -e
+
+program=elogind
+version=252.24
+release=1
+
+# Define a category for the output of the package name
+pkgcategory=daemon
+
+tarname=${program}-v${version}.tar.gz
+
+# Remote source(s)
+fetch=https://github.com/elogind/elogind/archive/v$version/$tarname
+
+description="Standalone fork of systemd's elogind"
+
+homepage=https://github.com/elogind/elogind
+license="GPL-2.0-or-later LGPL-2.1-or-later"
+
+build()
+{
+    unpack "${tardir}/$tarname"
+
+    cd "$srcdir"
+
+    # Set sane permissions
+    chmod -R u+w,go-w,a+rX-s .
+
+    rm -rf BUILD
+    mkdir BUILD
+    cd BUILD
+
+    patch -p1 -d .. < "${worktree}/elogind-252.24/getdents.patch" 
+    patch -p1 -d .. < "${worktree}/elogind-252.24/gshadow.patch" 
+    patch -p1 -d .. < "${worktree}/elogind-252.24/more-strerror_r.patch" 
+    patch -p1 -d .. < "${worktree}/elogind-252.24/no-bash.patch" 
+    patch -p1 -d .. < "${worktree}/elogind-252.24/sigfillset.patch" 
+    patch -p1 -d .. < "${worktree}/elogind-252.24/statx.patch" 
+    patch -p1 -d .. < "${worktree}/elogind-252.24/strerror_r.patch" 
+    patch -p1 -d .. < "${worktree}/elogind-252.24/re-add_GNU_basename_macro_for_musl.patch" 
+    patch -p1 -d .. < "${worktree}/elogind-252.24/rlimit-util-no-cast.patch" 
+
+    CPPFLAGS="$QICPPFLAGS" CFLAGS="$QICFLAGS" LDFLAGS="$QILDFLAGS" \
+    meson setup $configure_args \
+        -Ddefault-kill-user-processes=false \
+        -Dhalt-path=/sbin/halt \
+        -Dman=false \
+        -Dpolkit=true \
+        -Dreboot-path=/sbin/reboot \
+        -Dtests=false \
+        -Dpamconfdir=/etc/pam.d \
+        -Drootlibdir=/usr/lib \
+        -Drootlibexecdir=/usr/libexec/elogind \
+        -Dudevrulesdir=/lib/udev/rules.d \
+        -Dsplit-usr=false \
+        -Ddbuspolicydir=/etc/dbus-1/system.d \
+        -Dcgroup-controller=elogind \
+	..
+
+    ninja -j2
+    DESTDIR="$destdir" ninja -j2 install
+    ln -sfv libelogind.pc "$destdir"/usr/lib/pkgconfig/libsystemd.pc
+    ln -sfvn elogind "$destdir"/usr/include/systemd 
+
+    cd ..
+}

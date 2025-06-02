@@ -1,0 +1,61 @@
+# Build recipe for libdrm.
+#
+# Exit immediately on any error
+set -e
+
+program=libdrm
+version=2.4.124
+release=0
+
+# Define a category for the output of the package name
+pkgcategory=xorg_extra
+
+tarname=${program}-${version}.tar.xz
+
+# Remote source(s)
+fetch=https://dri.freedesktop.org/libdrm/$tarname
+
+description="
+Direct rendering manager.
+
+libdrm provides core library routines for the X Window System to
+directly interface with video hardware using the Linux Kernel's
+Direct Rendering Modules.
+"
+
+homepage=https://cgit.freedesktop.org/mesa/drm/
+license=MIT
+
+# Source documentation
+docsdir="${docdir}/${program}-${version}"
+jobs=2
+
+build()
+{
+    unpack "${tardir}/$tarname"
+
+    cd "$srcdir"
+
+    # Set sane permissions
+    chmod -R u+w,go-w,a+rX-s .
+
+    rm -rf BUILD
+    mkdir BUILD
+    cd BUILD
+
+    CPPFLAGS="$QICPPFLAGS" CFLAGS="$QICFLAGS" LDFLAGS="$QILDFLAGS" \
+    meson setup $configure_args \
+     --libdir=/usr/lib \
+     -Dintel=enabled \
+     --buildtype=release \
+     --strip \
+     -Dudev=true \
+     -Dcairo-tests=disabled \
+     -Dvalgrind=disabled \
+     ..
+
+    ninja -j${jobs}
+    DESTDIR="$destdir" ninja -j${jobs} install
+
+    cd ../
+}

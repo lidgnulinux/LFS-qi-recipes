@@ -1,0 +1,60 @@
+# Build recipe for vala.
+#
+# Exit immediately on any error
+set -e
+
+program=vala
+version=0.56.18
+release=0
+
+# Define a category for the output of the package name
+pkgcategory=devel
+
+tarname=${program}-${version}.tar.xz
+
+# Remote source(s)
+fetch="https://download.gnome.org/sources/vala/${version%.*}/$tarname"
+
+description="
+Compiler using the GObject type system.
+
+Vala is a programming language using modern high level abstractions
+without imposing additional runtime requirements and without using a
+different ABI compared to applications and libraries written in C.
+
+Vala uses the GObject type system and has additional code generation
+routines that make targeting the GNOME stack simple.  Vala has many
+other uses where native binaries are required.
+"
+
+homepage=https://wiki.gnome.org/Projects/Vala
+license=LGPLv2.1
+
+docsdir="${docdir}/${program}-${version}"
+
+build()
+{
+    unpack "${tardir}/$tarname"
+
+    cd "$srcdir"
+
+    # Set sane permissions
+    chmod -R u+w,go-w,a+rX-s .
+
+    # Note: --enable-valadoc requires Graphviz
+
+    patch -p1 < "${worktree}/0001-posix-Define-_XOPEN_SOURCE-_GNU_SOURCE-for-signal-fu.patch"
+
+    ./configure CPPFLAGS="$QICPPFLAGS" CFLAGS="$QICFLAGS" \
+    LDFLAGS="$QILDFLAGS" \
+     $configure_args \
+     --infodir=$infodir \
+     --mandir=$mandir \
+     --docdir=$docsdir \
+     --disable-valadoc \
+     --build="$(gcc -dumpmachine)"
+
+    make -j2 V=1
+    make -j2 V=1 DESTDIR="$destdir" install
+
+}

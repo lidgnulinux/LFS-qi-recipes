@@ -1,0 +1,38 @@
+# Build recipe for x264.
+#
+
+# Exit immediately on any error
+set -e
+
+program=x264
+version=0.164_git20231001
+_gitrev=31e19f92f00c7003fa115047ce50978bc98c3a0d
+release=0
+description="Free library for encoding H264/AVC video streams"
+homepage="https://www.videolan.org/developers/x264.html"
+license="GPL-2.0-or-later"
+
+tarname=x264-$_gitrev.tar.gz
+fetch="https://code.videolan.org/videolan/x264/-/archive/$_gitrev/$tarname"
+
+srcdir=$program-$_gitrev
+
+build() 
+{
+	unpack "${tardir}/$tarname"
+	
+	cd "$srcdir"
+	
+	# Set sane permissions
+	chmod -R u+w,go-w,a+rX-s .
+
+	./configure \
+		--prefix=/usr \
+		--enable-lto \
+		--enable-shared \
+		--enable-static \
+		--enable-pic
+
+	make 
+	make DESTDIR="$destdir" bindir=/usr/bin libdir=/usr/lib includedir=/usr/include install 
+}

@@ -1,0 +1,36 @@
+# Build recipe for enca.
+#
+
+# Exit immediately on any error
+set -e
+
+program=enca
+version=1.19
+release=0
+description="Charset analyser and converter"
+homepage="http://freshmeat.net/projects/enca/"
+license="GPL-2.0-only"
+
+tarname=$program-$version.tar.xz
+fetch="http://dl.cihar.com/enca/$tarname"
+
+build() 
+{
+	unpack "${tardir}/$tarname"
+	
+	cd "$srcdir"
+	
+	# Set sane permissions
+	chmod -R u+w,go-w,a+rX-s .
+
+	./configure \
+		--prefix=/usr \
+		--sysconfdir=/etc \
+		--mandir=/usr/share/man \
+		--infodir=/usr/share/info \
+		--libexecdir=/usr/libexec \
+		--enable-external
+
+	make 
+	make DESTDIR="$destdir" install 
+}

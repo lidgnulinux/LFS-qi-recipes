@@ -1,0 +1,47 @@
+# Build recipe for geoclue.
+#
+
+# Exit immediately on any error
+set -e
+
+program=geoclue
+version=2.7.2
+pkgver=2.7.2
+release=0
+description="dbus geolocation service"
+homepage="https://gitlab.freedesktop.org/geoclue/geoclue/-/wikis/home"
+license="LGPL-2.1-or-later"
+
+tarname=geoclue-$pkgver.tar.bz2
+fetch="https://gitlab.freedesktop.org/geoclue/geoclue/-/archive/$pkgver/$tarname"
+
+build() 
+{
+	unpack "${tardir}/$tarname"
+	
+	cd "$srcdir"
+	
+	# Set sane permissions
+	chmod -R u+w,go-w,a+rX-s .
+
+	rm -rf BUILD
+	mkdir BUILD
+	cd BUILD
+	
+	CPPFLAGS="$QICPPFLAGS" CFLAGS="$QICFLAGS" LDFLAGS="$QILDFLAGS" \
+	meson setup $configure_args \
+		-Ddbus-srv-user=geoclue \
+		-Ddbus-sys-dir=/usr/share/dbus-1/system.d \
+		-Dgtk-doc=false \
+		-Dintrospection=true \
+		-D3g-source=false \
+		-Dmodem-gps-source=false \
+		-Dnmea-source=false \
+		-Dcdma-source=false \
+		..
+	
+	ninja -j2
+	DESTDIR="$destdir" ninja -j2 install
+	
+	cd ..
+}

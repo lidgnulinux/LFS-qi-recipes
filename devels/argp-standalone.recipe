@@ -1,0 +1,39 @@
+# Build recipe for argp-standalone.
+#
+# Exit immediately on any error
+set -e
+
+program=argp-standalone
+version=1.5.0
+release=0
+description="Hierarchial argument parsing library broken out from glibc"
+homepage="http://www.lysator.liu.se/~nisse/misc/"
+license="LGPL-2.1-or-later"
+
+tarname=$version.tar.gz
+fetch="https://github.com/argp-standalone/argp-standalone/archive/refs/tags/$tarname"
+
+build() 
+{
+	unpack "${tardir}/$tarname"
+	
+	cd "$srcdir"
+	
+	# Set sane permissions
+	chmod -R u+w,go-w,a+rX-s .
+
+	patch -p1 < ${worktree}/gnu89-inline.patch
+
+	autoreconf -vif
+	./configure \
+		--prefix=/usr \
+		--sysconfdir=/etc \
+		--mandir=/usr/share/man \
+		--infodir=/usr/share/info
+
+	make 
+	make DESTDIR="$destdir" install 
+
+	install -D -m644 argp.h "$destdir"/usr/include/argp.h
+	install -D -m755 libargp.a "$destdir"/usr/lib/libargp.a
+}

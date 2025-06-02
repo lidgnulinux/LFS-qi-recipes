@@ -1,0 +1,39 @@
+# Build recipe for xfconf.
+#
+
+# Exit immediately on any error
+set -e
+
+program=xfconf
+version=4.20.0
+release=1
+description="Hierarchical configuration system for Xfce"
+homepage="https://xfce.org/"
+license="GPL-2.0-only"
+
+tarname=xfconf-$version.tar.bz2
+fetch="https://archive.xfce.org/xfce/4.20/src/$tarname"
+
+build() 
+{
+	unpack "${tardir}/$tarname"
+	
+	cd "$srcdir"
+	
+	# Set sane permissions
+	chmod -R u+w,go-w,a+rX-s .
+
+	./configure \
+		--prefix=/usr \
+		--libdir=/usr/lib \
+		--sysconfdir=/etc \
+		--libexecdir=/usr/lib \
+		--localstatedir=/var \
+		--enable-introspection \
+		--enable-vala \
+		--disable-static \
+		--disable-gtk-doc
+
+	make 
+	make DESTDIR="$destdir" install 
+}

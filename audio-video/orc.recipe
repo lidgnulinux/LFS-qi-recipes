@@ -1,0 +1,39 @@
+# Build recipe for orc.
+#
+
+# Exit immediately on any error
+set -e
+
+program=orc
+version=0.4.40
+release=0
+description="Oil Run-time Compiler"
+homepage="https://gstreamer.freedesktop.org/modules/orc.html"
+license="BSD-2-Clause"
+
+tarname=orc-$version.tar.xz
+fetch="https://gstreamer.freedesktop.org/src/orc/$tarname"
+
+build() 
+{
+	unpack "${tardir}/$tarname"
+	
+	cd "$srcdir"
+	
+	# Set sane permissions
+	chmod -R u+w,go-w,a+rX-s .
+
+	rm -rf BUILD
+	mkdir BUILD
+	cd BUILD
+	
+	CPPFLAGS="$QICPPFLAGS" CFLAGS="$QICFLAGS" LDFLAGS="$QILDFLAGS" \
+	meson setup $configure_args \
+		-Dorc-test=disabled \
+		..
+	
+	ninja -j2
+	DESTDIR="$destdir" ninja -j2 install
+	
+	cd ..
+}

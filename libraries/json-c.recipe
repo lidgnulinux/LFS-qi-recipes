@@ -1,0 +1,70 @@
+# Build recipe for json-c.
+#
+# Exit immediately on any error
+set -e
+
+program=json-c
+version=0.18-20240915
+release=0
+
+# Define a category for the output of the package name
+pkgcategory=libs
+
+tarname=${program}-${version}.tar.gz
+
+# Remote source(s)
+fetch=https://github.com/json-c/json-c/archive/refs/tags/$tarname
+
+description="
+The C library for parsing and manipulating strings in JSON format.
+
+JSON-C implements a reference counting object model that allows you to easily
+construct JSON objects in C, output them as JSON formatted strings and parse
+JSON formatted strings back into the C representation of JSON objects. It aims
+to conform to RFC 7159.
+"
+
+homepage=https://github.com/json-c/json-c
+license=MIT
+
+# Source documentation
+docs="COPYING README.md"
+docsdir="${docdir}/${program}-${version}"
+
+# The source has a custom directory name
+srcdir=${program}-json-c-${version}
+
+build()
+{
+    unpack "${tardir}/$tarname"
+
+    cd "$srcdir"
+
+    # Set sane permissions
+    chmod -R u+w,go-w,a+rX-s .
+
+    rm -rf BUILD
+    mkdir BUILD
+    cd BUILD
+
+    cmake -DCMAKE_BUILD_TYPE=Release \
+     -DCMAKE_C_FLAGS="$QICFLAGS"                                           \
+     -DCMAKE_SHARED_LINKER_FLAGS="$QILDFLAGS"                              \
+     -DCMAKE_STATIC_LINKER_FLAGS="$QILDFLAGS"                              \
+     -DCMAKE_INSTALL_PREFIX=/usr                                           \
+     -DCMAKE_INSTALL_LIBDIR=lib${libSuffix}                                \
+     -DCMAKE_INSTALL_MANDIR=$mandir                                        \
+     -DCMAKE_INSTALL_DOCDIR=$docsdir                                       \
+     -DBUILD_SHARED_LIBS=ON                                                \
+     -DBUILD_STATIC_LIBS=ON                                                \
+     -DBUILD_TESTING=OFF                                                   \
+     -DENABLE_THREADING=OFF                                                \
+     -G Ninja ..
+
+	#TODO: build docs when Dragora will have doxygen
+
+    ninja -j${jobs}
+    DESTDIR="$destdir" ninja -j${jobs} install
+
+    cd ../
+}

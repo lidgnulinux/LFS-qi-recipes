@@ -1,0 +1,84 @@
+# Build recipe for xorg-server.
+#
+# Exit immediately on any error
+set -e
+
+program=xorg-server
+version=21.1.16
+release=0
+
+# Define a category for the output of the package name
+pkgcategory=xorg_xserver
+
+tarname=${program}-${version}.tar.xz
+
+# Remote source(s)
+fetch=https://www.x.org/releases/individual/xserver/$tarname
+
+description="
+A portable, network-transparent Window System.
+
+The X Window System is a network transparent window system which
+runs on a wide range of computing and graphics machines.
+"
+
+homepage=https://www.x.org
+license="MIT X Consortium"
+jobs=4
+
+build()
+{
+	unpack "${tardir}/$tarname"
+	
+	cd "$srcdir"
+	
+	# Set sane permissions
+	chmod -R u+w,go-w,a+rX-s .
+	
+	sed -i -e 's/termio.h/termios.h/' hw/xfree86/os-support/xf86_OSlib.h
+
+	rm -rf BUILD
+	mkdir BUILD
+	cd BUILD
+	
+	export CFLAGS="${CFLAGS/-fno-plt}"
+	export CXXFLAGS="${CXXFLAGS/-fno-plt}"
+	export LDFLAGS="$LDFLAGS -Wl,-z,lazy"
+	_fontroot="/usr/share/fonts"
+
+	meson setup $configure_args \
+		-Db_lto=true \
+		-Dxorg=true \
+		-Dxephyr=true \
+		-Dglamor=true \
+		-Dxnest=true \
+		-Dxvfb=true \
+		-Dxwin=false \
+		-Ddefault_font_path=$_fontroot/misc,$_fontroot/100dpi:unscaled,$_fontroot/75dpi:unscaled,$_fontroot/TTF,$_fontroot/Type1 \
+		-Dglx=true \
+		-Dxdmcp=true \
+		-Dxdm-auth-1=true \
+		-Dxcsecurity=true \
+		-Dsecure-rpc=false \
+		-Dipv6=true \
+		-Dxkb_dir=/usr/share/X11/xkb \
+		-Dxkb_output_dir=/var/lib/xkb \
+		-Dlisten_tcp=false \
+		-Dlisten_unix=true \
+		-Dlisten_local=true \
+		-Dsuid_wrapper=true \
+		-Dpciaccess=true \
+		-Dudev=true \
+		-Dhal=false \
+		-Dsystemd_logind=false \
+		-Ddpms=true \
+		-Ddri1=false \
+		-Ddri2=true \
+		-Ddri3=true \
+		..
+	
+	ninja -j${jobs}
+	DESTDIR="$destdir" ninja -j${jobs} install
+	
+	cd ..
+}

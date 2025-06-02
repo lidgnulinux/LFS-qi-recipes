@@ -1,0 +1,62 @@
+# Build recipe for libarchive.
+#
+# Exit immediately on any error
+set -e
+
+program=libarchive
+version=3.7.9
+release=0
+
+# Define a category for the output of the package name
+pkgcategory=libs
+
+tarname=${program}-${version}.tar.xz
+
+# Remote source(s)
+fetch=https://libarchive.org/downloads/$tarname
+
+description="
+Multi-format archive and compression library.
+
+The libarchive project develops a portable, efficient C library that
+can read and write streaming archives in a variety of formats.
+
+It also includes implementations of the common tar, cpio, and zcat
+command-line tools that use the libarchive library.
+"
+
+homepage=http:/libarchive.org
+license=BSD
+
+# Source documentation
+docs="COPYING NEWS README.md"
+docsdir="${docdir}/${program}-${version}"
+
+build()
+{
+    unpack "${tardir}/$tarname"
+
+    cd "$srcdir"
+
+    # Set sane permissions
+    chmod -R u+w,go-w,a+rX-s .
+
+    # Configure to make use of Expat and Nettle (instead of *ssl)
+
+    ./configure \
+    CPPFLAGS="$QICPPFLAGS" CFLAGS="$QICFLAGS" LDFLAGS="$QILDFLAGS" \
+     $configure_args \
+     --mandir=$mandir \
+     --docdir=$docsdir \
+     --enable-static=no \
+     --enable-shared=yes \
+     --without-xml2 \
+     --without-openssl \
+     --with-nettle \
+     --build="$(gcc -dumpmachine)"
+
+    make -j${jobs} V=1
+    make -j${jobs} DESTDIR="$destdir" install
+
+    rmdir "${destdir}/usr/bin" 2> /dev/null || true;
+}

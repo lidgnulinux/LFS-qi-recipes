@@ -1,0 +1,41 @@
+# Build recipe for hwdata.
+#
+# Exit immediately on any error
+set -e
+
+program=hwdata
+version=0.382
+release=0
+
+# Define a category for the output of the package name
+pkgcategory=cli-tool
+
+tarname=v${version}.tar.gz
+
+# Remote source(s)
+fetch=https://github.com/vcrhonek/hwdata/archive/refs/tags/$tarname
+
+description="Hardware identification and configuration data"
+
+homepage=https://github.com/vcrhonek/hwdata
+license="GPL-2.0-or-later OR XFree86-1.1"
+
+srcdir=${program}-${version}
+
+build()
+{
+    unpack "${tardir}/$tarname"
+
+    cd "$srcdir"
+
+    # Set sane permissions
+    chmod -R u+w,go-w,a+rX-s .
+	
+    ./configure \
+	--prefix=/usr \
+	--sysconfdir=/etc \
+	--datadir=/usr/share \
+	--disable-blacklist
+    
+    make DESTDIR="$destdir" install
+}

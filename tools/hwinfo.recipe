@@ -1,0 +1,33 @@
+# Build recipe for hwinfo.
+#
+# Exit immediately on any error
+set -e
+
+program=hwinfo
+version=23.4
+release=0
+description="Hardware information tool"
+homepage="https://github.com/openSUSE/hwinfo"
+license="GPL-2.0-or-later"
+
+tarname=$version.tar.gz
+fetch="https://github.com/openSUSE/hwinfo/archive/$tarname"
+
+build() 
+{
+	unpack "${tardir}/$tarname"
+	
+	cd "$srcdir"
+	
+	# Set sane permissions
+	chmod -R u+w,go-w,a+rX-s .
+
+	echo 'touch changelog' > git2log
+	sed -i '/linux\/fs.h/d' src/hd/hd.c
+
+	make -j1 HWINFO_VERSION="$version" LIBDIR=/usr/lib
+	make DESTDIR="$destdir" LIBDIR=/usr/lib install
+
+	mv "$destdir/usr/sbin" "$destdir/usr/bin"
+	rmdir "$destdir/sbin"
+}

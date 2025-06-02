@@ -1,0 +1,42 @@
+# Build recipe for bmake.
+#
+# Exit immediately on any error
+set -e
+
+program=bmake
+version=20250414
+release=0
+description="Portable version of the NetBSD make build tool"
+homepage="https://www.crufty.net/help/sjg/bmake.html"
+license="BSD-2-Clause"
+
+tarname=bmake-$version.tar.gz
+fetch="https://www.crufty.net/ftp/pub/sjg/$tarname"
+
+srcdir=bmake
+export MAKEFLAGS="-j${JOBS:-1}"
+
+build() 
+{
+	unpack "${tardir}/$tarname"
+	
+	cd "$srcdir"
+	
+	# Set sane permissions
+	chmod -R u+w,go-w,a+rX-s .
+
+	sed -i unit-tests/Makefile \
+		-e "/deptgt-delete_on_error/d"
+
+	sh ./boot-strap --with-default-sys-path=/usr/share/mk op=build
+
+	sh ./boot-strap --prefix=/usr --with-mksrc=/usr/share/mk \
+			--install-destdir="$destdir" op=install
+
+	rm -rf "$destdir"/usr/share/man/cat1
+	install -Dm644 bmake.1 \
+		"$destdir"/usr/share/man/man1/bmake.1
+
+	install -Dm644 README ChangeLog \
+		-t "$destdir"/usr/share/doc/$pkgname/
+}

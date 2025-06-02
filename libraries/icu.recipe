@@ -1,0 +1,101 @@
+# Build recipe for icu.
+#
+# Copyright (c) 2019-2022 Matias Fonzo, <selk@dragora.org>.
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#    http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
+# Exit immediately on any error
+set -e
+
+program=icu4c
+version=76_1
+release=1
+
+# Set custom name and custom version for the package
+pkgname=icu
+pkgversion="$(echo $version | tr _ .)"
+
+# Define a category for the output of the package name
+pkgcategory=libs
+
+tarname=${program}-${version}-src.tgz
+
+# Remote source(s)
+fetch="https://github.com/unicode-org/icu/releases/download/release-$(printf $version | tr _ -)/$tarname"
+
+description="
+International Components for Unicode.
+
+The International Components for Unicode (icu) package is a mature,
+widely used set of C/C++ libraries providing Unicode and
+Globalization support for software applications. ICU is widely
+portable and gives applications the same results on all platforms.
+"
+
+homepage=https://site.icu-project.org
+license="ICU License"
+
+# Source documentation
+docs="LICENSE icu4c.css license.html readme.html"
+docsdir="${docdir}/${program}-${version}"
+
+# The source has a custom source directory
+srcdir=icu
+jobs=2
+
+build()
+{
+    unpack "${tardir}/$tarname"
+
+    cd "${srcdir}"/source
+
+    # Set sane permissions
+    chmod -R u+w,go-w,a+rX-s .
+
+    ./configure CC=gcc CXX=g++ \
+     CPPFLAGS="$QICPPFLAGS" \
+     CFLAGS="$QICFLAGS" CXXFLAGS="$QICXXFLAGS" LDFLAGS="$QILDFLAGS" \
+     $configure_args \
+     --mandir=$mandir \
+     --docdir=$docsdir \
+     --enable-static=no \
+     --enable-shared=yes \
+     --enable-icu-config \
+     --disable-tests \
+     --build="$(gcc -dumpmachine)"
+
+    make -j${jobs} V=1
+    make -j${jobs} DESTDIR="$destdir" install
+
+    # Copy documentation
+
+    cd ../
+
+    mkdir -p "${destdir}/$docsdir"
+    cp -p $docs "${destdir}/$docsdir"
+
+    # Compress and link man pages (if needed)
+    if test -d "${destdir}/$mandir"
+    then
+        (
+            cd "${destdir}/$mandir"
+            find . -type f -exec lzip -9 {} +
+            find . -type l | while read -r file
+            do
+                ln -sf "$(readlink -- "$file").lz" "${file}.lz"
+                rm -- "$file"
+            done
+        )
+    fi
+}
+

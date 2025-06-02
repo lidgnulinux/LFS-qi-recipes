@@ -1,0 +1,38 @@
+# Build recipe for libsass.
+#
+
+# Exit immediately on any error
+set -e
+
+program=libsass
+version=3.6.6
+release=0
+description="C/C++ implementation of a Sass compiler"
+homepage="https://sass-lang.com/libsass"
+license="MIT"
+
+tarname=$version.tar.gz
+fetch="https://github.com/sass/libsass/archive/$tarname"
+
+srcdir=
+
+build() 
+{
+	unpack "${tardir}/$tarname"
+	
+	cd "$srcdir"
+	
+	# Set sane permissions
+	chmod -R u+w,go-w,a+rX-s .
+
+	patch -p1 < "${worktree}/fix-pkgconfig-version.patch" 
+
+	autoreconf -vif
+	./configure \
+		--libdir=/usr/lib \
+		--disable-static \
+		--prefix=/usr
+
+	make -j2 
+	make DESTDIR="$destdir" install 
+}

@@ -1,0 +1,106 @@
+# Build recipe for GTK+3.
+#
+# Exit immediately on any error
+set -e
+
+program=gtk+
+version=3.24.49
+release=0
+
+# Define a category for the output of the package name
+pkgcategory=x-libs
+
+# Difference package name with other series
+pkgname=gtk3
+
+tarname=gtk-${version}.tar.xz
+
+# Remote source(s)
+fetch="https://download.gnome.org/sources/gtk/${version%.*}/$tarname"
+
+description="
+The version 3 of the GTK+ toolkit.
+
+The GTK+3 package contains libraries used for creating graphical
+user interfaces for applications.
+"
+
+homepage=https://www.gtk.org
+license=GPLv2+
+
+# Copy documentation
+docs="CONTRIBUTING.md COPYING NEWS README.md"
+docsdir="${docdir}/${pkgname}-${version}"
+srcdir=gtk-$version
+
+build()
+{
+    unpack "${tardir}/$tarname"
+
+    cd "$srcdir"
+
+    # Set sane permissions
+    chmod -R u+w,go-w,a+rX-s .
+
+    # Set default backends, detect CUPS
+    print_backends=file,lpr
+
+    if type cupsd
+    then
+        print_backends=file,lpr,cups
+    fi
+
+    rm -rf BUILD
+    mkdir BUILD
+    cd BUILD
+
+    CPPFLAGS="$QICPPFLAGS" CFLAGS="$QICFLAGS" LDFLAGS="$QILDFLAGS" \
+    meson setup $configure_args \
+     --mandir=$mandir \
+     --libdir=/usr/lib \
+     --buildtype=release \
+     --strip \
+     -Dcolord=no \
+     -Dgtk_doc=false \
+     -Dman=false \
+     -Dtests=false \
+     -Dx11_backend=true \
+     -Dbroadway_backend=true \
+     -Dwayland_backend=true \
+     -Dxinerama=yes \
+     -Dprint_backends="$print_backends" \
+     ..
+
+    unset -v print_backends
+    ninja -j${jobs}
+    DESTDIR="$destdir" ninja -j${jobs} install
+
+    cd ..
+
+    # Add a basic configuration
+cat << EOF > "${destdir}/etc/gtk-3.0/gtkrc"
+gtk-theme-name = "gnome"
+
+EOF
+
+    # Manage dot new file(s) via graft(8)
+    touch "${destdir}/etc/gtk-3.0/.graft-config"
+
+    # Compress and link man pages (if needed)
+    if test -d "${destdir}/$mandir"
+    then
+        (
+            cd "${destdir}/$mandir"
+            find . -type f -exec lzip -9 {} +
+            find . -type l | while read -r file
+            do
+                ln -sf "$(readlink -- "$file").lz" "${file}.lz"
+                rm -- "$file"
+            done
+        )
+    fi
+
+    # Copy documentation
+    mkdir -p "${destdir}/$docsdir"
+    cp -p $docs "${destdir}/$docsdir"
+}

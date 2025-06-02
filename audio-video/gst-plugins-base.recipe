@@ -1,0 +1,44 @@
+# Build recipe for gst-plugins-base.
+#
+
+# Exit immediately on any error
+set -e
+
+program=gst-plugins-base
+version=1.26.0
+release=0
+description="GStreamer streaming media framework base plug-ins"
+homepage="https://gstreamer.freedesktop.org"
+license="GPL-2.0-or-later AND LGPL-2.0-or-later"
+
+tarname=gst-plugins-base-$version.tar.xz
+fetch="https://gstreamer.freedesktop.org/src/gst-plugins-base/$tarname"
+
+ldpath="/usr/lib/gstreamer-1.0"
+
+build() 
+{
+	unpack "${tardir}/$tarname"
+	
+	cd "$srcdir"
+	
+	# Set sane permissions
+	chmod -R u+w,go-w,a+rX-s .
+
+	rm -rf BUILD
+	mkdir BUILD
+	cd BUILD
+	
+	CPPFLAGS="$QICPPFLAGS" CFLAGS="$QICFLAGS" LDFLAGS="$QILDFLAGS" \
+	meson setup $configure_args \
+		-Dalsa=enabled \
+		-Dintrospection=enabled \
+		-Dpackage-name="GStreamer base plug-ins (Linux From Scratch)" \
+		-Dtests="disabled" \
+		..
+	
+	ninja -j2
+	DESTDIR="$destdir" ninja -j2 install
+	
+	cd ..
+}

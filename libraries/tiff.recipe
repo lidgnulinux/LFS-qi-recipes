@@ -1,0 +1,57 @@
+# Build recipe for tiff.
+#
+# Exit immediately on any error
+set -e
+
+program=tiff
+version=4.7.0
+release=0
+
+# Define a category for the output of the package name
+pkgcategory=libs
+
+tarname=${program}-${version}.tar.gz
+
+# Remote source(s)
+fetch=https://download.osgeo.org/libtiff/$tarname
+
+description="
+TIFF library and utilities.
+
+The tiff package contains the TIFF libraries and associated utilities.
+The libraries are used by many programs for reading and writing TIFF
+files and the utilities are useful for general work with TIFF files.
+"
+
+homepage=https://www.simplesystems.org/libtiff/
+license=Custom
+
+# Source documentation (already copied by the build system)
+docsdir="${docdir}/${program}-${version}"
+jobs=2
+
+build()
+{
+    unpack "${tardir}/$tarname"
+
+    cd "$srcdir"
+
+    # Set sane permissions
+    chmod -R u+w,go-w,a+rX-s .
+
+    ./configure \
+    CPPFLAGS="$QICPPFLAGS" CFLAGS="$QICFLAGS" CXXFLAGS="$QICXXFLAGS" \
+    LDFLAGS="$QILDFLAGS" \
+     $configure_args \
+     --mandir=$mandir \
+     --docdir=$docsdir \
+     --enable-static=yes \
+     --enable-shared=yes \
+     --enable-cxx \
+     --enable-zstd \
+     --enable-lzma \
+     --build="$(gcc -dumpmachine)"
+
+    make -j${jobs} V=1
+    make -j${jobs} DESTDIR="$destdir" install
+}

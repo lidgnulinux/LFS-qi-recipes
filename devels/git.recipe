@@ -1,0 +1,66 @@
+# Build recipe for git.
+#
+# Exit immediately on any error
+set -e
+
+program=git
+version=2.49.0
+release=0
+
+# Define a category for the output of the package name
+pkgcategory=devel
+
+tarname=${program}-${version}.tar.xz
+tarname_manpages=${program}-manpages-${version}.tar.gz
+
+# Remote source(s)
+fetch="https://mirrors.edge.kernel.org/pub/software/scm/git/$tarname"
+
+description="
+A fast, scalable, distributed revision control system.
+
+Git is a fast, scalable, distributed revision control system with an
+unusually rich command set that provides both high-level operations
+and full access to internals.
+
+Git is an Open Source project covered by the GNU General Public
+License version 2 (some parts of it are under different licenses,
+compatible with the GPLv2). It was originally written by Linus
+Torvalds with help of a group of hackers around the net.
+"
+
+homepage=https://www.git-scm.org
+license="GPLv2 only, LGPLv2.1"
+
+# Source documentation
+docs="COPYING LGPL-2.1 README*"
+docsdir="${docdir}/${program}-${version}"
+
+build()
+{
+    unpack "${tardir}/$tarname"
+
+    cd "$srcdir"
+
+    # Set sane permissions
+    chmod -R u+w,go-w,a+rX-s .
+
+    cat << EOF >> config.mak
+NEEDS_CRYPTO_WITH_SSL=1
+INSTALL_SYMLINKS=1
+EOF
+
+    ./configure CPPFLAGS="$QICPPFLAGS" CFLAGS="$QICFLAGS" \
+    LDFLAGS="$QILDFLAGS" \
+     $configure_args \
+     --mandir=$mandir \
+     --docdir=$docsdir \
+     --with-libpcre2 \
+     --with-tcltk \
+     --with-python=python3 \
+     --build="$(gcc -dumpmachine)"
+
+    make -j${jobs} V=1 INSTALLDIRS=vendor
+    make -j${jobs} V=1 INSTALLDIRS=vendor \
+     DESTDIR="$destdir" install
+}

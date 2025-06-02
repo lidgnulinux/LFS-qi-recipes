@@ -1,0 +1,37 @@
+# Build recipe for jbig2dec.
+#
+
+# Exit immediately on any error
+set -e
+
+program=jbig2dec
+version=0.20
+release=0
+description="JBIG2 image compression format decoder"
+homepage="https://jbig2dec.com/"
+license="AGPL-3.0-or-later"
+
+tarname=jbig2dec-$version.tar.gz
+fetch="https://github.com/ArtifexSoftware/jbig2dec/releases/download/$version/$tarname"
+
+build() 
+{
+	unpack "${tardir}/$tarname"
+	
+	cd "$srcdir"
+	
+	# Set sane permissions
+	chmod -R u+w,go-w,a+rX-s .
+
+	autoreconf -vif
+	./configure \
+		--prefix=/usr \
+		--sysconfdir=/etc \
+		--mandir=/usr/share/man \
+		--infodir=/usr/share/info \
+		--localstatedir=/var \
+		--without-libpng
+
+	make -j2 
+	make DESTDIR="$destdir" install 
+}

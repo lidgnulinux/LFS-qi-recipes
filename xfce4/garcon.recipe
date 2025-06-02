@@ -1,0 +1,39 @@
+# Build recipe for garcon.
+#
+
+# Exit immediately on any error
+set -e
+
+program=garcon
+version=4.20.0
+release=0
+description="a freedesktop.org compliant menu implementation based on GLib and GIO"
+homepage="https://xfce.org/"
+license="GPL-2.0-or-later"
+
+tarname=garcon-$version.tar.bz2
+fetch="https://archive.xfce.org/xfce/4.20/src/$tarname"
+
+build() 
+{
+	unpack "${tardir}/$tarname"
+	
+	cd "$srcdir"
+	
+	# Set sane permissions
+	chmod -R u+w,go-w,a+rX-s .
+
+	autoreconf -vif
+	./configure \
+		--prefix=/usr \
+		--libdir=/usr/lib \
+		--sysconfdir=/etc \
+		--libexecdir=/usr/libexec \
+		--localstatedir=/var \
+		--disable-static \
+		--enable-introspection \
+		--disable-gtk-doc
+
+	make -j2 
+	make DESTDIR="$destdir" install 
+}

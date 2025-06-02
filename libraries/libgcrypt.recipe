@@ -1,0 +1,52 @@
+# Build recipe for libgcrypt.
+#
+# Exit immediately on any error
+set -e
+
+program=libgcrypt
+version=1.10.3
+release=0
+
+# Define a category for the output of the package name
+pkgcategory=gnupg
+
+tarname=${program}-${version}.tar.bz2
+
+# Remote source(s)
+fetch=https://www.gnupg.org/ftp/gcrypt/libgcrypt/$tarname
+
+description="
+Basic cryptographic library.
+
+The libgcrypt package contains a general purpose crypto library
+based on the code used in GnuPG.
+"
+
+homepage=https://www.gnupg.org
+license="GPLv2+, LGPLv2.1"
+
+# Source documentation
+docs="AUTHORS COPYING* ChangeLog NEWS README* THANKS TODO VERSION"
+docsdir="${docdir}/${program}-${version}"
+
+build()
+{
+    unpack "${tardir}/$tarname"
+
+    cd "$srcdir"
+
+    # Set sane permissions
+    chmod -R u+w,go-w,a+rX-s .
+
+    ./configure CPPFLAGS="$QICPPFLAGS" \
+    CFLAGS="$QICFLAGS" LDFLAGS="$QILDFLAGS" \
+     $configure_args \
+     --infodir=$infodir \
+     --mandir=$mandir \
+     --docdir=$docsdir \
+     --disable-padlock-support \
+     --build="$(gcc -dumpmachine)"
+
+    make -j${jobs} V=1
+    make -j${jobs} DESTDIR="$destdir" install
+}

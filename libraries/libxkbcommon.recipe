@@ -1,0 +1,73 @@
+# Build recipe for libxkbcommon.
+#
+# Exit immediately on any error
+set -e
+
+program=libxkbcommon
+version=1.8.1
+release=0
+
+# Define a category for the output of the package name
+pkgcategory=xorg_extra
+
+tarname=xkbcommon-${version}.tar.gz
+
+# Remote source(s)
+fetch=https://github.com/xkbcommon/libxkbcommon/archive/refs/tags/$tarname
+
+description="
+xkbcommon is a library to handle keyboard descriptions.
+
+Including loading them from disk, parsing them and handling their
+state.  It's mainly meant for client toolkits, window systems,
+and other system applications; currently that includes Wayland,
+kmscon, GTK+, Clutter, and others.
+"
+
+homepage=https://xkbcommon.org/
+license="Custom (derivations from MIT/X11 license)"
+srcdir=libxkbcommon-xkbcommon-$version
+
+jobs=2
+
+build()
+{
+    unpack "${tardir}/$tarname"
+	
+    cd "$srcdir"
+
+    patch -p1 -i ${worktree}/allow-skip-test.patch
+
+    rm -rf BUILD
+    mkdir BUILD
+    cd BUILD
+
+    CPPFLAGS="$QICPPFLAGS" CFLAGS="$QICFLAGS" LDFLAGS="$QILDFLAGS" \
+    meson setup $configure_args \
+     --buildtype=release \
+     --strip \
+     -Denable-docs=false \
+     -Denable-wayland=true \
+     -Denable-x11=true \
+     -Ddefault_library=both \
+     ..
+
+    ninja -j${jobs}
+    DESTDIR="$destdir" ninja -j${jobs} install
+
+    cd ..
+
+    # Compress and link man pages (if needed)
+    if test -d "${destdir}/$mandir"
+    then
+        (
+            cd "${destdir}/$mandir"
+            find . -type f -exec lzip -9 {} +
+            find . -type l | while read -r file
+            do
+                ln -sf "$(readlink -- "$file").lz" "${file}.lz"
+                rm -- "$file"
+            done
+        )
+    fi
+}

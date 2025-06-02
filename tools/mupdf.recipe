@@ -1,0 +1,55 @@
+# Build recipe for mupdf.
+#
+
+# Exit immediately on any error
+set -e
+
+program=mupdf
+version=1.25.6
+release=1
+description="Lightweight PDF and XPS viewer"
+homepage="https://mupdf.com"
+license="AGPL-3.0-or-later"
+
+tarname=mupdf-$version-source.tar.gz
+fetch="https://mupdf.com/downloads/archive/$tarname"
+
+srcdir=$program-$version-source
+
+_make_flags="
+	build=release
+	shared=yes
+	USE_SYSTEM_LIBS=yes
+	USE_SYSTEM_MUJS=yes
+	USE_SYSTEM_GLUT=no
+	"
+
+build() 
+{
+	unpack "${tardir}/$tarname"
+	
+	cd "$srcdir"
+	
+	# Set sane permissions
+	chmod -R u+w,go-w,a+rX-s .
+
+	patch -p1 -i "${worktree}/mupdf-1.24.8-c23.patch"
+
+	local dir; for dir in thirdparty/*; do
+		case "${dir##*/}" in
+		extract|freeglut|lcms2) continue ;;
+		*) rm -rf $dir ;;
+		esac
+	done
+
+	make -j2 $_make_flags verbose=yes libs apps
+	make -j2 $_make_flags prefix=/usr DESTDIR="$destdir" install 
+
+	ln -s libmupdf.so.${version#*.} "$destdir"/usr/lib/libmupdf.so
+
+	install -D -m644 "${worktree}/$program.pc" -t "$destdir"/usr/lib/pkgconfig/
+	install -D -m755 "${worktree}/mupdf" -t "$destdir"/usr/bin/
+	install -D -m644 docs/logo/mupdf-logo.svg \
+		"$destdir"/usr/share/icons/hicolor/scalable/apps/$program.svg
+	desktop-file-install --dir="$destdir/usr/share/applications" "${worktree}"/$program.desktop
+}

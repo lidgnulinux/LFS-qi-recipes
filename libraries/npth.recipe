@@ -1,0 +1,54 @@
+# Build recipe for npth.
+#
+# Exit immediately on any error
+set -e
+
+program=npth
+version=1.6
+release=0
+
+# Define a category for the output of the package name
+pkgcategory=libs
+
+tarname=${program}-${version}.tar.bz2
+
+# Remote source(s)
+fetch=https://www.gnupg.org/ftp/gcrypt/npth/$tarname
+
+description="
+A new portable thread library.
+
+The npth package contains a very portable POSIX/ANSI-C based library
+for Unix platforms which provides non-preemptive priority-based
+scheduling for multiple threads of execution (multithreading) inside
+event-driven applications.  All threads run in the same address space
+of the server application, but each thread has its own individual
+program-counter, run-time stack, signal mask and errno variable.
+"
+
+homepage=https://www.gnupg.org
+license=LGPLv2+
+
+# Source documentation
+docs="AUTHORS COPYING.LIB ChangeLog NEWS README VERSION"
+docsdir="${docdir}/${program}-${version}"
+
+build()
+{
+    unpack "${tardir}/$tarname"
+
+    cd "$srcdir"
+
+    # Set sane permissions
+    chmod -R u+w,go-w,a+rX-s .
+
+    ./configure CPPFLAGS="$QICPPFLAGS" CFLAGS="$QICFLAGS" LDFLAGS="$QILDFLAGS" \
+     $configure_args \
+     --infodir=$infodir \
+     --mandir=$mandir \
+     --docdir=$docsdir \
+     --build="$(gcc -dumpmachine)"
+
+    make -j${jobs} V=1
+    make -j${jobs} DESTDIR="$destdir" install
+}

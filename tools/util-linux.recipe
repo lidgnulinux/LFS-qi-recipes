@@ -1,0 +1,72 @@
+# Build recipe for util-linux (final).
+#
+# Exit immediately on any error
+set -e
+
+program=util-linux
+version=2.41
+release=0
+
+# Define a category for the output of the package name
+pkgcategory=tools
+
+# The installation of this package replaces to
+replace=util-linux-pass1
+
+tarname=${program}-${version}.tar.xz
+
+# Remote source(s)
+fetch="https://www.kernel.org/pub/linux/utils/util-linux/v$version/$tarname"
+
+description="
+Suite of essential utilities.
+
+The util-linux package contains miscellaneous utility programs for
+handling file systems, consoles, partitions, and messages.
+"
+
+homepage=https://github.com/karelzak/util-linux
+license="GPLv2+, LGPLv2.1 | Public domain, BSD with advertising"
+
+# Source documentation
+docs="AUTHORS COPYING ChangeLog NEWS README*"
+docsdir="${docdir}/${program}-${version}"
+jobs=4
+
+build()
+{
+	unpack "${tardir}/$tarname"
+	
+	cd "$srcdir"
+	
+	# Set sane permissions
+	chmod -R u+w,go-w,a+rX-s .
+	
+	cp -r "${worktree}"/ttydefaults.h include/
+
+	patch -p1 -i "${worktree}"/utmps.patch	
+	patch -p1 -i "${worktree}"/libmount-fix-no-canonicalize-regression.patch
+
+	./configure \
+		--prefix=/usr \
+		--libdir=/usr/lib \
+		--runstatedir=/run    \
+		--sbindir=/usr/sbin   \
+		--disable-chfn-chsh   \
+		--disable-login       \
+		--disable-nologin     \
+		--disable-su          \
+		--disable-setpriv     \
+		--disable-runuser     \
+		--disable-pylibmount  \
+		--disable-liblastlog2 \
+		--disable-static      \
+		--without-python      \
+		--without-systemd     \
+		--without-systemdsystemunitdir        \
+		ADJTIME_PATH=/var/lib/hwclock/adjtime \
+		--docdir=/usr/share/doc/util-linux-2.41
+
+	make -j${jobs} V=1
+	make -j${jobs} DESTDIR="$destdir" install	
+}

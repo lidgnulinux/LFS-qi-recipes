@@ -1,0 +1,50 @@
+# Build recipe for libvpx.
+#
+# Exit immediately on any error
+set -e
+
+program=libvpx
+version=1.15.1
+release=0
+description="Library for the vp8/vp9 codecs"
+homepage="https://www.webmproject.org/"
+license="BSD-3-Clause"
+
+tarname=libvpx-v$version.tar.gz
+fetch="https://github.com/webmproject/libvpx/archive/v$version/$tarname"
+
+build() 
+{
+	unpack "${tardir}/$tarname"
+	
+	cd "$srcdir"
+	
+	# Set sane permissions
+	chmod -R u+w,go-w,a+rX-s .
+
+	patch -p1 -i ${worktree}/fix-double-free.patch
+
+	export CFLAGS="$CFLAGS -O2 -flto=auto -ffat-lto-objects"
+	export CXXFLAGS="$CXXFLAGS -O2 -flto=auto -ffat-lto-objects"
+	./configure \
+		--prefix=/usr \
+		--libdir=/usr/lib \
+		--disable-install-srcs \
+		--disable-static \
+		--enable-libs \
+		--enable-multithread \
+		--enable-pic \
+		--enable-postproc \
+		--enable-runtime-cpu-detect \
+		--enable-shared \
+		--enable-temporal-denoising \
+		--enable-unit-tests \
+		--enable-vp8 \
+		--enable-vp9 \
+		--enable-vp9-highbitdepth \
+		--enable-vp9-postproc \
+		--enable-vp9-temporal-denoising
+
+	make
+	make DESTDIR="$destdir" install
+}

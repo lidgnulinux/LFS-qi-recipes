@@ -1,0 +1,60 @@
+# Build recipe for xdg-user-dirs.
+#
+# Exit immediately on any error
+set -e
+
+program=xdg-user-dirs
+version=0.18
+release=0
+
+# Define a category for the output of the package name
+pkgcategory=xorg_extra
+
+tarname=${program}-${version}.tar.gz
+
+# Remote source(s)
+fetch=https://user-dirs.freedesktop.org/releases/$tarname
+
+description="
+A tool to help manage user directories like the Desktop folder.
+
+xdg-user-dirs is a tool to help manage \"well known\" user directories
+like the desktop folder and the music folder.  It also handles
+localization (i.e. translation) of the filenames.
+
+The way it works is that xdg-user-dirs-update is run very early in the
+login phase.  This program reads a configuration file, and a set of
+default directories.  It then creates localized versions of these
+directories in the users home directory and sets up a config file in
+\$(XDG_CONFIG_HOME)/user-dirs.dirs (XDG_CONFIG_HOME defaults to
+~/.config) that applications can read to find these directories.
+"
+
+homepage=https://freedesktop.org/wiki/Software/xdg-user-dirs
+license=GPLv2+
+
+# Source documentation
+docs="AUTHORS COPYING ChangeLog NEWS README TODO"
+docsdir="${docdir}/${program}-${version}"
+
+build()
+{
+    unpack "${tardir}/$tarname"
+
+    cd "$srcdir"
+
+    # Set sane permissions
+    chmod -R u+w,go-w,a+rX-s .
+
+    ./configure CPPFLAGS="$QICPPFLAGS" \
+    CFLAGS="$QICFLAGS" LDFLAGS="$QILDFLAGS" \
+     $configure_args \
+     --libdir=/usr/lib \
+     --mandir=$mandir \
+     --docdir=$docsdir \
+     --disable-documentation \
+     --build="$(gcc -dumpmachine)"
+
+    make -j${jobs} V=1
+    make -j${jobs} DESTDIR="$destdir" install
+}

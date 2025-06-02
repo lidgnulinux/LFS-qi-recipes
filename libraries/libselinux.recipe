@@ -1,0 +1,29 @@
+# Build recipe for libselinux.
+#
+# Exit immediately on any error
+set -e
+
+program=libselinux
+version=3.6
+release=0
+description="SELinux binary policy manipulation library"
+homepage="https://github.com/SELinuxProject/selinux/wiki"
+license="LGPL-2.0-or-later"
+
+tarname=libselinux-$version.tar.gz
+fetch="https://github.com/SELinuxProject/selinux/releases/download/$version/$tarname"
+
+build() 
+{
+	unpack "${tardir}/$tarname"
+	
+	cd "$srcdir"
+	
+	# Set sane permissions
+	chmod -R u+w,go-w,a+rX-s .
+
+	patch -p1 -i ${worktree}/lfs64.patch
+
+	make CFLAGS="-std=gnu17" SHLIBDIR="/usr/lib" FTS_LDLIBS="-lfts"
+	make SHLIBDIR="/usr/lib" DESTDIR="$destdir" install 
+}

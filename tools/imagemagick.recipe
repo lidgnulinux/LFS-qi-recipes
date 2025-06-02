@@ -1,0 +1,52 @@
+# Build recipe for imagemagick.
+#
+
+# Exit immediately on any error
+set -e
+
+program=imagemagick
+version=7.1.1.44
+_pkgver=${version%.*}-${version##*.}
+release=1
+description="Collection of tools and libraries for many image formats"
+homepage="https://imagemagick.org/"
+license="ImageMagick"
+
+tarname=ImageMagick-$_pkgver.tar.xz
+fetch="https://imagemagick.org/archive/releases/$tarname"
+
+srcdir=ImageMagick-$_pkgver
+
+build() 
+{
+	unpack "${tardir}/$tarname"
+	
+	cd "$srcdir"
+	
+	# Set sane permissions
+	chmod -R u+w,go-w,a+rX-s .
+
+	CFLAGS="$CFLAGS -O2" \
+	CXXFLAGS="$CXXFLAGS -O2" \
+	./configure \
+		--prefix=/usr \
+		--sysconfdir=/etc \
+		--mandir=/usr/share/man \
+		--infodir=/usr/share/info \
+		--enable-static \
+		--with-gslib \
+		--with-modules \
+		--with-perl \
+		--with-perl-options="INSTALLDIRS=vendor INSTALLVENDORARCH=/usr/lib/perl5/vendor_perl NO_PACKLIST=1 NO_PERLLOCAL=1" \
+		--with-png \
+		--with-threads \
+		--with-tiff \
+		--with-x \
+		--with-xml
+
+	make -j4 
+	make DESTDIR="$destdir" install 
+
+	# if you have perl 5.32.0, use this instead !
+	# make DESTDIR="$destdir" CCCDLFLAGS="-Doff64_t=off_t -fPIC" install 
+}

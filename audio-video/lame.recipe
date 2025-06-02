@@ -1,0 +1,48 @@
+# Build recipe for lame.
+#
+
+# Exit immediately on any error
+set -e
+
+program=lame
+version=3.100
+release=0
+description="An MP3 encoder and graphical frame analyzer"
+homepage="https://lame.sourceforge.net/"
+license="LGPL-2.0-or-later"
+
+tarname=$program-$version.tar.gz
+fetch="https://downloads.sourceforge.net/project/lame/lame/$version/$tarname"
+
+build() 
+{
+	unpack "${tardir}/$tarname"
+	
+	cd "$srcdir"
+	
+	# Set sane permissions
+	chmod -R u+w,go-w,a+rX-s .
+
+	mkdir -p libmp3lame/i386/.libs
+
+	# fix for pic build with new nasm
+	sed -i -e '/define sp/s/+/ + /g' libmp3lame/i386/nasm.h
+
+	patch -p1 < "${worktree}/id3tagfix.patch"
+
+	aclocal && automake --force --add-missing
+
+	./configure \
+		--prefix=/usr \
+		--enable-nasm \
+		--disable-mp3x \
+		--enable-shared \
+		--with-pic
+
+	make 
+	make DESTDIR="$destdir" install 
+
+	mkdir -p "$destdir/usr/lib/pkgconfig/"
+	sed "s|@PKGVER@|$version|" "${worktree}/lame.pc.in" \
+		> "$destdir/usr/lib/pkgconfig/lame.pc"
+}

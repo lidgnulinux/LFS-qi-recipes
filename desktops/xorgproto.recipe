@@ -1,0 +1,77 @@
+# Build recipe for xorgproto.
+#
+# Exit immediately on any error
+set -e
+
+program=xorgproto
+version=2024.1
+release=0
+
+# Define a category for the output of the package name
+pkgcategory=xorg_proto
+
+tarname=${program}-${version}.tar.gz
+
+# Remote source(s)
+fetch=https://www.x.org/releases/individual/proto/$tarname
+
+description="
+X Window System Unified Protocol.
+
+This package provides the headers and specification documents defining
+the core protocol and (many) extensions for the X Window System.  The
+extensions are those common among servers descended from X.Org 6.7.  It
+also includes a number of headers that aren't purely protocol related,
+but are depended upon by many other X Window System packages to provide
+common definitions and porting layer.
+"
+
+homepage=https://www.x.org
+license="MIT X Consortium"
+
+# Source documentation
+docs="AUTHORS COPYING* README.md"
+docsdir="${docdir}/${program}-${version}"
+jobs=2
+
+build()
+{
+    unpack "${tardir}/$tarname"
+
+    cd "$srcdir"
+
+    # Set sane permissions
+    chmod -R u+w,go-w,a+rX-s .
+
+    rm -rf BUILD
+    mkdir BUILD
+    cd BUILD
+
+    meson setup $configure_args -Dlegacy=true ..
+
+    ninja -j${jobs}
+    DESTDIR="$destdir" ninja -j${jobs} install
+
+    cd ..
+
+    # This is provided by 'xorg/lib/libXvMC' currently
+    rm "${destdir}/usr/include/X11/extensions/vldXvMC.h"
+
+    # Compress and link man pages (if needed)
+    if test -d "${destdir}/$mandir"
+    then
+        (
+            cd "${destdir}/$mandir"
+            find . -type f -exec lzip -9 {} +
+            find . -type l | while read -r file
+            do
+                ln -sf "$(readlink -- "$file").lz" "${file}.lz"
+                rm -- "$file"
+            done
+        )
+    fi
+
+    # Copy documentation
+    mkdir -p "${destdir}/$docsdir"
+    cp -p $docs "${destdir}/$docsdir"
+}

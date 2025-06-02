@@ -1,0 +1,74 @@
+# Build recipe for the berkeley-db.
+#
+# Exit immediately on any error
+set -e
+
+program=db
+version=5.3.28
+release=1
+
+# Define a category for the output of the package name
+pkgcategory=db
+
+pkgname=berkeley-db
+
+tarname=${program}-${version}.tar.gz
+
+# Remote source(s)
+fetch="https://download.oracle.com/berkeley-db/$tarname"
+
+description="
+Berkeley database library.
+
+Berkeley DB is a programmatic toolkit that provides embedded database
+support for client/server applications.
+"
+
+homepage=https://www.oracle.com/database/berkeley-db/index.html
+license=Custom
+
+# Source documentation
+docs="README LICENSE"
+docsdir="${docdir}/${program}-${version}"
+jobs=2
+
+build()
+{
+    unpack "${tardir}/$tarname"
+
+    cd "$srcdir"
+
+    # Set sane permissions
+    chmod -R u+w,go-w,a+rX-s .
+
+    patch -p1 < ${worktree}/atomic.patch
+    cp ${worktree}/config.sub dist/config.sub
+
+    cd build_unix
+    ../dist/configure CPPFLAGS="$QICPPFLAGS" CFLAGS="$QICFLAGS -fpermissive" CXXFLAGS="$QICXXFLAGS" \
+    LDFLAGS="$QILDFLAGS" \
+     $configure_args \
+     --enable-compat185 \
+     --enable-cxx \
+     --build="$(gcc -dumpmachine)"
+
+    make -j${jobs} V=1
+    make -j${jobs} DESTDIR="$destdir" install
+
+    # Huge size for the package
+    rm -rf "${destdir}/usr/docs"
+
+    # Strip remaining binaries and libraries
+    find "$destdir" -type f | xargs file | \
+     awk '/ELF/ && /executable/ || /shared object/' | \
+      cut -f 1 -d : | xargs strip --strip-unneeded 2> /dev/null || true
+
+    find "$destdir" -type f | xargs file | awk '/current ar archive/' | \
+     cut -f 1 -d : | xargs strip --strip-debug 2> /dev/null || true
+
+    cd ..
+
+    # Copy documentation
+    mkdir -p "${destdir}/$docsdir"
+    cp -p $docs "${destdir}/$docsdir"
+}

@@ -1,0 +1,21 @@
+# Build recipe for bsd-compat-headers.
+#
+
+# Exit immediately on any error
+set -e
+
+program=bsd-compat-headers
+version=0.7.2
+release=0
+description="BSD compatibility headers (cdefs, queue, tree)"
+homepage="https://gitlab.alpinelinux.org/alpine/aports"
+license="BSD-2-Clause AND BSD-3-Clause"
+
+build() 
+{
+	mkdir -p "${destdir}/usr/include/sys"
+	install -Dm644 -t "${destdir}/usr/include/sys" \
+		"${worktree}/bsd-compat-headers/cdefs.h" \
+		"${worktree}/bsd-compat-headers/queue.h" \
+		"${worktree}/bsd-compat-headers/tree.h"
+}

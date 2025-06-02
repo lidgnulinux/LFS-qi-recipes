@@ -1,0 +1,39 @@
+# Build recipe for luajit.
+#
+
+# Exit immediately on any error
+set -e
+
+program=luajit
+_program=luajit2
+version=2.1_p20240314
+_version=${version/_p/-}
+release=0
+description="OpenResty's branch of LuaJIT"
+homepage="https://github.com/openresty/luajit2"
+license="MIT"
+
+tarname=$_program-$_version.tar.gz
+fetch="https://github.com/openresty/luajit2/archive/v$_version/$tarname"
+
+srcdir=$_program-$_version
+
+build() 
+{
+	unpack "${tardir}/$tarname"
+	
+	cd "$srcdir"
+	
+	# Set sane permissions
+	chmod -R u+w,go-w,a+rX-s .
+
+	patch -p1 < "${worktree}/module-paths.patch"
+
+	export CFLAGS="${CFLAGS/-Os/-O2}"
+
+	# These flags are recommended by OpenResty.
+	local xcflags="-DLUAJIT_ENABLE_LUA52COMPAT -DLUAJIT_NUMMODE=2"
+
+	make amalg PREFIX=/usr XCFLAGS="$xcflags"
+	make install DESTDIR="$destdir" PREFIX=/usr
+}

@@ -1,0 +1,36 @@
+# Build recipe for glab.
+#
+# Exit immediately on any error
+set -e
+
+program=md2html
+version=2.0.1
+release=1
+description="Markdown to single HTML"
+pkgcategory=tools
+homepage=https://github.com/nocd5/md2html
+license="MIT License"
+
+zipname=md2html_linux_amd64.zip
+fetch="https://github.com/nocd5/md2html/releases/download/v2.0.1/$zipname"
+
+build()
+{
+    mkdir md2html
+    bsdunzip "${tardir}/$zipname" -d md2html
+
+    cd md2html
+
+    # Set sane permissions
+    chmod -R u+w,go-w,a+rX-s .
+
+    mkdir -p "$destdir"/usr/bin
+
+    # we need to change the interpreter, so it would run on musl.
+    patchelf --set-interpreter /lib/ld-musl-x86_64.so.1 md2html
+    patchelf --remove-needed ld-linux-x86_64.so.2 md2html
+
+    cp -r md2html "$destdir"/usr/bin
+    cd ..
+    rm -rf md2html
+}

@@ -1,0 +1,78 @@
+# Build recipe for json-glib.
+#
+# Exit immediately on any error
+set -e
+
+program=json-glib
+version=1.10.6
+release=0
+
+# Define a category for the output of the package name
+pkgcategory=libs
+
+tarname=${program}-${version}.tar.xz
+
+# Remote source(s)
+fetch=https://download.gnome.org/sources/json-glib/"${version%.*}"/$tarname
+
+description="
+JSON library implemented using Glib.
+
+The json-glib package is a library providing serialization and
+deserialization support for the JavaScript Object Notation
+(JSON) format described by RFC 4627.
+"
+
+homepage=https://wiki.gnome.org/Projects/JsonGlib
+license=LGPLv2+
+
+# Source documentation
+docs="CONTRIBUTING.md COPYING NEWS README.md"
+docsdir="${docdir}/${program}-${version}"
+
+build()
+{
+    unpack "${tardir}/$tarname"
+
+    cd "$srcdir"
+
+    # Set sane permissions
+    chmod -R u+w,go-w,a+rX-s .
+
+    rm -rf BUILD
+    mkdir BUILD
+    cd BUILD
+
+    CPPFLAGS="$QICPPFLAGS" CFLAGS="$QICFLAGS" LDFLAGS="$QILDFLAGS" \
+    meson setup $configure_args \
+     --libdir /usr/lib \
+     --buildtype=release \
+     --strip \
+     -Dman=false \
+     -Dtests=false \
+     ..
+
+    ninja -j${jobs}
+    DESTDIR="$destdir" ninja -j${jobs} install
+
+    cd ..
+
+    # Compress and link man pages (if needed)
+    if test -d "${destdir}/$mandir"
+    then
+        (
+            cd "${destdir}/$mandir"
+            find . -type f -exec lzip -9 {} +
+            find . -type l | while read -r file
+            do
+                ln -sf "$(readlink -- "$file").lz" "${file}.lz"
+                rm -- "$file"
+            done
+        )
+    fi
+
+    # Copy documentation
+    mkdir -p "${destdir}/$docsdir"
+    cp -p $docs "${destdir}/$docsdir"
+}
+

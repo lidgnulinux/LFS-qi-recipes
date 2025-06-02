@@ -1,0 +1,61 @@
+# Build recipe for libinput.
+#
+# Exit immediately on any error
+set -e
+
+program=libinput
+version=1.28.0
+release=0
+
+# Define a category for the output of the package name
+pkgcategory=xorg_extra
+
+tarname=${program}-${version}.tar.gz
+
+# Remote source(s)
+fetch=https://gitlab.freedesktop.org/libinput/libinput/-/archive/$version/$tarname
+
+description="
+Input device library.
+
+Library that handles input devices for display servers and other
+applications that need to directly deal with input devices.
+"
+
+homepage=https://www.x.org
+license="MIT X Consortium"
+
+# Source documentation
+docs="COPYING README.md"
+docsdir="${docdir}/${program}-${version}"
+jobs=2
+
+build()
+{
+    unpack "${tardir}/$tarname"
+
+    cd "$srcdir"
+
+    # Set sane permissions
+    chmod -R u+w,go-w,a+rX-s .
+
+    rm -rf BUILD
+    mkdir BUILD
+    cd BUILD
+
+    CPPFLAGS="$QICPPFLAGS" CFLAGS="$QICFLAGS" LDFLAGS="$QILDFLAGS" \
+    meson setup $configure_args \
+     --buildtype=release \
+     --strip \
+     -Dudev-dir=/lib/udev/ \
+     -Ddocumentation=false \
+     -Dtests=false \
+     -Dlibwacom=false \
+     -Ddebug-gui=false \
+     ..
+
+    ninja -j${jobs}
+    DESTDIR="$destdir" ninja -j${jobs} install
+
+    cd ..
+}

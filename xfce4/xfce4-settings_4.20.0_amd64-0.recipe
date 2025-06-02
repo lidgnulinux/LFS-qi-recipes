@@ -1,0 +1,40 @@
+# Build recipe for xfce4-settings.
+#
+
+# Exit immediately on any error
+set -e
+
+program=xfce4-settings
+version=4.20.0
+release=0
+description="Settings manager for xfce"
+homepage="https://xfce.org/"
+license="GPL-2.0-only"
+
+tarname=xfce4-settings-$version.tar.bz2
+fetch="https://archive.xfce.org/xfce/4.20/src/$tarname"
+
+build() 
+{
+	unpack "${tardir}/$tarname"
+	
+	cd "$srcdir"
+	
+	# Set sane permissions
+	chmod -R u+w,go-w,a+rX-s .
+
+	autoreconf -vif
+	./configure \
+		--prefix=/usr \
+		--libdir=/usr/lib \
+		--sysconfdir=/etc \
+		--localstatedir=/var \
+		--disable-static \
+		--disable-libxklavier \
+		--enable-xrandr \
+		--enable-sound-settings \
+		--enable-xorg-libinput
+
+	make -j2 
+	make DESTDIR="$destdir" install 
+}

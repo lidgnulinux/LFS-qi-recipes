@@ -1,0 +1,50 @@
+# Build recipe for pipewire.
+#
+program=pipewire
+version=1.4.2
+release=0
+description="Multimedia processing graphs"
+homepage="https://pipewire.org/"
+license="LGPL-2.1-or-later"
+tarname=pipewire-$version.tar.gz
+fetch="https://gitlab.freedesktop.org/PipeWire/pipewire/-/archive/$version/$tarname"
+
+build() {
+
+	unpack "${tardir}/$tarname"
+	
+	cd "$srcdir"
+	
+	# Set sane permissions
+	chmod -R u+w,go-w,a+rX-s .
+	
+	rm -rf BUILD
+	mkdir BUILD
+	cd BUILD
+
+	CPPFLAGS="$QICPPFLAGS" CFLAGS="$QICFLAGS" LDFLAGS="$QILDFLAGS" \
+	meson setup $configure_args \
+                -Dlibjack-path=/usr/lib \
+                -Dlibv4l2-path=/usr/lib \
+                -Ddocs=disabled \
+                -Dman=disabled \
+                -Dgstreamer=enabled \
+                -Dexamples=disabled \
+                -Dffmpeg=disabled \
+                -Djack-devel=true \
+                -Dsystemd=disabled \
+                -Dvulkan=enabled \
+                -Dsdl2=disabled \
+                -Dlv2=disabled \
+                -Dlibcamera=disabled \
+                -Droc=disabled \
+                -Dbluez5-codec-lc3=disabled \
+                -Dbluez5-backend-native-mm=disabled \
+                -Dsession-managers=[] \
+                ..
+
+	ninja -j4
+	DESTDIR="$destdir" ninja -j2 install
+	
+	cd ..
+}

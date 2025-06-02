@@ -1,0 +1,39 @@
+# Build recipe for qipy-git.
+#
+# Exit immediately on any error
+set -e
+
+program=qipy-git
+commit=0141bb7c1581f4ba3570ce1829bddfd4542fdd6d
+version=0.2.r20.c0141bb7c
+release=0
+description="Simple helper for qi to query information about package."
+homepage="https://gitlab.com/lidgnulinux/qi_wrapper"
+license="CUSTOM"
+
+tarname=qi_wrapper-$commit.tar.gz
+fetch="https://gitlab.com/lidgnulinux/qi_wrapper/-/archive/$commit/$tarname"
+
+srcdir=qi_wrapper-$commit
+
+build() 
+{
+	unpack "${tardir}/$tarname"
+	
+	cd "$srcdir"
+	
+	# Set sane permissions
+	chmod -R u+w,go-w,a+rX-s .
+
+	mkdir -p "$destdir/etc/qipy"
+	mkdir -p "$destdir/usr/share/qipy"
+	mkdir -p "$destdir/usr/bin"
+
+	cp -r recipe-templates "${destdir}/etc/qipy/"
+	cp -r patches "${destdir}/etc/qipy/"
+	cp -r doc "${destdir}/usr/share/qipy/"
+
+	install -Dm0755 qipy "${destdir}/usr/bin/qipy"
+	install -Dm0644 patches/enable_update_installed_packages.diff "${destdir}/etc/qipy/enable_update_installed_packages.diff"
+
+}

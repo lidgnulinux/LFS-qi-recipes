@@ -1,0 +1,50 @@
+# Build recipe for protobuf.
+#
+# Exit immediately on any error
+set -e
+
+program=protobuf
+version=29.4
+release=0
+description="Library for extensible, efficient structure packing"
+homepage="https://github.com/protocolbuffers/protobuf"
+license="BSD-3-Clause"
+
+tarname=v$version.tar.gz
+fetch="https://github.com/protocolbuffers/protobuf/archive/refs/tags/$tarname"
+
+build() 
+{
+	unpack "${tardir}/$tarname"
+	
+	cd "$srcdir"
+	
+	# Set sane permissions
+	chmod -R u+w,go-w,a+rX-s .
+
+	patch -p1 -i ${worktree}/fix-tests.patch
+	patch -p1 -i ${worktree}/fix-upb-linkarray.patch
+	patch -p1 -i ${worktree}/soversion.patch
+
+	export CFLAGS="$CFLAGS -DNDEBUG -O2 -flto=auto"
+	export CXXFLAGS="$CXXFLAGS -DNDEBUG -O2 -flto=auto -Wno-deprecated-declarations"
+	cmake -B build -G Ninja \
+		-DCMAKE_BUILD_TYPE=None \
+		-DCMAKE_INSTALL_PREFIX=/usr \
+		-DCMAKE_INSTALL_LIBDIR=lib \
+		-DBUILD_SHARED_LIBS=ON \
+		-Dprotobuf_BUILD_TESTS="OFF" \
+		-Dprotobuf_BUILD_LIBPROTOC=ON \
+		-Dprotobuf_ABSL_PROVIDER="package"
+	cmake --build build
+
+	DESTDIR="$destdir" cmake --install build
+
+	sed -i \
+		-e "/Requires:/s|;| |g" \
+		-e "/Requires:/s|::|_|g" \
+		"$destdir"/usr/lib/pkgconfig/protobuf.pc
+
+	install -Dm644 editors/proto.vim \
+		"$destdir"/usr/share/vim/vimfiles/syntax/proto.vim
+}

@@ -1,0 +1,77 @@
+# Build recipe for libxcvt.
+#
+# Exit immediately on any error
+set -e
+
+program=libxcvt
+version=0.1.3
+release=0
+
+# Define a category for the output of the package name
+pkgcategory=xorg_lib
+
+tarname=${program}-${version}.tar.xz
+
+# Remote source(s)
+fetch=https://www.x.org/releases/individual/lib/$tarname
+
+description="
+A library providing the VESA CVT standard.
+
+libxcvt is a library providing a standalone version of the X server
+implementation of the VESA CVT standard timing modelines generator.
+
+libxcvt also provides a standalone version of the command line tool
+\`cvt\` copied from the Xorg implementation and is meant to be a direct
+replacement to the version provided by the \`Xorg\` server.
+"
+
+homepage=https://www.x.org
+license="MIT X Consortium"
+
+# Source documentation
+docs="COPYING README.md"
+docsdir="${docdir}/${program}-${version}"
+
+build()
+{
+    unpack "${tardir}/$tarname"
+
+    cd "$srcdir"
+
+    # Set sane permissions
+    chmod -R u+w,go-w,a+rX-s .
+
+    rm -rf BUILD
+    mkdir BUILD
+    cd BUILD
+
+    CPPFLAGS="$QICPPFLAGS" CFLAGS="$QICFLAGS" LDFLAGS="$QILDFLAGS" \
+    meson setup $configure_args \
+     --buildtype=release \
+     --strip \
+     ..
+
+    ninja -j${jobs}
+    DESTDIR="$destdir" ninja -j${jobs} install
+
+    cd ../
+
+    # Compress and link man pages (if needed)
+    if test -d "${destdir}/$mandir"
+    then
+        (
+            cd "${destdir}/$mandir"
+            find . -type f -exec lzip -9 {} +
+            find . -type l | while read -r file
+            do
+                ln -sf "$(readlink -- "$file").lz" "${file}.lz"
+                rm -- "$file"
+            done
+        )
+    fi
+
+    # Copy documentation
+    mkdir -p "${destdir}/$docsdir"
+    cp -p $docs "${destdir}/$docsdir"
+}

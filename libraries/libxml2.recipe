@@ -1,0 +1,59 @@
+# Build recipe for libxml2.
+#
+# Exit immediately on any error
+set -e
+
+program=libxml2
+version=2.13.6
+pkgver=2.13.6
+release=1
+
+# Define a category for the output of the package name
+pkgcategory=libs
+
+tarname=libxml2-$pkgver.tar.xz
+
+# Remote source(s)
+fetch=https://download.gnome.org/sources/libxml2/${pkgver%.*}/$tarname
+
+description="
+A XML C parser library and toolkit.
+
+XML itself is a meta language to design markup languages.  HTML is the
+most well-known markup language.  Though the library is written in C,
+a variety of language bindings make it available in other environments.
+"
+
+homepage=https://xmlsoft.org
+license=MIT
+
+docs="AUTHORS ChangeLog Copyright NEWS README TODO"
+docsdir="${docdir}/${program}-${version}"
+
+build()
+{
+    unpack "${tardir}/$tarname"
+
+    cd "$srcdir"
+
+    # Set sane permissions
+    chmod -R u+w,go-w,a+rX-s .
+
+    ./configure \
+    CPPFLAGS="$QICPPFLAGS" CFLAGS="$QICFLAGS" LDFLAGS="$QILDFLAGS" \
+     $configure_args \
+     --mandir=$mandir \
+     --docdir=$docsdir \
+     --enable-static=no \
+     --enable-shared=yes \
+     --with-python=/usr/bin/python3 \
+     --with-history \
+     --with-icu \
+     --with-lzma \
+     --with-iso8859x \
+     --without-legacy \
+     --build="$(gcc -dumpmachine)"
+     
+    make -j2 V=1
+    make -j2 DESTDIR="$destdir" install
+}

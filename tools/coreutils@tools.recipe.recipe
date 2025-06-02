@@ -1,0 +1,67 @@
+# Build recipe for coreutils.
+#
+# Exit immediately on any error
+set -e
+
+program=coreutils
+version=9.7
+release=0
+
+# Define a category for the output of the package name
+pkgcategory=tools
+
+tarname=${program}-${version}.tar.xz
+
+# Remote source(s)
+fetch=https://ftp.gnu.org/gnu/coreutils/$tarname
+
+description="
+The GNU core utilities (version $version).
+
+The GNU core utilities are the basic file, shell and text manipulation
+utilities of the GNU operating system.  These are the core utilities
+which are expected to exist on every operating system.
+"
+
+homepage=https://www.gnu.org/software/coreutils
+license=GPLv3+
+
+# Source documentation
+docs="AUTHORS COPYING ChangeLog NEWS README THANKS THANKS-to-translators TODO"
+docsdir="${docdir}/${program}"
+
+# Limit package name to the program name
+full_pkgname="${program}@${pkgcategory}"
+jobs=4
+
+build()
+{
+	unpack "${tardir}/$tarname"
+	
+	cd "$srcdir"
+	
+	# Set sane permissions
+	chmod -R u+w,go-w,a+rX-s .
+	
+	patch -p1 < ${worktree}/renameat2-fakeroot.patch
+
+	fu_cv_sys_stat_statvfs=n \
+	CFLAGS="$CFLAGS -I/usr/include/utmps -flto=auto" \
+	LIBS="-lutmps -lskarnet" \
+	./configure FORCE_UNSAFE_CONFIGURE="1" \
+		--prefix=/usr \
+		--bindir=/bin \
+		--sysconfdir=/etc \
+		--mandir=/usr/share/man \
+		--infodir=/usr/share/info \
+		--disable-nls \
+		--enable-no-install-program=hostname,su,kill,uptime \
+		--enable-single-binary=symlinks \
+		--enable-single-binary-exceptions=env,fmt,sha512sum
+
+	make -j4
+	make DESTDIR="$destdir" install
+
+	rm -rf "$destdir"/usr/lib/charset.alias
+	rmdir -p "$destdir"/usr/lib 2>/dev/null || true
+}

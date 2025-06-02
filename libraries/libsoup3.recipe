@@ -1,0 +1,43 @@
+# Build recipe for libsoup3.
+#
+# Exit immediately on any error
+set -e
+
+program=libsoup3
+version=3.6.1
+pkgver=3.6.1
+release=0
+description="Gnome HTTP client/server Library"
+homepage="https://wiki.gnome.org/Projects/libsoup"
+license="LGPL-2.0-or-later"
+
+tarname=libsoup-$pkgver.tar.xz
+fetch="https://download.gnome.org/sources/libsoup/${pkgver%.*}/$tarname"
+srcdir=libsoup-$pkgver
+
+build() 
+{
+	unpack "${tardir}/$tarname"
+	
+	cd "$srcdir"
+	
+	# Set sane permissions
+	chmod -R u+w,go-w,a+rX-s .
+
+	rm -rf BUILD
+	mkdir BUILD
+	cd BUILD
+	
+	CPPFLAGS="$QICPPFLAGS" CFLAGS="$QICFLAGS" LDFLAGS="$QILDFLAGS" \
+	meson setup $configure_args \
+		-Dtls_check=false \
+		-Dintrospection=enabled \
+		-Dvapi=enabled \
+		-Dtests="false" \
+		..
+	
+	ninja -j2
+	DESTDIR="$destdir" ninja -j2 install
+	
+	cd ..
+}

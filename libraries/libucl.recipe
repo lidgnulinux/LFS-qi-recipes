@@ -1,0 +1,30 @@
+# Build recipe for libucl.
+#
+# Exit immediately on any error
+set -e
+
+program=libucl
+version=0.9.0
+release=0
+description="Universal configuration library parser"
+homepage="https://github.com/vstakhov/libucl"
+license="BSD-2-Clause"
+
+tarname=$version.tar.gz
+fetch="https://github.com/vstakhov/libucl/archive/refs/tags/$tarname"
+
+build() 
+{
+	unpack "${tardir}/$tarname"
+	
+	cd "$srcdir"
+	
+	# Set sane permissions
+	chmod -R u+w,go-w,a+rX-s .
+
+	autoreconf -fvi
+	./configure --prefix=/usr 
+
+	make 
+	make DESTDIR="$destdir" install 
+}

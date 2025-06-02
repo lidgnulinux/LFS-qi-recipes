@@ -1,0 +1,72 @@
+# Build recipe for jack (version 1).
+#
+# Exit immediately on any error
+set -e
+
+program=jack1
+version=0.126.0
+release=1
+
+# Define a category for the output of the package name
+pkgcategory=tools
+
+tarname=${program}-${version}.tar.gz
+
+# Remote source(s)
+fetch=https://github.com/jackaudio/jack1/releases/download/${version}/$tarname
+
+description="
+The Jack Audio Connection Kit (version 1).
+
+JACK is a low-latency audio server, written primarily for the Linux
+operating system.  It can connect a number of different applications to
+an audio device, as well as allowing them to share audio between
+themselves. Its clients can run in their own processes (ie. as a
+normal application), or can they can run within a JACK server (ie. a
+"plugin").
+
+JACK is different from other audio server efforts in that it has been
+designed from the ground up to be suitable for professional audio
+work.  This means that it focuses on two key areas: synchronous
+execution of all clients, and low latency operation.
+"
+
+homepage=https://jackaudio.org
+license="GPLv2+, LGPLv2.1"
+
+# Source documentation
+docs="AUTHORS COPYING* README* TODO"
+docsdir="${docdir}/${program}-${version}"
+
+build()
+{
+    unpack "${tardir}/$tarname"
+
+    cd "$srcdir"
+
+    # Set sane permissions
+    chmod -R u+w,go-w,a+rX-s .
+
+    # Note about `--enable-portaudio': it gives problems in the compilation.
+
+    ./configure CPPFLAGS="$QICPPFLAGS" \
+    CFLAGS="$QICFLAGS" LDFLAGS="$QILDFLAGS" \
+     $configure_args \
+     --libdir=/usr/lib \
+     --mandir=$mandir \
+     --enable-alsa \
+     --disable-portaudio \
+     --disable-oss \
+     --enable-posix-shm=yes \
+     --enable-sse=auto \
+     --with-default-tmpdir=/tmp \
+     --build="$(gcc -dumpmachine)"
+
+    make -j${jobs} V=1
+    make -j${jobs} DESTDIR="$destdir" install
+
+    # Strip remaining binaries and libraries
+    find "$destdir" -type f -print0 | xargs -0 file | \
+     awk '/ELF/ && /executable/ || /shared object/' | \
+      cut -f 1 -d : | xargs strip --strip-unneeded 2> /dev/null
+}

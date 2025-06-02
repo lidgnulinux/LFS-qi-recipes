@@ -1,0 +1,70 @@
+# Build recipe for musl.
+#
+# Exit immediately on any error
+set -e
+
+program=musl
+version=1.2.5
+release=2
+
+# Define a category for the output of the package name
+pkgcategory=libs
+
+tarname=${program}-${version}.tar.gz
+
+# Remote source(s)
+fetch=https://www.musl-libc.org/releases/$tarname
+#fetch="
+#  https://dragora.mirror.garr.it/current/sources/$tarname
+#  rsync://rsync.dragora.org/current/sources/$tarname
+#"
+
+description="
+A powerful standard C/POSIX library (version $version).
+
+Musl is a new standard library to power a new generation of Linux-based
+devices.  Musl is lightweight, fast, simple, free, and strives to be
+correct in the sense of standards-conformance and safety.
+"
+
+homepage=https://www.musl-libc.org
+license="MIT Expat variant"
+
+# Source documentation
+docs="COPYRIGHT README VERSION WHATSNEW"
+docsdir="${docdir}/${program}"
+
+# Limit package name to the program name
+full_pkgname="${program}@${pkgcategory}"
+jobs=4
+
+build()
+{
+    unpack "${tardir}/$tarname"
+
+    cd "$srcdir"
+
+    # Set sane permissions
+    chmod -R u+w,go-w,a+rX-s .
+
+    patch -Np1 -i "${worktree}/patches/musl/musl.handle-aux-at_base.patch"
+    patch -Np1 -i "${worktree}/patches/musl/musl.isatty-glibc-align.patch"
+    patch -Np1 -i "${worktree}/patches/musl/musl.ldso-fix-non-functional-fix-to-early-dynamic-PAGE_SI.patch"
+    patch -Np1 -i "${worktree}/patches/musl/musl.add-renameat2.patch"
+
+    ./configure CPPFLAGS="$QICPPFLAGS" CFLAGS="$QICFLAGS" \
+     $configure_args \
+     --libdir=/usr/lib \
+     --syslibdir=/lib \
+     --enable-shared \
+     --enable-static \
+     --enable-optimize \
+     --enable-debug
+
+    make -j${jobs}
+    make -j${jobs} install DESTDIR="$destdir"
+
+    # To print shared library dependencies
+    mkdir -p "${destdir}/usr/bin"
+    ln -sf /usr/lib/libc.so "${destdir}/usr/bin/ldd"
+}

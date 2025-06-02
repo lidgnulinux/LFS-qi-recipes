@@ -1,0 +1,60 @@
+# Build recipe for polkit.
+#
+
+# Exit immediately on any error
+set -e
+
+program=polkit
+version=125
+release=1
+
+# Define a category for the output of the package name
+pkgcategory=daemon
+
+tarname=${program}-${version}.tar.gz
+
+# Remote source(s)
+fetch=https://github.com/polkit-org/polkit/archive/refs/tags/$version/$tarname
+
+description="Application development toolkit for controlling system-wide privileges"
+
+homepage=https://www.freedesktop.org/wiki/Software/polkit/
+license="GPL-2.0-or-later"
+
+build()
+{
+    unpack "${tardir}/$tarname"
+
+    cd "$srcdir"
+
+    # Set sane permissions
+    chmod -R u+w,go-w,a+rX-s .
+
+    rm -rf BUILD
+    mkdir BUILD
+    cd BUILD
+
+    patch -p1 -d .. < "${worktree}/args.patch" 
+
+    CPPFLAGS="$QICPPFLAGS" CFLAGS="$QICFLAGS" LDFLAGS="$QILDFLAGS" \
+    meson setup $configure_args \
+	-Dtests=false \
+	-Dman=false \
+	-Dsystemdsystemunitdir=/trash \
+	-Dpam_prefix=/etc/pam.d \
+	-Dsession_tracking=elogind \
+	..
+
+    ninja -j2
+    DESTDIR="$destdir" ninja -j2 install
+    
+    rm -rf "$destdir"/trash
+    install -m644 "${worktree}/alpine-polkit.pam" "$destdir"/etc/pam.d/polkit-1
+
+    chown -R polkitd:polkitd "$destdir"/etc/polkit-1/rules.d "$destdir"/usr/share/polkit-1/rules.d
+    chmod -R 700 "$destdir"/etc/polkit-1/rules.d "$destdir"/usr/share/polkit-1/rules.d
+    chmod 4755 "$destdir"/usr/lib/polkit-1/polkit-agent-helper-1
+    chmod 4755 "$destdir"/usr/bin/pkexec
+
+    cd ..
+}

@@ -1,0 +1,51 @@
+# Build recipe for libyaml (yaml).
+#
+# Exit immediately on any error
+set -e
+
+program=yaml
+pkgname=libyaml
+version=0.2.5
+release=1
+
+# Define a category for the output of the package name
+pkgcategory=libs
+
+tarname=${program}-${version}.tar.gz
+
+# Remote source(s)
+fetch=https://pyyaml.org/download/libyaml/$tarname
+
+description="
+Libyaml is a YAML parser and emitter library.
+
+The libyaml package contains a C library for parsing and emitting YAML
+(YAML Ain't Markup Language) code.
+"
+
+homepage=https://pyyaml.org/wiki/LibYAML
+license=Custom
+
+# Source documentation
+docs="Changes License ReadMe.md"
+docsdir="${docdir}/${program}-${version}"
+
+build()
+{
+    unpack "${tardir}/$tarname"
+
+    cd "$srcdir"
+
+    # Set sane permissions
+    chmod -R u+w,go-w,a+rX-s .
+
+    ./configure CPPFLAGS="$QICPPFLAGS" CFLAGS="$QICFLAGS" LDFLAGS="$QILDFLAGS" \
+     $configure_args \
+     --docdir=$docsdir \
+     --enable-static=no \
+     --enable-shared=yes \
+     --build="$(gcc -dumpmachine)"
+
+    make -j${jobs} V=1
+    make -j${jobs} DESTDIR="$destdir" install
+}

@@ -1,0 +1,44 @@
+# Build recipe for vte3.
+#
+
+# Exit immediately on any error
+set -e
+
+program=vte3
+version=0.80.0
+release=1
+description="Virtual Terminal Emulator library"
+homepage="https://gitlab.gnome.org/GNOME/vte"
+license="LGPL-2.0-or-later"
+
+tarname=vte-$version.tar.gz
+fetch="https://gitlab.gnome.org/GNOME/vte/-/archive/$version/$tarname"
+srcdir=vte-$version
+
+build() 
+{
+	unpack "${tardir}/$tarname"
+	
+	cd "$srcdir"
+	
+	# Set sane permissions
+	chmod -R u+w,go-w,a+rX-s .
+
+	rm -rf BUILD
+	mkdir BUILD
+	cd BUILD
+
+	patch -p1 -d .. < "${worktree}/fix-W_EXITCODE.patch"
+
+	CPPFLAGS="$QICPPFLAGS" CFLAGS="$QICFLAGS" LDFLAGS="$QILDFLAGS" \
+	meson setup $configure_args \
+		-Dgtk4=true \
+		-Ddocs=false \
+		-D_systemd=false \
+		..
+	
+	ninja -j2
+	DESTDIR="$destdir" ninja -j2 install
+	
+	cd ..
+}

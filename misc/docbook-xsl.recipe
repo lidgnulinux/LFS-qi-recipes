@@ -1,0 +1,108 @@
+# Build recipe for docbook-xsl.
+#
+# Exit immediately on any error
+set -e
+
+program=docbook-xsl-nons
+pkgname=docbook-xsl
+version=1.79.2
+release=1
+
+# Define a category for the output of the package name
+pkgcategory=docbook
+
+tarname=${program}-${version}.tar.bz2
+
+# Remote source(s)
+fetch=https://github.com/docbook/xslt10-stylesheets/releases/download/release/${version}/$tarname
+
+description="
+The DocBook XSL Stylesheets.
+
+The DocBook XSL Stylesheets package contains XSL stylesheets.
+These are useful for performing transformations on XML DocBook files.
+"
+
+homepage=https://www.docbook.org
+license=Custom
+
+# Source documentation
+docs="AUTHORS BUGS COPYING NEWS README RELEASE-NOTES.txt TODO VERSION"
+docsdir="${docdir}/${pkgname}-${version}"
+
+build()
+{
+    unpack "${tardir}/$tarname"
+
+    cd "$srcdir"
+
+    # Apply a patch from "Beyond Linux From Scratch"
+    patch -Np1 -i "${worktree}/docbook-xsl-nons-1.79.2-stack_fix-1.patch"
+
+    # Set sane permissions
+    chmod -R u+w,go-w,a+rX-s .
+
+    mkdir -p "${destdir}/usr/share/xml/docbook/xsl-stylesheets-nons-${version}"
+    cp -R VERSION assembly common eclipse epub epub3 extensions fo        \
+         highlighting html htmlhelp images javahelp lib manpages params   \
+         profiling roundtrip slides template tests tools webhelp website  \
+         xhtml xhtml-1_1 xhtml5                                           \
+     "${destdir}/usr/share/xml/docbook/xsl-stylesheets-nons-${version}"
+    (
+        cd "${destdir}/usr/share/xml/docbook/xsl-stylesheets-nons-${version}"
+        ln -s VERSION VERSION.xsl
+    )
+
+    # Copy documentation
+    mkdir -p "${destdir}/$docsdir"
+    cp -p $docs "${destdir}/$docsdir"
+
+    # Create config directory
+    mkdir -p "${destdir}/etc/xml"
+
+    # Insert post-install script manually
+
+    mkdir -p "${destdir}/var/lib/qi"
+    cat << EOF > "${destdir}/var/lib/qi/${full_pkgname}.sh"
+
+# XML catalog
+if test ! -e etc/xml/catalog
+then
+    echo "Creating etc/xml/catalog (from docbook-xsl-${version}) ..."
+    xmlcatalog --noout --create etc/xml/catalog
+fi
+
+echo "Adding XML (XSL) definitions to etc/xml/catalog ..."
+xmlcatalog --noout --add "rewriteSystem" \\
+ "http://cdn.docbook.org/release/xsl-nons/${version}" \\
+ "file://usr/share/xml/docbook/xsl-stylesheets-nons-${version}" \\
+ etc/xml/catalog
+
+xmlcatalog --noout --add "rewriteURI" \\
+ "http://cdn.docbook.org/release/xsl-nons/${version}" \\
+ "file://usr/share/xml/docbook/xsl-stylesheets-nons-${version}" \\
+ etc/xml/catalog
+
+xmlcatalog --noout --add "rewriteSystem" \\
+ "http://cdn.docbook.org/release/xsl-nons/current" \\
+ "file://usr/share/xml/docbook/xsl-stylesheets-nons-${version}" \\
+ etc/xml/catalog
+
+xmlcatalog --noout --add "rewriteURI" \\
+ "http://cdn.docbook.org/release/xsl-nons/current" \\
+ "file://usr/share/xml/docbook/xsl-stylesheets-nons-${version}" \\
+ etc/xml/catalog
+
+# Sourceforge URIs
+xmlcatalog --noout --add "rewriteSystem" \\
+ "http://docbook.sourceforge.net/release/xsl/current" \\
+ "/usr/share/xml/docbook/xsl-stylesheets-nons-${version}" \\
+ etc/xml/catalog
+
+xmlcatalog --noout --add "rewriteURI" \\
+ "http://docbook.sourceforge.net/release/xsl/current" \\
+ "/usr/share/xml/docbook/xsl-stylesheets-nons-${version}" \\
+ etc/xml/catalog
+
+EOF
+}

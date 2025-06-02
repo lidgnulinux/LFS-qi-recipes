@@ -1,0 +1,70 @@
+# Build recipe for gpm.
+#
+# Exit immediately on any error
+set -e
+
+program=gpm
+version=1.20.7
+release=1
+
+# Define a category for the output of the package name
+pkgcategory=tools
+
+tarname=${program}-${version}.tar.bz2
+
+# Remote source(s)
+fetch="https://anduin.linuxfromscratch.org/BLFS/gpm/$tarname"
+
+description="
+Utility and mouse server for virtual consoles.
+
+The gpm daemon tries to be a useful mouse server for applications
+running on the GNU/Linux console.  Its roots are in the "selection"
+package, by Andrew Haylett, and the original code comes from
+selection itself.
+
+This package is intended as a replacement for selection, to provide
+additional facilities.
+"
+
+homepage=https://www.nico.schottelius.org/software/gpm/
+license=GPLv2+
+
+# Source documentation
+docs="COPYING README* TODO"
+docsdir="${docdir}/${program}-${version}"
+
+build()
+{
+    unpack "${tardir}/$tarname"
+
+    cd "$srcdir"
+
+    # Set sane permissions
+    chmod -R u+w,go-w,a+rX-s .
+
+    patch -Np1 -i "${worktree}"/p/error-format.patch
+    patch -Np1 -i "${worktree}"/p/fix-highly-illegal-return-of-in-as-char.patch
+    patch -Np1 -i "${worktree}"/p/fix-signedness-issue.patch
+    patch -Np1 -i "${worktree}"/p/install-shared-libs-with-+x-perms.patch
+    patch -Np1 -i "${worktree}"/p/install-unversioned-solibrary.patch
+    patch -Np1 -i "${worktree}"/p/musl-fixes.patch
+    patch -Np1 -i "${worktree}"/p/musl-fixes-2.patch
+    patch -Np1 -i "${worktree}"/p/constify-format-strings.patch
+    patch -Np1 -i "${worktree}"/p/gpm-include-sysmacros.patch
+    patch -Np1 -i "${worktree}"/p/gcc-10.patch
+
+    export CFLAGS="$CFLAGS -fcommon -std=gnu17"
+    ./autogen.sh
+    ./configure CPPFLAGS="$QICPPFLAGS" CFLAGS="$QICFLAGS" LDFLAGS="$QILDFLAGS" \
+     $configure_args \
+     --sysconfdir=/etc/gpm \
+     --infodir=$infodir \
+     --mandir=$mandir \
+     --docdir=$docsdir \
+     --build="$(gcc -dumpmachine)"
+
+    export CPPFLAGS="$CPPFLAGS -I$srcdir/src/headers"
+    make -j${jobs} V=1
+    make -j${jobs} DESTDIR="$destdir" install
+}

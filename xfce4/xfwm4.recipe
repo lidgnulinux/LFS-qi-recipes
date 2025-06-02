@@ -1,0 +1,42 @@
+# Build recipe for xfwm4.
+#
+
+# Exit immediately on any error
+set -e
+
+program=xfwm4
+version=4.20.0
+release=0
+description="Xfce window manager, compatible with Gnome, Gnome2, KDE2, and KDE3"
+homepage="https://xfce.org/"
+license="GPL-2.0-or-later"
+
+tarname=xfwm4-$version.tar.bz2
+fetch="https://archive.xfce.org/xfce/4.20/src/$tarname"
+
+build() 
+{
+	unpack "${tardir}/$tarname"
+	
+	cd "$srcdir"
+	
+	# Set sane permissions
+	chmod -R u+w,go-w,a+rX-s .
+
+	autoreconf -vif
+	./configure \
+		--prefix=/usr \
+		--libdir=/usr/lib \
+		--sysconfdir=/etc \
+		--libexecdir=/usr/lib \
+		--localstatedir=/var \
+		--disable-static \
+		--enable-compositor \
+		--enable-poswin \
+		--enable-startup-notification \
+		--enable-xpresent \
+		--enable-xsync
+
+	make -j2 
+	make DESTDIR="$destdir" install 
+}

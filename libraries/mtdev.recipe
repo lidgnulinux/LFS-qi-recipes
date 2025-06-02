@@ -1,0 +1,53 @@
+# Build recipe for mtdev.
+#
+# Exit immediately on any error
+set -e
+
+program=mtdev
+version=1.1.7
+release=0
+
+# Define a category for the output of the package name
+pkgcategory=libs
+
+tarname=${program}-${version}.tar.bz2
+
+# Remote source(s)
+fetch=https://bitmath.org/code/mtdev/$tarname
+
+description="
+Multitouch Protocol Translation Library.
+
+The mtdev is a stand-alone library which transforms all variants of
+kernel MT events to the slotted type B protocol.  The events put into
+mtdev may be from any MT device, specifically type A without contact
+tracking, type A with contact tracking, or type B with contact
+tracking.  See the kernel documentation for further details.
+"
+
+homepage=https://bitmath.org/code/mtdev/
+license=MIT
+
+# Source documentation
+docs="COPYING ChangeLog README"
+docsdir="${docdir}/${pkgname}-${version}"
+
+build()
+{
+    unpack "${tardir}/$tarname"
+
+    cd "$srcdir"
+
+    # Set sane permissions
+    chmod -R u+w,go-w,a+rX-s .
+
+    ./configure CPPFLAGS="$QICPPFLAGS" CFLAGS="$QICFLAGS" LDFLAGS="$QILDFLAGS" \
+     $configure_args \
+     --docdir=$docsdir \
+     --infodir=$infodir \
+     --mandir=$mandir \
+     --build="$(gcc -dumpmachine)"
+
+    make -j${jobs} V=1
+    make -j${jobs} DESTDIR="$destdir" install-strip
+}

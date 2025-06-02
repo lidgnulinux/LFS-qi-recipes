@@ -1,0 +1,37 @@
+# Build recipe for duktape.
+#
+# Exit immediately on any error
+set -e
+
+program=duktape
+version=2.7.0
+release=0
+
+# Define a category for the output of the package name
+pkgcategory=libs
+
+tarname=${program}-${version}.tar.xz
+
+# Remote source(s)
+fetch=https://duktape.org/$tarname
+
+description="Embeddable Javascript engine with a focus on portability and compact footprint"
+
+homepage=https://duktape.org
+license="MIT"
+
+build()
+{
+    unpack "${tardir}/$tarname"
+
+    cd "$srcdir"
+
+    # Set sane permissions
+    chmod -R u+w,go-w,a+rX-s .
+
+    make -f ./Makefile.sharedlibrary
+    make -f ./Makefile.sharedlibrary install INSTALL_PREFIX="${destdir}/usr"
+
+    mkdir -p "${destdir}/usr/lib/pkgconfig/"
+    sed "s/@VERSION@/$version/" "${worktree}/duktape.pc" > "${destdir}/usr/lib/pkgconfig/duktape.pc"
+}

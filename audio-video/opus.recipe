@@ -1,0 +1,46 @@
+# Build recipe for opus.
+#
+
+# Exit immediately on any error
+set -e
+
+program=opus
+version=1.5.2
+release=1
+
+tarname=${program}-${version}.tar.gz
+
+# Remote source(s)
+fetch=https://downloads.xiph.org/releases/opus/$tarname
+
+description="Codec designed for interactive speech and audio transmission over the Internet"
+
+homepage=https://www.opus-codec.org/
+license="BSD-3-Clause"
+
+build()
+{
+    unpack "${tardir}/$tarname"
+
+    cd "$srcdir"
+
+    # Set sane permissions
+    chmod -R u+w,go-w,a+rX-s .
+
+
+    rm -rf BUILD
+    mkdir BUILD
+    cd BUILD
+
+    patch -p1 -d .. -i ${worktree}/opus.fix-test.patch
+    CPPFLAGS="$QICPPFLAGS" CFLAGS="$QICFLAGS" LDFLAGS="$QILDFLAGS" \
+    meson setup $configure_args \
+	-Dtests=disabled \
+	-Ddocs=disabled \
+	..
+
+    ninja -j${jobs}
+    DESTDIR="$destdir" ninja -j${jobs} install
+
+    cd ..
+}

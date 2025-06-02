@@ -1,0 +1,56 @@
+# Build recipe for xdg-utils.
+#
+# Exit immediately on any error
+set -e
+
+program=xdg-utils
+version=1.2.1
+arch=noarch
+release=1
+
+# Define a category for the output of the package name
+pkgcategory=xorg_extra
+
+tarname=xdg-utils-v${version/_/-}.tar.gz
+
+# Remote source(s)
+fetch="https://gitlab.freedesktop.org/xdg/xdg-utils/-/archive/v${version/_/-}/$tarname"
+
+description="
+A set of tools that assist applications for desktop integration tasks.
+
+xdg-utils is a set of tools that allows applications to easily
+integrate with the desktop environment of the user, regardless
+of the specific desktop environment that the user runs.
+
+About half of the tools focus on tasks commonly required during
+the installation of a desktop application and the other half
+focuses on integration with the desktop environment while the
+application is running.
+"
+
+homepage=https://freedesktop.org/wiki/Software/xdg-utils
+license=Custom
+
+# Source documentation
+docs="ChangeLog LICENSE README RELEASE_NOTES TODO scripts/HACKING"
+docsdir="${docdir}/${program}-${version}"
+srcdir="$program-v${version/_/-}"
+
+build()
+{
+    unpack "${tardir}/$tarname"
+
+    cd "$srcdir"
+
+    # Set sane permissions
+    chmod -R u+w,go-w,a+rX-s .
+
+    ./configure $configure_args \
+     --mandir=$mandir \
+     --docdir=$docsdir \
+     --build="$(gcc -dumpmachine)"
+
+    make -j${jobs} V=1
+    make -j${jobs} DESTDIR="$destdir" install
+}

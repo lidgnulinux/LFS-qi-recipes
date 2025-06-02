@@ -1,0 +1,35 @@
+# Build recipe for markdown.
+#
+# Exit immediately on any error
+set -e
+
+program=markdown
+version=1.0.1
+release=1
+description="Text-to-HTML conversion tool for web writers"
+homepage="https://daringfireball.net/projects/markdown/"
+license="BSD-3-Clause"
+
+tarname=Markdown_$version.zip
+fetch="https://daringfireball.net/projects/downloads/$tarname"
+
+srcdir=Markdown_$version
+
+build() 
+{
+	bsdunzip "${tardir}/$tarname"
+	
+	cd "$srcdir"
+	
+	# Set sane permissions
+	chmod -R u+w,go-w,a+rX-s .
+
+	pod2man "Markdown.pl" > "$program.1"
+	mkdir -p "$destdir/usr/bin"
+	mkdir -p "$destdir/usr/share/man/man1"
+	mkdir -p "$destdir/usr/share/licenses/$program"
+
+	install -Dm755 "Markdown.pl" "$destdir/usr/bin/$program"
+	install -Dm644 "$program.1" "$destdir/usr/share/man/man1/$program.1"
+	install -Dm644 "License.text" "$destdir/usr/share/licenses/$pkgname/LICENSE"
+}

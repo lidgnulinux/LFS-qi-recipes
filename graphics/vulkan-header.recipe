@@ -1,0 +1,43 @@
+# Build recipe for vulkan-header.
+#
+# Exit immediately on any error
+set -e
+
+program=vulkan-header
+_program=Vulkan-Headers
+version=1.4.304.1
+release=0
+
+# Define a category for the output of the package name
+pkgcategory=libs
+
+tarname=${program}-v${version}.tar.gz
+
+# Remote source(s)
+fetch=https://github.com/khronosgroup/vulkan-headers/archive/refs/tags/vulkan-sdk-$version/$tarname
+
+description="Vulkan header files"
+
+homepage=https://www.khronos.org/vulkan
+license="Apache-2.0"
+
+srcdir=$_program-vulkan-sdk-$version
+
+build()
+{
+    unpack "${tardir}/$tarname"
+
+    cd "$srcdir"
+
+    # Set sane permissions
+    chmod -R u+w,go-w,a+rX-s .
+	
+    cmake -B build -G Ninja \
+	-DCMAKE_BUILD_TYPE=None \
+	-DCMAKE_INSTALL_PREFIX=/usr \
+        -DVULKAN_HEADERS_ENABLE_MODULE=OFF \
+	-DCMAKE_INSTALL_LIBDIR=lib
+    cmake --build build
+
+    DESTDIR="$destdir" cmake --install build
+}

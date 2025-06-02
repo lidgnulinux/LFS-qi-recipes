@@ -1,0 +1,65 @@
+# Build recipe for openssh.
+#
+# Exit immediately on any error
+set -e
+
+program=openssh
+version=10.0p1
+release=0
+
+# Define a category for the output of the package name
+pkgcategory=networking
+
+tarname=${program}-${version}.tar.gz
+
+# Remote source(s)
+fetch=https://ftp.openbsd.org/pub/OpenBSD/OpenSSH/portable/$tarname
+
+description="
+The OpenSSH suite.
+
+OpenSSH is the premier connectivity tool for remote login with the
+SSH protocol.  It encrypts all traffic to eliminate eavesdropping,
+connection hijacking, and other attacks.  In addition, OpenSSH provides
+a large suite of secure tunneling capabilities, several authentication
+methods, and sophisticated configuration options.
+"
+
+homepage=https://www.openssh.com
+license=Custom
+
+# Source documentation
+# docs="CREDITS ChangeLog LICENCE OVERVIEW PROTOCOL* README* TODO"
+docsdir="${docdir}/${program}-${version}"
+jobs=2
+
+build()
+{
+    unpack "${tardir}/$tarname"
+
+    cd "$srcdir"
+
+    # Set sane permissions
+    chmod -R u+w,go-w,a+rX-s .
+
+    ./configure CPPFLAGS="$QICPPFLAGS" \
+    CFLAGS="$QICFLAGS" LDFLAGS="$QILDFLAGS" \
+     $configure_args \
+     --sysconfdir=/etc/ssh \
+     --with-default-path=/usr/bin \
+     --with-superuser-path=/usr/sbin:/usr/bin \
+     --with-privsep-path=/var/lib/sshd \
+     --with-pid-dir=/run \
+     --build="$(gcc -dumpmachine)"
+
+    make -j${jobs} V=1
+    make -j${jobs} DESTDIR="$destdir" install
+
+    # Make empty directories for the package
+    mkdir -p "${destdir}/var/run/sshd" "${destdir}/var/lib/sshd"
+
+    # Copy additional utilities
+
+    cp -p contrib/ssh-copy-id "${destdir}/usr/bin"
+    chmod 755 "${destdir}/usr/bin/ssh-copy-id"
+}

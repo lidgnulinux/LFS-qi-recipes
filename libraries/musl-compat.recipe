@@ -1,0 +1,70 @@
+# Build recipe for musl-compat.
+#
+# Exit immediately on any error
+set -e
+
+program=musl-compat
+version=20210503_77a1509
+release=2
+
+# Define a category for the output of the package name
+pkgcategory=libs
+
+tarname=${program}-${version}.tar.lz
+
+# Remote source(s)
+fetch="
+ https://dragora.mirror.garr.it/current/sources/$tarname
+ rsync://rsync.dragora.org/current/sources/$tarname
+"
+
+description="
+Extra utilities and headers to complement Musl.
+
+A set of headers and small utilities for use on musl libc systems,
+for providing some minimal glibc compatibility.
+
+The code is derived from software contributed to The NetBSD Foundation,
+mostly rewritten to be used in musl-compatible systems by Timo Teras.
+
+The implementation of the iconv utility was written by Rich Felker.
+"
+
+homepage=https://dev.midipix.org/compat/musl-compat
+license="GPLv2+, MIT | BSD"
+
+# Source documentation
+docs=README.md
+docsdir="${docdir}/${program}-${version}"
+
+build()
+{
+    unpack "${tardir}/$tarname"
+
+    cd "$srcdir"
+
+    # Set sane permissions
+    chmod -R u+w,go-w,a+rX-s .
+
+    make -j${jobs} V=1 \
+     prefix=/usr CFLAGS="$QICFLAGS" DESTDIR="$destdir" install
+
+    # This should be part of usr/sbin
+    rm -f "${destdir}/usr/bin/ldconfig"
+
+    strip --strip-unneeded "${destdir}"/usr/bin/* || true
+
+    # Write a better version of dummy "ldconfig"
+    mkdir -p "${destdir}"/usr/sbin
+    cat << EOF > "${destdir}"/usr/sbin/ldconfig
+#! /bin/sh -
+
+true
+
+EOF
+    chmod 755 "${destdir}"/usr/sbin/ldconfig
+
+    mkdir -p "${destdir}/$docsdir"
+    cp -p $docs "${destdir}/$docsdir"
+}
+

@@ -1,0 +1,39 @@
+# Build recipe for speexdsp.
+#
+
+# Exit immediately on any error
+set -e
+
+program=speexdsp
+version=1.2.1
+release=0
+description="A voice compression format (DSP)"
+homepage="https://www.speex.org/"
+license="BSD-3-Clause"
+
+tarname=speexdsp-SpeexDSP-$version.tar.bz2
+fetch="https://gitlab.xiph.org/xiph/speexdsp/-/archive/SpeexDSP-$version/$tarname"
+
+srcdir=speexdsp-SpeexDSP-$version
+
+build() 
+{
+	unpack "${tardir}/$tarname"
+	
+	cd "$srcdir"
+	
+	# Set sane permissions
+	chmod -R u+w,go-w,a+rX-s .
+
+	autoreconf -vif
+	./configure \
+		--disable-static \
+		--prefix=/usr \
+		--sysconfdir=/etc \
+		--mandir=/usr/share/man \
+		--infodir=/usr/share/info \
+		--prefix=/usr
+
+	make 
+	make DESTDIR="$destdir" install 
+}

@@ -1,0 +1,36 @@
+# Build recipe for xfce4-screenshooter.
+#
+
+# Exit immediately on any error
+set -e
+
+program=xfce4-screenshooter
+version=1.11.1
+release=0
+description="Screenshot application for Xfce4"
+homepage="https://goodies.xfce.org/projects/applications/xfce4-screenshooter"
+license="GPL-2.0-or-later"
+
+tarname=xfce4-screenshooter-$version.tar.bz2
+fetch="https://archive.xfce.org/src/apps/xfce4-screenshooter/${version%.*}/$tarname"
+
+build() 
+{
+	unpack "${tardir}/$tarname"
+	
+	cd "$srcdir"
+	
+	# Set sane permissions
+	chmod -R u+w,go-w,a+rX-s .
+
+	autoreconf -vif
+	./configure \
+		--prefix=/usr \
+		--sysconfdir=/etc \
+		--libexecdir=/usr/libexec \
+		--localstatedir=/var \
+		--disable-static
+
+	make -j2 
+	make DESTDIR="$destdir" install 
+}

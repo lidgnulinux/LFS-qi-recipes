@@ -1,0 +1,32 @@
+# Build recipe for vim wayland clipboard.
+#
+# Exit immediately on any error
+set -e
+
+program=vim-wayland-clipboard
+version=0
+release=0
+description="Integrate Vim's '+' register with the Wayland system clipboard"
+homepage="https://github.com/jasonccox/vim-wayland-clipboard"
+license="MIT license"
+pkgcategory=misc
+commit="cd4efac3e77177afdf220146948d0e06245946de"
+tarname=${commit}.tar.gz
+fetch="https://github.com/jasonccox/vim-wayland-clipboard/archive/$tarname"
+srcdir="${program}-${commit}"
+
+build() {
+
+	unpack "${tardir}/$tarname"
+	
+	cd "$srcdir"
+	
+	# Set sane permissions
+	chmod -R u+w,go-w,a+rX-s .
+    
+	mkdir -p ${destdir}/usr/share/vim/vimfiles
+	install -Dm644 plugin/wayland_clipboard.vim -t ${destdir}/usr/share/vim/vimfiles/plugin/ 
+	install -Dm644 LICENSE -t ${destdir}/usr/share/licenses/$program/
+	install -Dm644 CHANGELOG.md -t ${destdir}/usr/share/doc/$program/
+	install -Dm644 README.md -t ${destdir}/usr/share/doc/$program/
+}

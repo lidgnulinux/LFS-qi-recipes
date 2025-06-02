@@ -1,0 +1,56 @@
+# Build recipe for gpgme.
+#
+# Exit immediately on any error
+set -e
+
+program=gpgme
+version=1.24.1
+release=0
+
+# Define a category for the output of the package name
+pkgcategory=gnupg
+
+tarname=${program}-${version}.tar.bz2
+
+# Remote source(s)
+fetch=https://www.gnupg.org/ftp/gcrypt/gpgme/$tarname
+
+description="
+GnuPG made easy.
+
+GPGME (GnuPG Made Easy) is a C language library that allows to add
+support for cryptography to a program.
+"
+
+homepage=https://www.gnupg.org
+license="GPLv2+, LGPLv2.1"
+
+# Source documentation
+docs="AUTHORS COPYING* ChangeLog NEWS README THANKS TODO VERSION"
+docsdir="${docdir}/${program}-${version}"
+
+build()
+{
+    unpack "${tardir}/$tarname"
+
+    cd "$srcdir"
+
+    # Set sane permissions
+    chmod -R u+w,go-w,a+rX-s .
+
+    patch -p1 < "${worktree}/lfs64.patch"
+
+    ./configure CPPFLAGS="$QICPPFLAGS" \
+    CFLAGS="$QICFLAGS" CXXFLAGS="$QICXXFLAGS" LDFLAGS="$QILDFLAGS" \
+     $configure_args \
+     --infodir=$infodir \
+     --mandir=$mandir \
+     --docdir=$docsdir \
+     --localstatedir=/var \
+     --disable-dependency-tracking \
+     --enable-static \
+     --build="$(gcc -dumpmachine)"
+
+    make -j2 V=1
+    make DESTDIR="$destdir" install
+}

@@ -1,0 +1,41 @@
+# Build recipe for libao.
+#
+
+# Exit immediately on any error
+set -e
+
+program=libao
+version=1.2.2
+release=0
+description="Cross-platform audio output library and plugins"
+homepage="https://www.xiph.org/ao"
+license="GPL-2.0-or-later"
+
+tarname=$version.tar.gz
+fetch="https://github.com/xiph/libao/archive/$tarname"
+
+build() 
+{
+	unpack "${tardir}/$tarname"
+	
+	cd "$srcdir"
+	
+	# Set sane permissions
+	chmod -R u+w,go-w,a+rX-s .
+
+	patch -p1 < "${worktree}/CVE-2017-11548.patch"
+	patch -p1 < "${worktree}/libao.gcc-14.patch"
+
+	autoreconf -fi
+	./configure \
+		--build=$CBUILD \
+		--host=$CHOST \
+		--prefix=/usr \
+		--disable-esd \
+		--disable-arts \
+		--enable-alsa-mmap \
+		--enable-pulse
+
+	make 
+	make DESTDIR="$destdir" install 
+}

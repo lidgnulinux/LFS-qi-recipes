@@ -1,0 +1,47 @@
+# Build recipe for gnu-libiconv.
+#
+
+# Exit immediately on any error
+set -e
+
+program=gnu-libiconv
+version=1.17
+release=0
+description="GNU charset conversion library for libc which doesn't implement it"
+homepage="https://www.gnu.org/software/libiconv"
+license="LGPL-2.1-or-later"
+
+tarname=libiconv-$version.tar.gz
+fetch="https://ftp.gnu.org/pub/gnu/libiconv/$tarname"
+
+srcdir=libiconv-$version
+
+build() 
+{
+	unpack "${tardir}/$tarname"
+	
+	cd "$srcdir"
+	
+	# Set sane permissions
+	chmod -R u+w,go-w,a+rX-s .
+
+	./configure \
+		--prefix=/usr \
+		--mandir=/usr/share/man \
+		--docdir=/usr/share/doc/$program/ \
+		--disable-nls \
+		--disable-static \
+		--enable-extra-encodings
+
+	# work around rpath issue
+	sed -i 's|^hardcode_libdir_flag_spec=.*|hardcode_libdir_flag_spec=""|g' libtool
+	sed -i 's|^runpath_var=LD_RUN_PATH|runpath_var=DIE_RPATH_DIE|g' libtool
+
+	make 
+	make DESTDIR="$destdir" install 
+
+	# move headers so they dont clash with libc headers
+	mkdir -p "$destdir"/usr/include/gnu-libiconv
+	mv "$destdir"/usr/include/*.h "$destdir"/usr/include/gnu-libiconv
+	mv "$destdir"/usr/bin/iconv "$destdir"/usr/bin/gnu-iconv
+}

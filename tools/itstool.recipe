@@ -1,0 +1,52 @@
+# Build recipe for itstool.
+#
+# Exit immediately on any error
+set -e
+
+program=itstool
+version=2.0.7
+arch=noarch
+release=2
+
+# Define a category for the output of the package name
+pkgcategory=docbook
+
+tarname=${program}-${version}.tar.bz2
+
+# Remote source(s)
+fetch=http://files.itstool.org/itstool/$tarname
+
+description="
+Convert between XML and PO using ITS.
+
+Itstool extracts messages from XML files and outputs PO template
+files, then merges translations from MO files to create translated
+XML files.  It determines what to translate and how to chunk it
+into messages using the W3C Internationalization Tag Set (ITS).
+"
+
+homepage=https://itstool.org
+license=GPLv3+
+
+# Source documentation
+docs="AUTHORS COPYING* ChangeLog NEWS README"
+docsdir="${docdir}/${program}-${version}"
+
+build()
+{
+    unpack "${tardir}/$tarname"
+
+    cd "$srcdir"
+
+    # Set sane permissions
+    chmod -R u+w,go-w,a+rX-s .
+
+    ./configure PYTHON="/usr/bin/python3" \
+     $configure_args \
+     --mandir=$mandir \
+     --docdir=$docsdir \
+     --build="$(gcc -dumpmachine)"
+
+    make -j${jobs} V=1
+    make -j${jobs} DESTDIR="$destdir" install
+}

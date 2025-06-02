@@ -1,0 +1,48 @@
+# Build recipe for tree.
+#
+# Exit immediately on any error
+set -e
+
+program=tree
+version=2.2.1
+release=0
+
+# Define a category for the output of the package name
+pkgcategory=tools
+
+tarname=unix-${program}-${version}.tar.gz
+
+# Remote source(s)
+fetch=https://gitlab.com/OldManProgrammer/unix-tree/-/archive/$version/"$tarname"
+
+description="
+Tree is a recursive directory listing command.
+
+Tree produces a depth indented listing of files, which is colorized 
+ala dircolors if the LS_COLORS environment variable is set and output 
+is to tty. Tree has been ported and reported to work under the 
+following operating systems: Linux, FreeBSD, OS X, Solaris, 
+HP/UX, Cygwin, HP Nonstop and OS/2. 
+"
+
+homepage=https://oldmanprogrammer.net/source.php?dir=projects/tree
+license=GPLv2+
+
+# Source documentation
+docs="CHANGES LICENSE README TODO"
+docsdir="${docdir}/${program}-${version}"
+srcdir=unix-tree-$version
+
+build()
+{
+    unpack "${tardir}/$tarname"
+
+    cd "$srcdir"
+   
+    make -j2 \
+     CPPFLAGS="$QICPPFLAGS" \
+     CFLAGS="$QICFLAGS -O3 -Wall -DLINUX -D_LARGEFILE64_SOURCE -D_FILE_OFFSET_BITS=64" \
+     LDFLAGS="$QILDFLAGS -static" \
+     PREFIX="${destdir}/usr" \
+     MANDIR="${destdir}/${mandir}" install
+}

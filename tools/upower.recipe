@@ -1,0 +1,43 @@
+# Build recipe for upower.
+#
+# Exit immediately on any error
+set -e
+
+program=upower
+version=1.90.9
+release=0
+description="Power Management Services"
+homepage="https://upower.freedesktop.org"
+license="GPL-2.0-or-later"
+
+tarname=upower-v$version.tar.bz2
+fetch="https://gitlab.freedesktop.org/upower/upower/-/archive/v$version/$tarname"
+srcdir=$program-v$version
+
+build() 
+{
+	unpack "${tardir}/$tarname"
+	
+	cd "$srcdir"
+	
+	# Set sane permissions
+	chmod -R u+w,go-w,a+rX-s .
+
+	rm -rf BUILD
+	mkdir BUILD
+	cd BUILD
+	
+	CPPFLAGS="$QICPPFLAGS" CFLAGS="$QICFLAGS" LDFLAGS="$QILDFLAGS" \
+	meson setup $configure_args \
+		-Db_lto=true \
+		-Dudevhwdbdir=/usr/lib/udev/hwdb.d/ \
+		-Dudevrulesdir=/lib/udev/rules.d \
+		-Dsystemdsystemunitdir=no \
+		-Dgtk-doc=false \
+		..
+	
+	ninja -j2
+	DESTDIR="$destdir" ninja -j2 install
+	
+	cd ..
+}

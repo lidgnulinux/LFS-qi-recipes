@@ -1,0 +1,29 @@
+# Build recipe for cwm.
+#
+
+# Exit immediately on any error
+set -e
+
+program=cwm
+version=7.4
+release=0
+description="Fork of calmwm, a clean and lightweight window manager"
+homepage="https://github.com/leahneukirchen/cwm"
+license="BSD"
+
+tarname=cwm-$version.tar.gz
+fetch="https://github.com/leahneukirchen/cwm/archive/v$version/$tarname"
+
+build() 
+{
+	unpack "${tardir}/$tarname"
+	
+	cd "$srcdir"
+	
+	# Set sane permissions
+	chmod -R u+w,go-w,a+rX-s .
+
+	make 
+	make DESTDIR="$destdir" PREFIX=/usr install 
+	install -Dm644 "${worktree}/cwm.desktop" "${destdir}/usr/share/xsessions/cwm.desktop"
+}

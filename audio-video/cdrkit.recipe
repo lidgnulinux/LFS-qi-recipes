@@ -1,0 +1,53 @@
+# Build recipe for cdrkit.
+#
+# Exit immediately on any error
+set -e
+
+program=cdrkit
+version=1.1.11
+release=0
+description="Suite of programs for CD/DVD recording, ISO image creation, and audio CD extraction"
+homepage="http://cdrkit.org/"
+license="GPL-2.0-only"
+
+tarname=cdrkit-$version.tar.gz
+fetch="https://dev.alpinelinux.org/archive/cdrkit/$tarname"
+
+build() 
+{
+	unpack "${tardir}/$tarname"
+	
+	cd "$srcdir"
+	
+	# Set sane permissions
+	chmod -R u+w,go-w,a+rX-s .
+
+	sed -i include/xconfig.h.in -e "s/#define HAVE_RCMD 1/#undef HAVE_RCMD/g"
+
+	patch -p1 -i "${worktree}/gcc10.patch"
+	patch -p1 -i "${worktree}/implicit.patch"
+	patch -p1 -i "${worktree}/werrorformat.patch"
+
+	export CFLAGS="$CFLAGS -D__THROW=''"
+
+	cmake -B build -G Ninja \
+		-DCMAKE_INSTALL_PREFIX=/usr \
+		-DCMAKE_BUILD_TYPE=None
+	cmake --build build
+
+	DESTDIR="$destdir" cmake --install build
+
+	cd "$destdir/usr/bin"
+	ln -s wodim cdrecord
+	ln -s readom readcd
+	ln -s genisoimage mkisofs
+	ln -s genisoimage mkhybrid
+	ln -s icedax cdda2wav
+
+	cd "$destdir/usr/share/man/man1"
+	ln -s wodim.1 cdrecord.1
+	ln -s readom.1 readcd.1
+	ln -s genisoimage.1 mkisofs.1
+	ln -s genisoimage.1 mkhybrid.1
+	ln -s icedax.1 cdda2wav.1
+}

@@ -1,0 +1,48 @@
+# Build recipe for accountsservice.
+#
+# Exit immediately on any error
+set -e
+
+program=accountsservice
+version=23.13.9
+release=1
+description="D-Bus interface for user account query and manipulation"
+homepage="https://www.freedesktop.org/software/accountsservice/"
+license="GPL-3.0-or-later"
+
+tarname=accountsservice-$version.tar.xz
+fetch="https://www.freedesktop.org/software/accountsservice/$tarname"
+
+build() 
+{
+	unpack "${tardir}/$tarname"
+	
+	cd "$srcdir"
+	
+	# Set sane permissions
+	chmod -R u+w,go-w,a+rX-s .
+
+	rm -rf BUILD
+	mkdir BUILD
+	cd BUILD
+	
+	patch -p1 -d .. < "${worktree}/accountsservice.musl-fgetspent_r.patch"
+	patch -p1 -d .. < "${worktree}/accountsservice.musl-wtmp.patch"
+	patch -p1 -d .. < "${worktree}/accountsservice.opt-tests.patch"
+
+	CPPFLAGS="$QICPPFLAGS" CFLAGS="$QICFLAGS" LDFLAGS="$QILDFLAGS" \
+	meson setup $configure_args \
+		-Dsystemdsystemunitdir=no \
+		-Delogind=true \
+		-Dintrospection=true \
+		-Ddocbook=false \
+		-Dgtk_doc=false \
+		-Dtests=false \
+		-Dadmin_group=wheel \
+		..
+	
+	ninja -j2
+	DESTDIR="$destdir" ninja -j2 install
+	
+	cd ..
+}

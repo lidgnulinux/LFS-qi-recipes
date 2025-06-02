@@ -1,0 +1,48 @@
+# Build recipe for linux-pam.
+#
+# Exit immediately on any error
+set -e
+
+program=linux-pam
+version=1.6.1
+release=2
+
+# Define a category for the output of the package name
+pkgcategory=libs
+
+tarname=Linux-PAM-${version}.tar.xz
+
+# Remote source(s)
+fetch=https://github.com/linux-pam/linux-pam/releases/download/v$version/$tarname
+
+description="Linux PAM (Pluggable Authentication Modules for Linux)"
+
+homepage=https://www.kernel.org/pub/linux/libs/pam
+license="BSD-3-Clause"
+
+srcdir=Linux-PAM-$version
+
+build()
+{
+    unpack "${tardir}/$tarname"
+
+    cd "$srcdir"
+
+    # Set sane permissions
+    chmod -R u+w,go-w,a+rX-s .
+    
+    # export CFLAGS="$CFLAGS -flto=auto $(pkg-config --cflags utmps)"
+    # export LDFLAGS="$LDFLAGS $(pkg-config --libs utmps)"
+    ./configure \
+        --prefix=/usr \
+        --libdir=/usr/lib \
+        --sysconfdir=/etc \
+        --localstatedir=/var \
+        --disable-nls \
+        --disable-db \
+        --disable-examples
+
+    make
+
+    make DESTDIR="$destdir" install
+}

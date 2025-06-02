@@ -1,0 +1,40 @@
+# Build recipe for grub.
+#
+
+# Exit immediately on any error
+set -e
+
+program=grub
+version=2.12
+release=0
+description="Bootloader with support for Linux, Multiboot and more"
+homepage="https://www.gnu.org/software/grub/"
+license="GPL-3.0-or-later"
+
+tarname=grub-$version.tar.xz
+fetch="https://ftp.gnu.org/gnu/grub/$tarname"
+
+build() 
+{
+	unpack "${tardir}/$tarname"
+	
+	cd "$srcdir"
+	
+	# Set sane permissions
+	chmod -R u+w,go-w,a+rX-s .
+
+	PYTHON=python3 sh ./autogen.sh
+
+	# Required to fix 2.12 build - (empty) file is missing from release
+	touch grub-core/extra_deps.lst
+
+	./configure \
+		--prefix=/usr \
+		--sysconfdir=/etc \
+		--mandir=/usr/share/man \
+		--disable-nls --with-platform=pc \
+		--infodir=/usr/share/info
+
+	make -j2 
+	make DESTDIR="$destdir" install 
+}

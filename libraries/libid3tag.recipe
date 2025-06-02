@@ -1,0 +1,51 @@
+# Build recipe for libid3tag.
+#
+# Exit immediately on any error
+set -e
+
+program=libid3tag
+version=0.16.3
+release=0
+
+# Define a category for the output of the package name
+pkgcategory=libs
+
+tarname=${version}.tar.gz
+
+# Remote source(s)
+fetch=https://codeberg.org/tenacityteam/libid3tag/archive/$tarname
+
+description="
+ID3 tag manipulation library.
+  
+libid3tag is a library for reading and (eventually) writing ID3 tags,
+both ID3v1 and the various versions of ID3v2.
+"
+
+homepage=https://www.underbit.com/products/mad/
+license=GPLv2+
+
+# Source documentation
+docs="CHANGES COPYING COPYRIGHT CREDITS README TODO VERSION"
+docsdir="${docdir}/${program}-${version}"
+srcdir=libid3tag
+jobs=4
+
+build()
+{
+    unpack "${tardir}/$tarname"
+
+    cd "$srcdir"
+
+    # Set sane permissions
+    chmod -R u+w,go-w,a+rX-s .
+
+    cmake -B build -G Ninja \
+    	-DCMAKE_BUILD_TYPE=MinSizeRel \
+    	-DCMAKE_INSTALL_PREFIX=/usr \
+    	-DCMAKE_INSTALL_LIBDIR=lib
+
+    cmake --build build
+
+    DESTDIR="$destdir" cmake --install build
+}

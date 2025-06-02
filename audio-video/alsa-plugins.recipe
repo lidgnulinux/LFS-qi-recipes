@@ -1,0 +1,51 @@
+# Build recipe for alsa-plugins.
+#
+# Exit immediately on any error
+set -e
+
+program=alsa-plugins
+version=1.2.12
+release=1
+
+# Define a category for the output of the package name
+pkgcategory=libs
+
+tarname=${program}-${version}.tar.bz2
+
+# Remote source(s)
+fetch=https://www.alsa-project.org/files/pub/plugins/$tarname
+
+description="
+Plugins for ALSA.
+
+The alsa-plugins package contains plugins for
+various audio libraries and sound servers.
+"
+
+homepage=https://alsa-project.org
+license="LGPLv2.1, GPLv2+"
+
+# Source documentation
+docs="COPYING* version"
+docsdir="${docdir}/${program}-${version}"
+
+build()
+{
+    unpack "${tardir}/$tarname"
+
+    cd "$srcdir"
+
+    # Set sane permissions
+    chmod -R u+w,go-w,a+rX-s .
+
+    ./configure CPPFLAGS="$QICPPFLAGS" \
+     CFLAGS="$QICFLAGS" LDFLAGS="$QILDFLAGS" \
+      $configure_args --build="$(gcc -dumpmachine)"
+
+    make -j${jobs} V=1
+    make -j${jobs} DESTDIR="$destdir" install
+
+    # Copy documentation
+    mkdir -p "${destdir}/$docsdir"
+    cp -p $docs "${destdir}/$docsdir"
+}

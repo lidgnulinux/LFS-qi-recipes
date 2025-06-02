@@ -1,0 +1,70 @@
+# Build recipe for libXdmcp.
+#
+# Exit immediately on any error
+set -e
+
+program=libXdmcp
+version=1.1.5
+release=1
+
+# Define a category for the output of the package name
+pkgcategory=xorg_lib
+
+tarname=${program}-${version}.tar.gz
+
+# Remote source(s)
+fetch=https://www.x.org/releases/individual/lib/$tarname
+
+description="
+X Display Manager Control Protocol library.
+
+This package is part of X11.
+"
+
+homepage=https://www.x.org
+license="MIT X Consortium"
+
+# Source documentation
+docs="AUTHORS COPYING ChangeLog README.md"
+docsdir="${docdir}/${program}-${version}"
+
+build()
+{
+    unpack "${tardir}/$tarname"
+
+    cd "$srcdir"
+
+    # Set sane permissions
+    chmod -R u+w,go-w,a+rX-s .
+
+    ./configure CPPFLAGS="$QICPPFLAGS" \
+    CFLAGS="$QICFLAGS" LDFLAGS="$QILDFLAGS" \
+     $configure_args \
+     --mandir=$mandir \
+     --docdir=$docsdir \
+     --enable-shared=yes \
+     --enable-static=no \
+     --without-xmlto \
+     --build="$(gcc -dumpmachine)"
+
+    make -j${jobs} V=1
+    make -j${jobs} DESTDIR="$destdir" install-strip
+
+    # Compress and link man pages (if needed)
+    if test -d "${destdir}/$mandir"
+    then
+        (
+            cd "${destdir}/$mandir"
+            find . -type f -exec lzip -9 {} +
+            find . -type l | while read -r file
+            do
+                ln -sf "$(readlink -- "$file").lz" "${file}.lz"
+                rm -- "$file"
+            done
+        )
+    fi
+
+    # Copy documentation
+    mkdir -p "${destdir}/$docsdir"
+    cp -p $docs "${destdir}/$docsdir"
+}

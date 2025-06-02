@@ -1,0 +1,46 @@
+# Build recipe for wl-clipboard.
+#
+# Exit immediately on any error
+set -e
+
+program=wl-clipboard
+version=2.2.0
+release=0
+
+# Define a category for the output of the package name
+pkgcategory=wayland_apps
+
+tarname=${program}-${version}.tar.gz
+
+# Remote source(s)
+fetch=https://github.com/bugaevc/wl-clipboard/archive/v$version/$tarname
+
+description="Command-line copy/paste utilities for Wayland"
+
+homepage=https://github.com/bugaevc/wl-clipboard
+license="GPL-3.0-or-later"
+
+build()
+{
+    unpack "${tardir}/$tarname"
+
+    cd "$srcdir"
+
+    # Set sane permissions
+    chmod -R u+w,go-w,a+rX-s .
+
+    rm -rf BUILD
+    mkdir BUILD
+    cd BUILD
+
+    patch -p1 -d .. < ${worktree}/0001-Do-not-abort-when-interfaces-are-older-than-expected.patch.wl-clipboard
+    patch -p1 -d .. < ${worktree}/0002-Tweak-binding-interfaces-further.patch.wl-clipboard
+
+    CPPFLAGS="$QICPPFLAGS" CFLAGS="$QICFLAGS" LDFLAGS="$QILDFLAGS" \
+    meson setup $configure_args ..
+
+    ninja 
+    DESTDIR="$destdir" ninja install
+
+    cd ..
+}

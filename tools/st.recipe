@@ -1,0 +1,63 @@
+# Build recipe for st.
+#
+# Exit immediately on any error
+set -e
+
+program=st
+version=0.9
+release=4
+
+# Define a category for the output of the package name
+pkgcategory=x-apps
+
+tarname=${program}-${version}.tar.gz
+
+# Remote source(s)
+fetch=https://dl.suckless.org/st/$tarname
+
+description="
+st is a simple terminal implementation for X.
+
+It supports:
+*    most VT10X escape sequences
+*    serial line support
+*    XIM support
+*    utmp via utmp(1)
+*    clipboard handling
+*    mouse and keyboard shortcuts (via config.h)
+*    UTF-8
+*    wide-character support
+*    resize
+*    256 colors and true colors
+*    antialiased fonts (using fontconfig)
+*    fallback fonts
+*    line drawing
+"
+
+homepage=https://st.suckless.org
+license="MIT X Consortium"
+
+# Source documentation
+docs="FAQ LEGACY LICENSE README TODO"
+docsdir="${docdir}/${program}-${version}"
+
+build()
+{
+    unpack "${tardir}/$tarname"
+
+    cd "$srcdir"
+
+    # Set sane permissions
+    chmod -R u+w,go-w,a+rX-s .
+
+    cat "${worktree}/config.def.h" > ./config.def.h
+    cat "${worktree}/config.mk" > ./config.mk
+
+    make -j${jobs} \
+     CFLAGS="$QICFLAGS -std=c99" \
+     LDFLAGS="$QILDFLAGS" \
+     X11INC=/usr/include/X11 \
+     X11LIB=/usr/lib${libSuffix}/X11
+
+    make -j${jobs} PREFIX=/usr DESTDIR="$destdir" install
+}

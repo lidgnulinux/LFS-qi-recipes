@@ -1,0 +1,42 @@
+# Build recipe for i3blocks.
+#
+# Exit immediately on any error
+set -e
+
+program=i3blocks
+version=1.5
+release=0
+
+# Define a category for the output of the package name
+pkgcategory=x-apps
+
+tarname=${version}.tar.gz
+
+# Remote source(s)
+fetch=https://github.com/vivien/i3blocks/archive/$tarname
+
+description="A minimalist scheduler for your status line scripts"
+
+homepage=https://github.com/vivien/i3blocks
+license="GPL-3.0-or-later"
+
+build()
+{
+    unpack "${tardir}/$tarname"
+
+    cd "$srcdir"
+
+    # Set sane permissions
+    chmod -R u+w,go-w,a+rX-s .
+	
+     autoreconf -fi
+
+    ./configure \
+	--prefix=/usr \
+	--disable-static \
+	--sysconfdir=/etc
+    
+    make
+    make DESTDIR="$destdir" PREFIX=/usr install
+}
+

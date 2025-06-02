@@ -1,0 +1,58 @@
+# Build recipe for imlib2.
+#
+# Exit immediately on any error
+set -e
+
+program=imlib2
+version=1.12.4
+release=0
+
+# Define a category for the output of the package name
+pkgcategory=x-libs
+
+tarname=${program}-${version}.tar.gz
+
+# Remote source(s)
+fetch=https://sourceforge.net/projects/enlightenment/files/imlib2-src/${version}/$tarname
+
+description="
+Imlib2 is the (intended) successor to Imlib.
+ 
+Imlib2 can load image files from disk in one of many formats, save
+images to disk in one of many formats, render image data onto other
+images, render images to an X-Windows drawable, produce pixmaps and
+pixmap masks of images, apply filters to images, rotate images,
+accept RGBA data for images, scale images, and more.
+"
+
+homepage=https://www.enlightenment.org/
+license=BSD
+
+# Source documentation
+docs="AUTHORS COPYING COPYING-PLAIN ChangeLog README TODO"
+docsdir="${docdir}/${program}-${version}"
+jobs=4
+
+build()
+{
+    unpack "${tardir}/$tarname"
+
+    cd "$srcdir"
+
+    case $arch in
+    i?86)
+        assembly_opts=--enable-mmx
+        ;;
+    amd64 | x32 )
+        assembly_opts=--enable-amd64
+        ;;
+    esac
+
+    ./configure CPPFLAGS="$QICPPFLAGS" CFLAGS="$QICFLAGS" LDFLAGS="$QILDFLAGS" \
+     $configure_args --with-id3 --with-x --build="$(gcc -dumpmachine)" \
+     --enable-amd64 --with-bzip2 --with-id3 --with-jpeg --with-tiff
+
+    unset -v assembly_opts
+    make -j${jobs} V=1
+    make -j${jobs} DESTDIR="$destdir" install
+}

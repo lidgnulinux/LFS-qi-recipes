@@ -1,0 +1,42 @@
+# Build recipe for gst-plugins-good.
+#
+
+# Exit immediately on any error
+set -e
+
+program=gst-plugins-good
+version=1.26.0
+release=0
+description="GStreamer streaming media framework good plug-ins"
+homepage="https://gstreamer.freedesktop.org"
+license="GPL-2.0-or-later AND LGPL-2.0-or-later"
+
+tarname=gst-plugins-good-$version.tar.xz
+fetch="https://gstreamer.freedesktop.org/src/gst-plugins-good/$tarname"
+
+ldpath="/usr/lib/gstreamer-1.0"
+
+build() 
+{
+	unpack "${tardir}/$tarname"
+	
+	cd "$srcdir"
+	
+	# Set sane permissions
+	chmod -R u+w,go-w,a+rX-s .
+
+	rm -rf BUILD
+	mkdir BUILD
+	cd BUILD
+	
+	CPPFLAGS="$QICPPFLAGS" CFLAGS="$QICFLAGS" LDFLAGS="$QILDFLAGS" \
+	meson setup $configure_args \
+		-Dpackage-name="GStreamer good plug-ins (Linux From Scratch)" \
+		-Dtests="disabled" \
+		..
+	
+	ninja -j2
+	DESTDIR="$destdir" ninja -j2 install
+	
+	cd ..
+}

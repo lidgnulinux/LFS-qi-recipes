@@ -1,0 +1,97 @@
+# Build recipe for libressl.
+#
+# Exit immediately on any error
+set -e
+
+program=libressl
+version=4.1.0
+release=0
+
+# Define a category for the output of the package name
+pkgcategory=networking
+
+tarname=${program}-${version}.tar.gz
+
+# Remote source(s)
+fetch=https://ftp.openbsd.org/pub/OpenBSD/LibreSSL/$tarname
+
+description="
+A version of the TLS/crypto stack.
+
+LibreSSL is a version of the TLS/crypto stack forked from OpenSSL in
+2014, with goals of modernizing the codebase, improving security, and
+applying best practice development processes.
+
+Primary development occurs inside the OpenBSD source tree with the
+usual care the project is known for.  On a regular basis the code
+is re-packaged for portable use by other operating systems (Linux,
+FreeBSD, Windows, etc).
+"
+
+homepage=https://www.libressl.org
+license=Custom
+
+# Source documentation
+docs="COPYING ChangeLog README.md VERSION"
+docsdir="${docdir}/${program}-${version}"
+
+jobs=4
+
+build()
+{
+    unpack "${tardir}/$tarname"
+
+    cd "$srcdir"
+
+    # Set sane permissions
+    chmod -R u+w,go-w,a+rX-s .
+
+    ./configure CPPFLAGS="$QICPPFLAGS" \
+    CFLAGS="$QICFLAGS" LDFLAGS="$QILDFLAGS" \
+     $configure_args \
+     --libdir=/usr/lib \
+     --mandir=$mandir \
+     --docdir=$docsdir \
+     --enable-hardening \
+     --enable-nc \
+     --with-openssldir=/etc/ssl \
+     --build="$(gcc -dumpmachine)"
+
+    make -j${jobs} V=1
+    make -j${jobs} DESTDIR="$destdir" install-strip
+
+    # This is provided by the ca-certificates package
+    rm -f "${destdir}/etc/ssl/cert.pem"
+    rmdir "${destdir}/etc/ssl/certs"
+
+    # To manage config file(s)
+    touch "${destdir}/etc/ssl/.graft-config"
+
+    # Compress and link man pages (if needed)
+    if test -d "${destdir}/$mandir"
+    then
+        (
+            cd "${destdir}/$mandir"
+            find . -type f -exec lzip -9 {} +
+            find . -type l | while read -r file
+            do
+                ln -sf "$(readlink -- $file).lz" "${file}.lz"
+                rm -- "$file"
+            done
+        )
+    fi
+
+    # Remove broken symlinks
+    find "${destdir}/$mandir" -print | while read -r file
+    do
+        if test -L "$file" && test ! -e "$file"
+        then
+            echo "Deleting dangling symlink: $file"
+            rm -f -- "$file"
+        fi
+    done
+
+    # Copy documentation
+    mkdir -p "${destdir}/$docsdir"
+    cp -p $docs "${destdir}/$docsdir"
+}

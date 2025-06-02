@@ -1,0 +1,40 @@
+# Build recipe for xfwm4-wayland.
+#
+
+# Exit immediately on any error
+set -e
+
+program=xfwm4-wayland
+version=4.18.0
+release=1
+description="Xfce window manager, compatible with Gnome, Gnome2, KDE2, and KDE3"
+homepage="https://xfce.org/"
+license="GPL-2.0-or-later"
+
+tarname=wayland.tar.gz
+fetch="https://github.com/adlocode/xfwm4/archive/refs/heads/$tarname"
+srcdir=xfwm4-wayland
+
+build() 
+{
+	unpack "${tardir}/$tarname"
+	
+	cd "$srcdir"
+	
+	# Set sane permissions
+	chmod -R u+w,go-w,a+rX-s .
+
+	rm -rf BUILD
+	mkdir BUILD
+	cd BUILD
+	
+	CPPFLAGS="$QICPPFLAGS" CFLAGS="$QICFLAGS" LDFLAGS="$QILDFLAGS" \
+	meson setup $configure_args ..
+	
+	ninja -j2
+	DESTDIR="$destdir" ninja -j2 install
+
+	mv "$destdir"/usr/bin/xfwm4 "$destdir"/usr/bin/xfwm4-wayland
+	
+	cd ..
+}

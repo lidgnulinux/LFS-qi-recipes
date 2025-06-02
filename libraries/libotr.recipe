@@ -1,0 +1,33 @@
+# Build recipe for libotr.
+#
+# Exit immediately on any error
+set -e
+
+program=libotr
+version=4.1.1
+release=0
+description="Off The Record Messaging, an encryption library for secure IM conversations"
+homepage="http://otr.cypherpunks.ca/"
+license="LGPL-2.1-only"
+
+tarname=libotr-$version.tar.gz
+fetch="https://www.cypherpunks.ca/otr/$tarname"
+
+build() 
+{
+	unpack "${tardir}/$tarname"
+	
+	cd "$srcdir"
+	
+	# Set sane permissions
+	chmod -R u+w,go-w,a+rX-s .
+
+	patch -p1 < ${worktree}/libotr.socklen-t.patch
+
+	./configure \
+		--prefix=/usr \
+		--libdir=/usr/lib
+
+	make 
+	make DESTDIR="$destdir" install 
+}

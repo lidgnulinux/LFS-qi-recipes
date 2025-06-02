@@ -1,0 +1,52 @@
+# Build recipe for libgpg-error.
+#
+# Exit immediately on any error
+set -e
+
+program=libgpg-error
+version=1.51
+release=0
+
+# Define a category for the output of the package name
+pkgcategory=gnupg
+
+tarname=${program}-${version}.tar.bz2
+
+# Remote source(s)
+fetch=https://www.gnupg.org/ftp/gcrypt/libgpg-error/$tarname
+
+description="
+Small library with error codes.
+
+The libgpg-error package contains a library that defines common error
+values for all GnuPG components.
+"
+
+homepage=https://www.gnupg.org
+license="GPLv2+, LGPLv2.1"
+
+# Source documentation
+docs="AUTHORS COPYING* ChangeLog NEWS README THANKS VERSION"
+docsdir="${docdir}/${program}-${version}"
+
+build()
+{
+    unpack "${tardir}/$tarname"
+
+    cd "$srcdir"
+
+    # Set sane permissions
+    chmod -R u+w,go-w,a+rX-s .
+
+    ./configure CPPFLAGS="$QICPPFLAGS" \
+    CFLAGS="$QICFLAGS" LDFLAGS="$QILDFLAGS" \
+     $configure_args \
+     --infodir=$infodir \
+     --mandir=$mandir \
+     --docdir=$docsdir \
+     --enable-install-gpg-error-config \
+     --build="$(gcc -dumpmachine)"
+
+    make -j${jobs} V=1
+    make -j${jobs} DESTDIR="$destdir" install
+}

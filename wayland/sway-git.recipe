@@ -1,0 +1,45 @@
+# Build recipe for sway-git.
+#
+# Exit immediately on any error
+set -e
+
+program=sway-git
+version=1.11-rc2.r7546.c3fbff5b4
+release=1
+
+# Define a category for the output of the package name
+pkgcategory=wayland-compositor
+
+commit=3fbff5b4bb600efa10630013546115a4f6e0d74a
+tarname=${commit}.tar.gz
+
+# Remote source(s)
+fetch="https://github.com/swaywm/sway/archive/$tarname"
+
+description="SwayWM wayland compositor"
+
+homepage=https://github.com/swaywm/sway
+license="MIT"
+srcdir=sway-$commit
+
+build()
+{
+	unpack "${tardir}/$tarname"
+	
+	cd "$srcdir"
+	
+	# Set sane permissions
+	chmod -R u+w,go-w,a+rX-s .
+	
+	rm -rf BUILD
+	mkdir BUILD
+	cd BUILD
+	
+	CPPFLAGS="$QICPPFLAGS" CFLAGS="$QICFLAGS" LDFLAGS="$QILDFLAGS" \
+	meson setup $configure_args ..
+	
+	ninja -j2
+	DESTDIR="$destdir" ninja -j2 install
+	
+	cd ..
+}

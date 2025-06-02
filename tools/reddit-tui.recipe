@@ -1,0 +1,26 @@
+# Build recipe for reddit-tui.
+#
+# Exit immediately on any error
+set -e
+
+program=reddit-tui
+version=0.3.8
+release=0
+description="A lightweight terminal application for browsing Reddit."
+homepage="https://github.com/tonymajestro/reddit-tui"
+license="MIT"
+
+tarname=reddit-tui_Linux_x86_64.tar.gz
+fetch="https://github.com/tonymajestro/reddit-tui/releases/download/v0.3.8/$tarname"
+
+build() 
+{
+	mkdir -p "${destdir}/usr/bin"
+	mkdir -p "${destdir}/usr/share/doc/reddit-tui"
+	
+	tar -xvf "${tardir}/$tarname" -C "${destdir}/usr/bin" reddittui
+	tar -xvf "${tardir}/$tarname" -C \
+		"${destdir}/usr/share/doc/reddit-tui" LICENSE.txt
+	tar -xvf "${tardir}/$tarname" -C \
+		"${destdir}/usr/share/doc/reddit-tui" README.md
+}

@@ -1,0 +1,54 @@
+# Build recipe for alsa-lib.
+#
+# Exit immediately on any error
+set -e
+
+program=alsa-lib
+version=1.2.14
+release=0
+
+# Define a category for the output of the package name
+pkgcategory=libs
+
+tarname=${program}-${version}.tar.bz2
+
+# Remote source(s)
+fetch=https://www.alsa-project.org/files/pub/lib/$tarname
+
+description="
+The ALSA library.
+
+The alsa-lib package contains the ALSA library.  This is used by
+programs (including ALSA utilities) requiring access to the ALSA
+sound interface.
+"
+
+homepage=https://alsa-project.org
+license=LGPLv2.1
+
+# Source documentation
+docs="COPYING ChangeLog MEMORY-LEAK NOTES TODO version doc/asoundrc.txt"
+docsdir="${docdir}/${program}-${version}"
+
+build()
+{
+    unpack "${tardir}/$tarname"
+
+    cd "$srcdir"
+
+    # Set sane permissions
+    chmod -R u+w,go-w,a+rX-s .
+
+    ./configure CPPFLAGS="$QICPPFLAGS" \
+    CFLAGS="$QICFLAGS" LDFLAGS="$QILDFLAGS" \
+     $configure_args \
+     --without-versioned \
+     --build="$(gcc -dumpmachine)"
+
+    make -j${jobs} V=1
+    make -j${jobs} DESTDIR="$destdir" install
+
+    # Copy documentation
+    mkdir -p "${destdir}/$docsdir"
+    cp -p $docs "${destdir}/$docsdir"
+}

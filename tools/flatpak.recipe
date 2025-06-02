@@ -1,0 +1,60 @@
+# Build recipe for flatpak.
+#
+# Exit immediately on any error
+set -e
+
+program=flatpak
+version=1.16.1
+release=0
+
+# Define a category for the output of the package name
+pkgcategory=tool
+
+tarname=${program}-${version}.tar.xz
+
+# Remote source(s)
+fetch=https://github.com/flatpak/flatpak/releases/download/$version/$tarname
+
+description="Operating system and container binary deployment and upgrades"
+
+homepage=https://github.com/flatpak/flatpak
+license="LGPL-2.1-or-later"
+
+build()
+{
+	unpack "${tardir}/$tarname"
+	
+	cd "$srcdir"
+	
+	# Set sane permissions
+	chmod -R u+w,go-w,a+rX-s .
+
+	rm -rf BUILD
+	mkdir BUILD
+	cd BUILD
+	
+	CPPFLAGS="$QICPPFLAGS" CFLAGS="$QICFLAGS" LDFLAGS="$QILDFLAGS" \
+	meson setup $configure_args \
+		-Ddbus_config_dir=/usr/share/dbus-1/system.d \
+		-Dauto_sideloading=false \
+		-Ddocbook_docs=disabled \
+		-Dgdm_env_file=false \
+		-Dgtkdoc=disabled \
+		-Dman=disabled \
+		-Dsystem_bubblewrap=bwrap \
+		-Dtests=false \
+		-Dsystem_dbus_proxy=xdg-dbus-proxy \
+		-Dsystem_helper_user=flatpak \
+		-Dsystem_fusermount=fusermount3 \
+		-Dselinux_module=disabled \
+		..
+
+	ninja -j2
+	DESTDIR="$destdir" ninja -j2 install
+
+	rm -rf "$destdir"/usr/lib/systemd
+	rm -rf "$destdir"/usr/lib/sysusers.d
+	rm -rf "$destdir"/usr/lib/tmpfiles.d
+
+	cd ..
+}

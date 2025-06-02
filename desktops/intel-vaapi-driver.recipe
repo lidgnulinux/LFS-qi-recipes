@@ -1,0 +1,72 @@
+# Build recipe for intel-vaapi-driver.
+#
+# Exit immediately on any error
+set -e
+
+program=intel-vaapi-driver
+version=2.4.1
+release=0
+
+# Define a category for the output of the package name
+pkgcategory=xorg_extra
+
+tarname=${program}-${version}.tar.bz2
+
+# Remote source(s)
+fetch=https://github.com/intel/intel-vaapi-driver/releases/download/${version}/$tarname
+
+description="
+VA driver for Intel G45 and HD Graphics family.
+
+intel-vaapi-driver is the VA-API implementation for Intel G45 chipsets
+and Intel HD Graphics for Intel Core processor family.
+"
+
+homepage=https://01.org/linuxmedia
+license="MIT X Consortium"
+
+# Source documentation
+docs="COPYING NEWS README"
+docsdir="${docdir}/${program}-${version}"
+jobs=2
+
+build()
+{
+    unpack "${tardir}/$tarname"
+
+    cd "$srcdir"
+
+    # Set sane permissions
+    chmod -R u+w,go-w,a+rX-s .
+
+    ./configure CPPFLAGS="$QICPPFLAGS" CFLAGS="$QICFLAGS" LDFLAGS="$QILDFLAGS -Wl,-z,lazy" \
+     $configure_args \
+     --mandir=$mandir \
+     --docdir=$docsdir \
+     --enable-shared=yes \
+     --enable-static=no \
+     --enable-wayland \
+     --build="$(gcc -dumpmachine)"
+
+    make -j${jobs} V=1
+    make -j${jobs} DESTDIR="$destdir" install-strip
+
+    # Compress and link man pages (if needed)
+    if test -d "${destdir}/$mandir"
+    then
+        (
+            cd "${destdir}/$mandir"
+            find . -type f -exec lzip -9 {} +
+            find . -type l | while read -r file
+            do
+                ln -sf "$(readlink -- "$file").lz" "${file}.lz"
+                rm -- "$file"
+            done
+        )
+    fi
+
+    # Copy documentation
+    mkdir -p "${destdir}/$docsdir"
+    cp -p $docs "${destdir}/$docsdir"
+}
+

@@ -1,0 +1,31 @@
+# Build recipe for hikari.
+#
+# Exit immediately on any error
+set -e
+
+program=hikari
+version=2.3.3
+release=0
+description="Stacking Wayland compositor with additional tiling capabilities"
+homepage="https://hub.darcs.net/raichoo/hikari"
+license="MIT"
+
+tarname=hikari-$version.tar.gz
+fetch="https://hikari.acmelabs.space/releases/$tarname"
+
+srcdir=
+
+build() 
+{
+	unpack "${tardir}/$tarname"
+	
+	cd "$srcdir"
+	
+	# Set sane permissions
+	chmod -R u+w,go-w,a+rX-s .
+
+	patch -p1 -i ${worktree}/flag-arg.patch
+
+	bmake WITH_ALL=1 ETC_PREFIX=/ PREFIX=/usr VERSION="$version"
+	bmake DESTDIR="$destdir" ETC_PREFIX=/ PREFIX=/usr install
+}

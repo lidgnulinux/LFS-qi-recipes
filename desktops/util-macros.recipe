@@ -1,0 +1,45 @@
+# Build recipe for util-macros.
+#
+# Exit immediately on any error
+set -e
+
+program=util-macros
+version=1.20.2
+arch=noarch
+release=1
+
+# Define a category for the output of the package name
+pkgcategory=xorg_util
+
+tarname=${program}-${version}.tar.gz
+
+# Remote source(s)
+fetch=https://www.x.org/releases/individual/util/$tarname
+
+description="
+Autoconf macros used in X modular configure.ac files.
+
+The util-macros package contains the m4 macros used
+by all of the Xorg packages.
+"
+
+homepage=https://www.x.org
+license="MIT X Consortium"
+
+# Source documentation
+docs="COPYING ChangeLog README.md"
+docsdir="${docdir}/${program}-${version}"
+
+build()
+{
+    unpack "${tardir}/$tarname"
+
+    cd "$srcdir"
+
+    # Set sane permissions
+    chmod -R u+w,go-w,a+rX-s .
+
+    ./configure $configure_args
+    make -j${jobs} V=1
+    make -j${jobs} V=1 DESTDIR="$destdir" install
+}

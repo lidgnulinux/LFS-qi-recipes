@@ -1,0 +1,39 @@
+# Build recipe for .
+#
+
+# Exit immediately on any error
+set -e
+
+program=xfce4-dev-tools
+version=4.20.0
+release=0
+description="Xfce developer tools"
+homepage="https://docs.xfce.org/xfce/xfce4-dev-tools/start"
+license="GPL-2.0-or-later"
+
+tarname=xfce4-dev-tools-4.20.0.tar.bz2
+fetch="https://archive.xfce.org/xfce/4.20/src/$tarname"
+
+srcdir=xfce4-dev-tools-4.20.0
+
+build() 
+{
+	unpack "${tardir}/$tarname"
+	
+	cd "$srcdir"
+	
+	# Set sane permissions
+	chmod -R u+w,go-w,a+rX-s .
+
+	# cp -r "${worktree}/xdt-csource.1" docs/
+
+	autoreconf -fvi
+	./configure \
+		--prefix=/usr \
+		--libdir=/usr/lib \
+		--sysconfdir=/etc \
+		--localstatedir=/var
+
+	make 
+	make DESTDIR="$destdir" install 
+}

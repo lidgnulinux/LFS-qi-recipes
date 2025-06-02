@@ -1,0 +1,33 @@
+# Build recipe for cython.
+#
+# Exit immediately on any error
+set -e
+
+program=cython
+version=3.0.12
+release=0
+
+# Define a category for the output of the package name
+pkgcategory=devel
+
+tarname=${version}.tar.gz
+
+# Remote source(s)
+fetch=https://github.com/cython/cython/archive/$tarname
+
+description="Cython is an optimising static compiler for both the Python & the extended Cython programming languages."
+
+homepage=https://cython.org/
+license="Apache-2.0"
+
+build()
+{
+    unpack "${tardir}/$tarname"
+
+    cd "$srcdir"
+
+    # Set sane permissions
+    chmod -R u+w,go-w,a+rX-s .
+
+    python3 setup.py install --root="$destdir" --prefix=/usr
+}

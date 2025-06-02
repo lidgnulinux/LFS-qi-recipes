@@ -1,0 +1,43 @@
+# Build recipe for fltk.
+#
+# Exit immediately on any error
+set -e
+
+program=fltk
+version=1.3.10
+release=0
+description="A cross-platform C++ GUI toolkit"
+homepage="https://www.fltk.org/"
+license="LGPL-2.0-only WITH FLTK-exception"
+
+tarname=fltk-$version-source.tar.gz
+fetch="https://www.fltk.org/pub/fltk/$version/$tarname"
+
+build() 
+{
+	unpack "${tardir}/$tarname"
+	
+	cd "$srcdir"
+	
+	# Set sane permissions
+	chmod -R u+w,go-w,a+rX-s .
+
+	export CFLAGS="$CFLAGS -flto=auto"
+	export CXXFLAGS="$CXXFLAGS -flto=auto"
+
+	cmake -B build -G Ninja \
+		-DCMAKE_BUILD_TYPE=None \
+		-DCMAKE_INSTALL_PREFIX=/usr \
+		-DCMAKE_INSTALL_LIBDIR=lib \
+		-DOPTION_CAIRO=ON \
+		-DOPTION_CAIROEXT=ON \
+		-DOPTION_BUILD_SHARED_LIBS=ON \
+		-DFLTK_BUILD_TEST=OFF
+	cmake --build build
+
+	DESTDIR="$destdir" cmake --install build
+	rm -v "$destdir"/usr/lib/*.a
+
+	mkdir -p "$destdir"/usr/lib/cmake/
+	mv -v "$destdir"/usr/share/fltk "$destdir"/usr/lib/cmake/
+}

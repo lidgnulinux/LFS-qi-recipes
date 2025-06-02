@@ -1,0 +1,49 @@
+# Build recipe for utmps.
+#
+# Exit immediately on any error
+set -e
+
+program=utmps
+version=0.1.2.3
+release=0
+
+# Define a category for the output of the package name
+pkgcategory=libs
+
+tarname=${program}-${version}.tar.gz
+
+# Remote source(s)
+fetch=https://skarnet.org/software/utmps/$tarname
+
+description="A secure utmp/wtmp implementation"
+
+homepage=https://skarnet.org/software/utmps/
+license="ISC"
+_skalibs_version=2.14.3
+_s6_version=2.13.1
+
+build()
+{
+    unpack "${tardir}/$tarname"
+
+    cd "$srcdir"
+
+    # Set sane permissions
+    chmod -R u+w,go-w,a+rX-s .
+	
+    patch -p1 < "${worktree}/0001-add-stub-utmp.h.patch"
+    
+    ./configure \
+	--enable-shared \
+        --disable-allstatic \
+	--libdir=/usr/lib \
+	--libexecdir=/usr/libexec/ \
+	--with-lib=/usr/lib 
+
+    make
+
+    make DESTDIR="$destdir" install
+    sed -e "s/@@VERSION@@/$version/g; s/@@SKALIBS_VERSION@@/${_skalibs_version}/g;" "${worktree}/$program.pc.in" > "${worktree}/$program.pc"
+    install -D -m644 "${worktree}/utmps.pc" "$destdir/usr/lib/pkgconfig/utmps.pc"
+
+}

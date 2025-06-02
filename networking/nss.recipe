@@ -1,0 +1,94 @@
+# Build recipe for nss.
+#
+# Exit immediately on any error
+set -e
+
+program=nss
+version=3_110
+pkgversion=$(echo $version | tr _ .)
+release=0
+pkgcategory=networking
+
+tarname=${program}-${pkgversion}.tar.gz
+fetch=https://archive.mozilla.org/pub/security/nss/releases/NSS_${version}_RTM/src/$tarname
+
+description="
+Network security services.
+
+Network Security Services (NSS) is a set of libraries designed to
+support cross-platform development of security-enabled client and
+server applications.  Applications built with NSS can support
+SSL v3, TLS, PKCS #5, PKCS #7, PKCS #11, PKCS #12, S/MIME,
+X.509 v3 certificates, and other security standards.
+"
+
+homepage=https://developer.mozilla.org/en-US/docs/Mozilla/Projects/NSS
+license="MPL v2.0, GPLv2+"
+
+# Source documentation
+docs="COPYING readme.md"
+docsdir="${docdir}/${program}-${pkgversion}"
+
+# Set 'srcdir' using previous 'pkgversion' variable
+srcdir=${program}-${pkgversion}
+
+build()
+{
+    unpack "${tardir}/$tarname"
+
+    cd "${srcdir}/nss"
+
+    # Apply a patch for build thanks to "Beyond Linux From Scratch"
+    patch -Np2 -i "${worktree}/nss-standalone-1.patch"
+
+    # Set sane permissions
+    chmod -R u+w,go-w,a+rX-s .
+
+    # Set specific options for the architecture
+    case $arch in
+    amd64 | x32 )
+        arch_options='USE_64=1'
+        ;;
+    i586)
+        arch_options='USE_64=0'
+        ;;
+    esac
+
+    unset -v CFLAGS CXXFLAGS
+
+    make -j4 BUILD_OPT=1 \
+     NSS_DISABLE_GTESTS=1 \
+     NSPR_INCLUDE_DIR=/usr/include/nspr \
+     USE_SYSTEM_ZLIB=1 \
+     ZLIB_LIBS=-lz \
+     NSS_ENABLE_WERROR=0 \
+     NSS_USE_SYSTEM_SQLITE=1 \
+     USE_64=1
+
+    unset -v arch_options
+
+    # Proceed to install the software files
+    cd ../dist
+
+    mkdir -v -p "${destdir}/usr/lib" \
+                "${destdir}/usr/include/nss" \
+                "${destdir}/usr/bin" \
+                "${destdir}/usr/lib/pkgconfig"
+
+    install -v -p -m755 Linux*/lib/*.so "${destdir}/usr/lib"
+    install -v -p -m644 Linux*/lib/*.chk "${destdir}/usr/lib"
+    install -v -p -m644 Linux*/lib/libcrmf.a "${destdir}/usr/lib"
+
+    cp -v -pRL public/nss/* "${destdir}/usr/include/nss"
+    cp -v -pRL private/nss/* "${destdir}/usr/include/nss"
+    chmod 644 "${destdir}"/usr/include/nss/*
+
+    for file in certutil nss-config pk12util; \
+    do
+        install -v -p -m755 Linux*/bin/${file} "${destdir}/usr/bin"
+    done
+    unset -v file
+
+    install -v -p -m644 Linux*/lib/pkgconfig/nss.pc \
+     "${destdir}/usr/lib/pkgconfig"
+}

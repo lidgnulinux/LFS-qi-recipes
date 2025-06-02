@@ -1,0 +1,71 @@
+# Build recipe for libvorbis.
+#
+# Exit immediately on any error
+set -e
+
+program=libvorbis
+version=1.3.7
+release=1
+
+# Define a category for the output of the package name
+pkgcategory=libs
+
+tarname=${program}-${version}.tar.gz
+
+# Remote source(s)
+fetch=https://ftp.osuosl.org/pub/xiph/releases/vorbis/$tarname
+
+description="
+The Ogg vorbis library.
+
+The libvorbis package contains a general purpose audio and music
+encoding format.  This is useful for creating (encoding) and
+playing (decoding) sound in an open (patent free) format.
+"
+
+homepage=https://www.xiph.org/ogg/
+license="BSD-3 clause"
+
+# Source documentation
+docs="AUTHORS CHANGES COPYING"
+docsdir="${docdir}/${program}-${version}"
+
+build()
+{
+    unpack "${tardir}/$tarname"
+
+    cd "$srcdir"
+
+    # Set sane permissions
+    chmod -R u+w,go-w,a+rX-s .
+
+    ./configure CPPFLAGS="$QICPPFLAGS" CFLAGS="$QICFLAGS" LDFLAGS="$QILDFLAGS" \
+     $configure_args \
+     --mandir=$mandir \
+     --docdir=$docsdir \
+     --enable-shared=yes \
+     --enable-static=yes \
+     --build="$(gcc -dumpmachine)"
+
+    make -j${jobs} V=1
+    make -j${jobs} DESTDIR="$destdir" install-strip
+
+    # Compress and link man pages (if needed)
+    if test -d "${destdir}/$mandir"
+    then
+        (
+            cd "${destdir}/$mandir"
+            find . -type f -exec lzip -9 {} +
+            find . -type l | while read -r file
+            do
+                ln -sf "$(readlink -- "$file").lz" "${file}.lz"
+                rm -- "$file"
+            done
+        )
+    fi
+
+    # Copy documentation
+    mkdir -p "${destdir}/$docsdir"
+    cp -p $docs "${destdir}/$docsdir"
+}
+

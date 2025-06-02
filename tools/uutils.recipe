@@ -1,0 +1,36 @@
+# Build recipe for uutils.
+#
+# Exit immediately on any error
+set -e
+
+program=uutils
+version=0.1.0
+release=1
+description="Rust rewrite of the GNU coreutils"
+homepage="https://uutils.github.io/coreutils/"
+license="MIT"
+
+tarname=$version.tar.gz
+fetch="https://github.com/uutils/coreutils/archive/$tarname"
+srcdir=coreutils-$version
+
+build() 
+{
+	unpack "${tardir}/$tarname"
+	
+	cd "$srcdir"
+	
+	# Set sane permissions
+	chmod -R u+w,go-w,a+rX-s .
+    
+	export RUSTFLAGS="$RUSTFLAGS -C target-feature=-crt-static"
+	export RUSTONIG_DYNAMIC_LIBONIG=1 
+
+	patch -p1 -i ${worktree}/disable_selinux.patch
+
+	make CARGO_FLAGS="--no-default-features" PROFILE=release
+	make install DESTDIR="$destdir" \
+		CARGO_FLAGS="--no-default-features" \
+		PREFIX=/usr MANDIR=/share/man/man1 \
+		PROG_PREFIX=uu- PROFILE=release MULTICALL=y
+}

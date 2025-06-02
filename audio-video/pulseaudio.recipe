@@ -1,0 +1,69 @@
+# Build recipe for pulseaudio.
+#
+
+# Exit immediately on any error
+set -e
+
+program=pulseaudio
+version=17.0
+release=0
+description="featureful, general-purpose sound server"
+homepage="https://www.freedesktop.org/wiki/Software/PulseAudio/"
+license="LGPL-2.1-or-later"
+
+tarname=pulseaudio-$version.tar.xz
+fetch="https://freedesktop.org/software/pulseaudio/releases/$tarname"
+
+build() 
+{
+	unpack "${tardir}/$tarname"
+	
+	cd "$srcdir"
+	
+	# Set sane permissions
+	chmod -R u+w,go-w,a+rX-s .
+
+	rm -rf BUILD
+	mkdir BUILD
+	cd BUILD
+
+	patch -p1 -d .. < "${worktree}/remove-once-test.patch"	
+	CPPFLAGS="$QICPPFLAGS" CFLAGS="$QICFLAGS" LDFLAGS="$QILDFLAGS" \
+	meson setup $configure_args \
+		-Dman=true \
+		-Dtests="false" \
+		-Dsystem_user=pulse \
+		-Dsystem_group=pulse \
+		-Ddatabase=tdb \
+		-Dalsa=enabled \
+		-Dasyncns=enabled \
+		-Davahi=disabled \
+		-Dbluez5=disabled \
+		-Ddbus=enabled \
+		-Dfftw=disabled \
+		-Dglib=enabled \
+		-Dgsettings=enabled \
+		-Dgtk=enabled \
+		-Dhal-compat=false \
+		-Dipv6=true \
+		-Djack=enabled \
+		-Dlirc=disabled \
+		-Dopenssl=disabled \
+		-Dorc=enabled \
+		-Dsamplerate=disabled \
+		-Dsoxr=enabled \
+		-Dspeex=enabled \
+		-Dsystemd=disabled \
+		-Dudev=enabled \
+		-Dx11=enabled \
+		-Dudevrulesdir=/lib/udev/rules.d/ \
+		-Dgstreamer=enabled \
+		-Ddoxygen=false \
+		-Dstream-restore-clear-old-devices=true \
+		..
+	
+	ninja -j2
+	DESTDIR="$destdir" ninja -j2 install
+	
+	cd ..
+}

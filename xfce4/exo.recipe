@@ -1,0 +1,37 @@
+# Build recipe for exo.
+#
+
+# Exit immediately on any error
+set -e
+
+program=exo
+version=4.20.0
+release=0
+description="Extensions to Xfce by os-cillation"
+homepage="https://docs.xfce.org/xfce/exo/start"
+license="GPL-2.0-or-later AND LGPL-2.1-or-later"
+
+tarname=exo-$version.tar.bz2
+fetch="https://archive.xfce.org/xfce/4.20/src/$tarname"
+
+build() 
+{
+	unpack "${tardir}/$tarname"
+	
+	cd "$srcdir"
+	
+	# Set sane permissions
+	chmod -R u+w,go-w,a+rX-s .
+
+	./configure \
+		--prefix=/usr \
+		--libdir=/usr/lib \
+		--sysconfdir=/etc \
+		--libexecdir=/usr/lib/xfce4 \
+		--localstatedir=/var \
+		--disable-static \
+		--disable-gtk-doc
+
+	make 
+	make DESTDIR="$destdir" install 
+}

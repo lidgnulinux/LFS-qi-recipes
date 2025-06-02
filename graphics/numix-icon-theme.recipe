@@ -1,0 +1,35 @@
+# Build recipe for numix icon theme.
+#
+
+# Exit immediately on any error
+set -e
+
+program=numix-icon-theme
+version=23.01.12
+release=0
+
+# Define a category for the output of the package name
+pkgcategory=icon_theme
+
+tarname=${program}-${version}.tar.gz
+
+# Remote source(s)
+fetch=https://github.com/numixproject/numix-icon-theme/archive/$version/$tarname
+
+description="Official icon theme from the Numix project"
+
+homepage=https://numixproject.github.io/
+license="GPL-3.0-only"
+
+build()
+{
+    unpack "${tardir}/$tarname"
+
+    cd "$srcdir"
+
+    # Set sane permissions
+    chmod -R u+w,go-w,a+rX-s .
+    
+    mkdir -p "$destdir"/usr/share/icons
+    mv Numix "$destdir"/usr/share/icons/
+}

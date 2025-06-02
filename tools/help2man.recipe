@@ -1,0 +1,35 @@
+# Build recipe for help2man.
+#
+# Exit immediately on any error
+set -e
+
+program=help2man
+version=1.49.3
+release=0
+description="Create simple man pages from --help output"
+homepage="https://www.gnu.org/software/help2man"
+license="GPL-3.0-or-later"
+
+tarname=help2man-$version.tar.xz
+fetch="https://ftp.gnu.org/gnu/help2man/$tarname"
+
+build() 
+{
+	unpack "${tardir}/$tarname"
+	
+	cd "$srcdir"
+	
+	# Set sane permissions
+	chmod -R u+w,go-w,a+rX-s .
+
+	autoreconf -vif
+	./configure \
+		--prefix=/usr \
+		--sysconfdir=/etc \
+		--mandir=/usr/share/man \
+		--localstatedir=/var \
+		--infodir=/usr/share/info
+
+	make 
+	make DESTDIR="$destdir" install 
+}

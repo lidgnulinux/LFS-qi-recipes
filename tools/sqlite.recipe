@@ -1,0 +1,62 @@
+# Build recipe for sqlite.
+#
+# Exit immediately on any error
+set -e
+
+program=sqlite
+version=3490200
+pkgversion=3.49.2
+release=0
+
+# Define a category for the output of the package name
+pkgcategory=db
+
+tarname=${program}-autoconf-${version}.tar.gz
+
+# Remote source(s)
+fetch=https://sqlite.org/2025/$tarname
+
+description="
+SQlite is a C-language library that implements a SQL database engine.
+
+The sqlite package is a software library that implements a self-contained,
+serverless, zero-configuration, transactional SQL database engine.
+"
+
+homepage=https://www.sqlite.org
+license="Public Domain"
+
+# Source documentation
+docs="README.txt"
+docsdir="${docdir}/${program}-${pkgversion}"
+
+# The source has a custom source directory
+srcdir=${program}-autoconf-${version}
+jobs=4
+
+build()
+{
+    unpack "${tardir}/$tarname"
+
+    cd "$srcdir"
+
+    # Set sane permissions
+    chmod -R u+w,go-w,a+rX-s .
+
+    ./configure CFLAGS="$QICFLAGS" \
+    LDFLAGS="$QILDFLAGS" \
+     $configure_args \
+     --build="$(gcc -dumpmachine)" \
+     --enable-fts{4,5} \
+     --enable-session \
+     CPPFLAGS="-DSQLITE_ENABLE_FTS3=1 \
+               -DSQLITE_ENABLE_FTS4=1 \
+               -DSQLITE_ENABLE_COLUMN_METADATA=1 \
+               -DSQLITE_ENABLE_UNLOCK_NOTIFY=1 \
+               -DSQLITE_ENABLE_DBSTAT_VTAB=1 \
+               -DSQLITE_SECURE_DELETE=1 \
+               -DSQLITE_ENABLE_FTS3_TOKENIZER=1"
+
+    make -j${jobs} V=1
+    make -j${jobs} DESTDIR="$destdir" install
+}

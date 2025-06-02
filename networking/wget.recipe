@@ -1,0 +1,87 @@
+# Build recipe for wget.
+#
+# Exit immediately on any error
+set -e
+
+program=wget
+version=1.25.0
+release=1
+
+# Define a category for the output of the package name
+pkgcategory=networking
+
+tarname=${program}-${version}.tar.lz
+
+# Remote source(s)
+fetch=https://ftp.gnu.org/gnu/wget/$tarname
+
+description="
+The non-interactive network downloader.
+
+GNU Wget is a free software package for retrieving files using HTTP,
+HTTPS, FTP and FTPS the most widely-used Internet protocols.  It is a
+non-interactive commandline tool, so it may easily be called from
+scripts, cron jobs, terminals without X-Windows support, etc.
+"
+
+homepage=https://www.gnu.org/software/wget
+license=GPLv3+
+
+# Source documentation
+docs="AUTHORS COPYING ChangeLog NEWS README"
+docsdir="${docdir}/${program}-${version}"
+jobs=4
+
+build()
+{
+    unpack "${tardir}/$tarname"
+
+    cd "$srcdir"
+
+    # Set sane permissions
+    chmod -R u+w,go-w,a+rX-s .
+
+    ./configure CPPFLAGS="$QICPPFLAGS" \
+    CFLAGS="$QICFLAGS" LDFLAGS="$QILDFLAGS" \
+     $configure_args \
+     --infodir=$infodir \
+     --mandir=$mandir \
+     --with-ssl=gnutls \
+     --with-metalink \
+     --build="$(gcc -dumpmachine)"
+
+    make -j${jobs} V=1
+    make -j${jobs} DESTDIR="$destdir" install
+
+    # To handle config file on post-installation
+    touch "${destdir}/etc/.graft-config"
+
+    # Remove generated charset.alias
+    rm -f "${destdir}/usr/lib${libSuffix}/charset.alias"
+    rmdir "${destdir}/usr/lib${libSuffix}" || true
+
+    # Compress info documents deleting index file for the package
+    if test -d "${destdir}/$infodir"
+    then
+        rm -f "${destdir}/${infodir}/dir"
+        lzip -9 "${destdir}/${infodir}"/*
+    fi
+
+    # Compress and link man pages (if needed)
+    if test -d "${destdir}/$mandir"
+    then
+        (
+            cd "${destdir}/$mandir"
+            find . -type f -exec lzip -9 {} +
+            find . -type l | while read -r file
+            do
+                ln -sf "$(readlink -- "$file").lz" "${file}.lz"
+                rm -- "$file"
+            done
+        )
+    fi
+
+    # Copy documentation
+    mkdir -p "${destdir}/$docsdir"
+    cp -p $docs "${destdir}/$docsdir"
+}

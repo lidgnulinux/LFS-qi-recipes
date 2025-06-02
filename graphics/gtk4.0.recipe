@@ -1,0 +1,48 @@
+# Build recipe for gtk4.0.
+#
+# Exit immediately on any error
+set -e
+
+program=gtk4.0
+version=4.18.2
+release=0
+description="The GTK Toolkit (v4)"
+homepage="https://www.gtk.org/"
+license="LGPL-2.1-or-later"
+
+tarname=gtk-$version.tar.xz
+fetch="https://download.gnome.org/sources/gtk/${version%.*}/$tarname"
+srcdir=gtk-$version
+
+build() 
+{
+	unpack "${tardir}/$tarname"
+	
+	cd "$srcdir"
+	
+	# Set sane permissions
+	chmod -R u+w,go-w,a+rX-s .
+
+	rm -rf BUILD
+	mkdir BUILD
+	cd BUILD
+	
+	CPPFLAGS="$QICPPFLAGS" CFLAGS="$QICFLAGS" LDFLAGS="$QILDFLAGS" \
+	meson setup $configure_args \
+		-Ddocumentation=false \
+		-Dintrospection=enabled \
+		-Dbroadway-backend=false \
+		-Dman-pages=false \
+		-Dbuild-tests=false \
+		-Dbuild-examples=false \
+		-Dbuild-testsuite=false \
+		..
+	
+	ninja -j4
+	DESTDIR="$destdir" ninja -j4 install
+	
+	rm -f "$destdir/usr/bin/gtk-update-icon-cache"
+	rm -f "$destdir/usr/bin/gtk4-update-icon-cache"
+
+	cd ..
+}

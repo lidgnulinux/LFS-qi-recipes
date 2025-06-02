@@ -1,0 +1,54 @@
+# Build recipe for startup-notification.
+#
+# Exit immediately on any error
+set -e
+
+program=startup-notification
+version=0.12
+release=1
+
+# Define a category for the output of the package name
+pkgcategory=x-libs
+
+tarname=${program}-${version}.tar.gz
+
+# Remote source(s)
+fetch=https://www.freedesktop.org/software/startup-notification/releases/$tarname
+
+description="
+Notification libraries used by programs.
+
+The startup-notification package contains notification libraries.
+These are useful for building a consistent manner to notify the user
+through the cursor that the application is loading.
+"
+
+homepage=https://www.freedesktop.org/software/startup-notification
+license=LGPLv2+
+
+docs="AUTHORS COPYING ChangeLog NEWS README"
+docsdir="${docdir}/${program}-${version}"
+
+build()
+{
+    unpack "${tardir}/$tarname"
+
+    cd "$srcdir"
+
+    # Set sane permissions
+    chmod -R u+w,go-w,a+rX-s .
+
+    # Update for hosts based on musl
+    cp -f "${worktree}/config.guess" config.guess
+    cp -f "${worktree}/config.sub" config.sub
+
+    ./configure CPPFLAGS="$QICPPFLAGS" CFLAGS="$QICFLAGS" LDFLAGS="$QILDFLAGS" \
+     $configure_args \
+     --enable-static=no \
+     --enable-shared=yes \
+     --with-x \
+     --build="$(gcc -dumpmachine)"
+
+    make -j${jobs} V=1
+    make -j${jobs} V=1 DESTDIR="$destdir" install-strip
+}

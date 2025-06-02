@@ -1,0 +1,42 @@
+# Build recipe for gnome-desktop.
+#
+
+# Exit immediately on any error
+set -e
+
+program=gnome-desktop
+version=44.1
+pkgver=44.1
+release=0
+description="GNOME desktop core libraries"
+homepage="https://gitlab.gnome.org/GNOME/gnome-desktop"
+license="GPL-2.0-or-later AND LGPL-2.1-or-later"
+
+tarname=gnome-desktop-$pkgver.tar.xz
+fetch="https://download.gnome.org/sources/gnome-desktop/${pkgver%.*}/$tarname"
+
+build() 
+{
+	unpack "${tardir}/$tarname"
+	
+	cd "$srcdir"
+	
+	# Set sane permissions
+	chmod -R u+w,go-w,a+rX-s .
+
+	rm -rf BUILD
+	mkdir BUILD
+	cd BUILD
+	
+	CPPFLAGS="$QICPPFLAGS" CFLAGS="$QICFLAGS" LDFLAGS="$QILDFLAGS" \
+	meson setup $configure_args \
+		-Dudev=enabled \
+		-Dbuild_gtk4=false \
+		-Dlegacy_library=true \
+		..
+	
+	ninja -j2
+	DESTDIR="$destdir" ninja -j2 install
+	
+	cd ..
+}

@@ -1,0 +1,32 @@
+# Build recipe for libasyncns.
+#
+
+# Exit immediately on any error
+set -e
+
+program=libasyncns
+version=0.8
+release=0
+description="Asynchronous Name Service Library"
+homepage="http://0pointer.de/lennart/projects/libasyncns/"
+license="LGPL-2.0-or-later"
+
+tarname=libasyncns-$version.tar.gz
+fetch="https://dev.alpinelinux.org/archive/$tarname"
+
+build() 
+{
+	unpack "${tardir}/$tarname"
+	
+	cd "$srcdir"
+	
+	# Set sane permissions
+	chmod -R u+w,go-w,a+rX-s .
+
+	./configure \
+		--disable-static \
+		--prefix=/usr
+
+	make 
+	make DESTDIR="$destdir" install 
+}

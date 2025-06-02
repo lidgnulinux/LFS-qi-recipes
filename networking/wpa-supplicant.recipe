@@ -1,0 +1,101 @@
+# Build recipe for wpa_supplicant.
+#
+# Exit immediately on any error
+set -e
+
+program=wpa_supplicant
+pkgname=wpa-supplicant
+version=2.11
+release=0
+
+# Define a category for the output of the package name
+pkgcategory=networking
+
+tarname=${program}-${version}.tar.gz
+
+# Remote source(s)
+fetch=https://w1.fi/releases/$tarname
+
+description="
+IEEE 802.1X/WPA supplicant wireless client.
+
+wpa_supplicant is a WPA Supplicant for Linux, BSD, Mac OS X, and
+Windows with support for WPA and WPA2 (IEEE 802.11i / RSN).  It is
+suitable for both desktop/laptop computers and embedded systems.
+
+Supplicant is the IEEE 802.1X/WPA component that is used in the client
+stations.  It implements key negotiation with a WPA Authenticator and
+it controls the roaming and IEEE 802.11 authentication/association of
+the WLAN driver.
+"
+
+homepage=https://w1.fi/wpa_supplicant/
+license=BSD
+
+# Source documentation
+docs="README README-WPS examples/ ../CONTRIBUTIONS ../COPYING"
+docsdir="${docdir}/${program}-${version}"
+
+build()
+{
+    unpack "${tardir}/$tarname"
+
+    cd "$srcdir"
+
+    # Set sane permissions
+    chmod -R u+w,go-w,a+rX-s .
+
+    cd wpa_supplicant
+    cat "${worktree}/archive/wpa_supplicant/buildconfig" > .config
+    make -j2 V=1 BINDIR=/usr/sbin
+    make -j2 V=1 BINDIR=/usr/sbin DESTDIR="$destdir" install
+
+    strip --strip-unneeded "${destdir}"/usr/sbin/*
+
+    # Copy template config as main config, and also include the example
+
+    mkdir -p "${destdir}/etc"
+    cp -p wpa_supplicant_template.conf "${destdir}/etc/wpa_supplicant_template.conf."
+    cp -p wpa_supplicant.conf "${destdir}/etc/wpa_supplicant-sample.conf"
+    chmod 644 "${destdir}/etc"/*.conf
+    chown root:root "${destdir}/etc"/*.conf
+
+    # Install D-Bus configuration
+
+    mkdir -p "${destdir}/usr/share/dbus-1/system-services"
+    for file in dbus/*.service
+    do
+        cp -p $file "${destdir}/usr/share/dbus-1/system-services/"
+        chmod 644 "${destdir}/usr/share/dbus-1/system-services/${file##*/}"
+    done
+    chown root:root "${destdir}"/usr/share/dbus-1/system-services/*
+
+    mkdir -p "${destdir}/etc/dbus-1/system.d"
+    cp -p dbus/dbus-wpa_supplicant.conf "${destdir}/etc/dbus-1/system.d/"
+    chmod 644 "${destdir}/etc/dbus-1/system.d/dbus-wpa_supplicant.conf"
+    chown root:root "${destdir}/etc/dbus-1/system.d/dbus-wpa_supplicant.conf"
+
+    # To manage dot (new) files via graft(1)
+
+    # touch "${destdir}/etc/.graft-config" \
+    #       "${destdir}/etc/dbus-1/system.d/.graft-config"
+
+    # Install (missing) manpages
+
+    mkdir -p "${destdir}/${mandir}/man8" "${destdir}/${mandir}/man5"
+    (
+        cd doc/docbook || exit 1;
+        for page in *.8
+        do
+            lzip -9c < $page > "${destdir}/${mandir}/man8/${page}.lz"
+        done
+        rm -f "${destdir}/${mandir}/man8/wpa_gui.8.lz"
+
+        lzip -9c < wpa_supplicant.conf.5 \
+         > "${destdir}/${mandir}/man5/wpa_supplicant.conf.5.lz"
+    )
+
+    # Copy documentation
+    mkdir -p "${destdir}/$docsdir"
+    cp -Rp $docs "${destdir}/$docsdir"
+}

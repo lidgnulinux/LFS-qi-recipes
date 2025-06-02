@@ -1,0 +1,57 @@
+# Build recipe for GObject Introspection.
+#
+# Exit immediately on any error
+set -e
+
+program=gobject-introspection
+version=1.84.0
+release=1
+
+# Define a category for the output of the package name
+pkgcategory=x-libs
+
+tarname=${program}-${version}.tar.xz
+
+# Remote source(s)
+fetch="https://download.gnome.org/sources/gobject-introspection/${version%.*}/$tarname"
+
+description="
+A layer between C libraries (using GObject) and language bindings.
+
+GObject Introspection is a project for providing machine readable
+introspection data of the API of C libraries.  This introspection data
+can be used for automatic code generation for bindings, API
+verification, and documentation generation.
+"
+
+homepage=https://wiki.gnome.org/Projects/GObjectIntrospection/
+license="GPLv2+ | LGPLv2+, some MIT code in giscanner/"
+
+# Copy documentation
+docs="COPYING* NEWS TODO"
+docsdir="${docdir}/${program}-${version}"
+
+build()
+{
+    unpack "${tardir}/$tarname"
+
+    cd "$srcdir"
+
+    # Set sane permissions
+    chmod -R u+w,go-w,a+rX-s .
+
+    rm -rf BUILD
+    mkdir BUILD
+    cd BUILD
+
+    CPPFLAGS="$QICPPFLAGS" CFLAGS="$QICFLAGS" LDFLAGS="$QILDFLAGS" \
+    meson setup $configure_args \
+     --buildtype=release \
+     --strip \
+     ..
+
+    ninja -j${jobs}
+    DESTDIR="$destdir" ninja -j${jobs} install
+
+    cd ..
+}

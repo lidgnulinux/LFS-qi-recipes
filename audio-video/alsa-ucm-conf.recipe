@@ -1,0 +1,44 @@
+# Build recipe for alsa-ucm-conf.
+#
+# Exit immediately on any error
+set -e
+
+program=alsa-ucm-conf
+version=1.2.14
+arch=noarch
+release=0
+
+# Define a category for the output of the package name
+pkgcategory=data
+
+tarname=${program}-${version}.tar.bz2
+
+# Remote source(s)
+fetch=https://www.alsa-project.org/files/pub/lib/$tarname
+
+description="
+ALSA use case manager configuration.
+
+This is required for the correct functioning of ALSA.
+"
+
+homepage=https://alsa-project.org
+license="BSD 3-clause"
+
+# Source documentation
+docs="LICENSE README.md"
+docsdir="${docdir}/${program}-${version}"
+
+build()
+{
+    unpack "${tardir}/$tarname"
+
+    cd "$srcdir"
+
+    # Set sane permissions
+    chmod -R u+w,go-w,a+rX-s .
+
+    mkdir -p "${destdir}/usr/share/alsa"
+    cp -RpP 'ucm' "${destdir}/usr/share/alsa"
+    cp -RpP 'ucm2' "${destdir}/usr/share/alsa"
+}

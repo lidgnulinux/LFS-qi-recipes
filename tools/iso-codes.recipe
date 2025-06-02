@@ -1,0 +1,50 @@
+# Build recipe for iso-codes.
+#
+# Exit immediately on any error
+set -e
+
+program=iso-codes
+version=4.17.0
+commit=0640070a001ca6edfa8ab6b61fe3230e66b3963b
+arch=noarch
+release=1
+
+# Define a category for the output of the package name
+pkgcategory=data
+
+tarname=${program}-${version}.tar.bz2
+
+# Remote source(s)
+fetch=https://salsa.debian.org/iso-codes-team/iso-codes/-/archive/v$version/$tarname
+
+description="
+ISO country, language, script and currency codes and translations.
+
+This package provides lists of various ISO standards (e.g. country,
+language, language scripts, and currency names) in one place, rather
+than repeated in many programs throughout the system.
+"
+
+homepage=https://salsa.debian.org/iso-codes-team/iso-codes
+license=GPLv2+
+
+docs="COPYING ChangeLog.md README.md TODO"
+docsdir="${docdir}/${program}-${version}"
+srcdir=$program-v$version-$commit
+
+build()
+{
+    unpack "${tardir}/$tarname"
+
+    cd "$srcdir"
+
+    # Set sane permissions
+    chmod -R u+w,go-w,a+rX-s .
+
+    ./configure $configure_args \
+     --libdir=/usr/lib \
+     --build="$(gcc -dumpmachine)"
+
+    make -j${jobs} V=1
+    make -j${jobs} V=1 DESTDIR="$destdir" install
+}
