@@ -1,0 +1,27 @@
+# Build recipe for .
+#
+# Exit immediately on any error
+set -e
+
+program=soundfont-timgm
+version=3412
+release=0
+description="Tim General Midi 6MB soundfont from MuseScore"
+homepage="https://sourceforge.net/p/mscore/code/"
+license="GPL-2.0-only"
+
+font=TimGM6mb.sf2?format=raw
+fetch="https://sourceforge.net/p/mscore/code/$version/tree/trunk/mscore/share/sound/$font"
+
+build() 
+{
+	install -Dm644 "${tardir}/$font" \
+		"$destdir"/usr/share/soundfonts/TimGM6mb.sf2
+
+	mkdir -p "$destdir"/usr/share/sounds
+	ln -s ../soundfonts/TimGM6mb.sf2 \
+		"$destdir"/usr/share/sounds/TimGM6mb.sf2
+
+	# let this provide the default soundfont for now
+	ln -s TimGM6mb.sf2 "$destdir"/usr/share/soundfonts/default.sf2
+}

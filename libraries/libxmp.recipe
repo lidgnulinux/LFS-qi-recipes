@@ -1,0 +1,35 @@
+# Build recipe for libxmp.
+#
+# Exit immediately on any error
+set -e
+
+program=libxmp
+version=4.6.3
+release=0
+description="Libxmp is a library that renders module files to PCM data"
+homepage="https://github.com/libxmp/libxmp/"
+license="LGPL-2.1-or-later"
+
+tarname=libxmp-$version.tar.gz
+fetch="https://github.com/libxmp/libxmp/releases/download/libxmp-$version/$tarname"
+
+build() 
+{
+	unpack "${tardir}/$tarname"
+	
+	cd "$srcdir"
+	
+	# Set sane permissions
+	chmod -R u+w,go-w,a+rX-s .
+
+	CFLAGS="$CFLAGS -flto=auto -DNDEBUG" \
+	cmake -B build -G Ninja \
+		-DCMAKE_BUILD_TYPE=None \
+		-DCMAKE_INSTALL_PREFIX=/usr \
+		-DCMAKE_INSTALL_LIBDIR=/usr/lib \
+		-DBUILD_STATIC=OFF \
+		-DWITH_UNIT_TESTS="OFF"
+	cmake --build build
+
+	DESTDIR="$destdir" cmake --install build
+}
