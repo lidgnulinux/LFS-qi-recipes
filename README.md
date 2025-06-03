@@ -9,14 +9,14 @@ This is my personal qi recipe for Linux From Scratch.
 
 It's quite simple, for starter, make sure you have these following tools :
 
-- `qi` & `graft`.
-- `wget`, needed for downloading source code.
+- `qi` & `graft`, get `qi` [here](https://dragora.mirror.garr.it/current/sources/qi-2.12.tar.lz) and graft [here](https://dragora.mirror.garr.it/current/sources/graft-2.16.tar.gz).
+- `wget2` (default) or `wget`, needed for downloading source code.
 - `patch`, needed for applying patch.
 - archive tools, needed to unpack archive. 
 
 If we already had those tools, it's time to build the package ! The steps it's quite simple :
 
-1. Copy one recipe you want to use (e.g `vifm.recipe`) !
+1. Copy one recipe you want to use (e.g `vim.recipe`) !
 
     ```
     $ cp vim.recipe recipe
