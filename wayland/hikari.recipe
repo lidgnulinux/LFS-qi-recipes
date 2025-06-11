@@ -5,7 +5,7 @@ set -e
 
 program=hikari
 version=2.3.3
-release=0
+release=1
 description="Stacking Wayland compositor with additional tiling capabilities"
 homepage="https://hub.darcs.net/raichoo/hikari"
 license="MIT"
@@ -25,7 +25,11 @@ build()
 	chmod -R u+w,go-w,a+rX-s .
 
 	patch -p1 -i ${worktree}/flag-arg.patch
+	patch -p0 -i ${worktree}/00.add_viewporter.patch
 
 	bmake WITH_ALL=1 ETC_PREFIX=/ PREFIX=/usr VERSION="$version"
 	bmake DESTDIR="$destdir" ETC_PREFIX=/ PREFIX=/usr install
+
+	# patchelf hikari binary to look for custom libwlroots.so.10 path
+	patchelf --replace-needed libwlroots.so.10 /usr/lib/wlroots0.15/libwlroots.so.10 "$destdir"/usr/bin/hikari
 }
