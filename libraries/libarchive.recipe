@@ -4,7 +4,7 @@
 set -e
 
 program=libarchive
-version=3.7.9
+version=3.8.1
 release=0
 
 # Define a category for the output of the package name
@@ -52,6 +52,8 @@ build()
      --enable-shared=yes \
      --without-xml2 \
      --without-openssl \
+     --without-iconv \
+     --without-libiconv-prefix \
      --with-nettle \
      --build="$(gcc -dumpmachine)"
 
