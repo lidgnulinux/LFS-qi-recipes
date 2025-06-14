@@ -4,7 +4,7 @@
 set -e
 
 program=expat
-version=2.7.0
+version=2.7.1
 release=0
 pkgcategory=libs
 
