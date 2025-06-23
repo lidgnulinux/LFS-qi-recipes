@@ -52,7 +52,7 @@ build()
      --enable-pthreads \
      --enable-threaded-resolver \
      --with-ca-path=/etc/ssl/certs \
-     --with-libssh2 \
+     --without-libssh2 \
      --with-openssl \
      --with-libidn2 \
      --build="$(gcc -dumpmachine)"
