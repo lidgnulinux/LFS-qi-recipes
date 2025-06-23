@@ -4,7 +4,7 @@
 set -e
 
 program=git
-version=2.49.0
+version=2.50.0
 release=0
 
 # Define a category for the output of the package name
