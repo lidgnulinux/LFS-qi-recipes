@@ -4,7 +4,7 @@
 set -e
 
 program=nghttp2
-version=1.51.0
+version=1.65.0
 release=0
 
 # Define a category for the output of the package name
@@ -46,10 +46,20 @@ build()
      --infodir=$infodir \
      --mandir=$mandir \
      --docdir=$docsdir \
-     --enable-static=no \
+     --enable-static=yes \
      --enable-shared=yes \
      --enable-lib-only \
      --without-systemd \
+     --disable-examples \
+     --disable-http3 \
+     --without-jansson \
+     --without-jemalloc \
+     --without-libbpf \
+     --without-libnghttp3 \
+     --without-libngtcp2 \
+     --without-libxml2 \
+     --without-mruby \
+     --without-neverbleed \
      --build="$(gcc -dumpmachine)"
 
     make -j${jobs} V=1
