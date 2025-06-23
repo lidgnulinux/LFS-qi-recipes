@@ -4,8 +4,8 @@
 set -e
 
 program=curl
-version=8.13.0
-release=2
+version=8.14.1
+release=0
 
 # Define a category for the output of the package name
 pkgcategory=networking
