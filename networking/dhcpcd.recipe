@@ -1,0 +1,64 @@
+# Build recipe for dhcpcd.
+#
+# Exit immediately on any error
+set -e
+
+program=dhcpcd
+version=10.2.4
+release=3
+
+# Define a category for the output of the package name
+pkgcategory=networking
+
+tarname=${program}-${version}.tar.xz
+
+# Remote source(s)
+fetch=https://github.com/NetworkConfiguration/dhcpcd/releases/download/v$version/$tarname
+
+description="
+dhcpcd is an implementation of the DHCP client specified in RFC2131.
+
+A DHCP client is useful for connecting your computer to a network
+which uses DHCP to assign network addresses. dhcpcd strives to be
+a fully featured, yet very lightweight DHCP client. 
+"
+
+homepage=https://roy.marples.name/projects/dhcpcd
+license="2-clause BSD"
+
+# Source documentation
+docs="LICENSE README.md"
+docsdir="${docdir}/${program}-${version}"
+
+jobs=2
+
+build()
+{
+    unpack "${tardir}/$tarname"
+
+    cd "$srcdir"
+
+    # Set sane permissions
+    chmod -R u+w,go-w,a+rX-s .
+
+    ./configure CPPFLAGS="$QICPPFLAGS" \
+    CFLAGS="$QICFLAGS" LDFLAGS="$QILDFLAGS" \
+     $configure_args \
+     --libdir=/usr/lib \
+     --libexecdir=/usr/lib/dhcpcd \
+     --dbdir=/var/lib/dhcpcd \
+     --privsepuser=dhcpcd \
+     --disable-privsep \
+     --runstatedir=/run \
+     --without-openssl \
+     --build="$(gcc -dumpmachine)"
+
+    make -j${jobs}
+    make -j${jobs} DESTDIR="$destdir" install
+    mv ${destdir}/etc/dhcpcd.conf ${destdir}/etc/dhcpcd.conf.example 
+
+    # Adjust ownerships/permissions to use privilege separation
+
+    chmod 700 "${destdir}/var/lib/dhcpcd"
+    chown dhcpcd:dhcpcd "${destdir}/var/lib/dhcpcd"
+}
