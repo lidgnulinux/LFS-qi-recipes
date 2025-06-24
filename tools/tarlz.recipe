@@ -1,0 +1,72 @@
+# Build recipe for tarlz.
+#
+# Exit immediately on any error
+set -e
+
+program=tarlz
+version=0.28
+release=0
+
+# Define a category for the output of the package name
+pkgcategory=tools
+
+tarname=${program}-${version}.tar.lz
+
+# Remote source(s)
+fetch=https://download-mirror.savannah.gnu.org/releases/lzip/tarlz/$tarname
+
+homepage=https://lzip.nongnu.org/tarlz.html
+license=GPLv2+
+
+description="
+Archiver with multimember lzip compression (version $version).
+
+Tarlz is a combined implementation of the tar archiver and the lzip
+compressor. By default tarlz creates, lists and extracts archives in a
+simplified posix pax format compressed with lzip on a per file basis.
+Each tar member is compressed in its own lzip member, as well as the
+end-of-file blocks. This method adds an indexed lzip layer on top of
+the tar archive, making it possible to decode the archive safely in
+parallel.  The resulting multimember tar.lz archive is fully backward
+compatible with standard tar tools like GNU tar, which treat it like
+any other tar.lz archive.  Tarlz can append files to the end of such
+compressed archives.
+"
+
+# Source documentation
+docs="AUTHORS COPYING ChangeLog NEWS README"
+docsdir="${docdir}/${program}"
+
+build()
+{
+    unpack "${tardir}/$tarname"
+
+    cd "$srcdir"
+
+    # Set sane permissions
+    chmod -R u+w,go-w,a+rX-s .
+
+    patch -p1 -i ${worktree}/missing_header_decode.h.patch
+
+    ./configure CPPFLAGS="$QICPPFLAGS" \
+    CXXFLAGS+="$QICXXFLAGS" LDFLAGS="$QILDFLAGS -static" \
+     --prefix=/usr \
+     --bindir=/usr/bin \
+     --infodir=$infodir \
+     --mandir=$mandir \
+     --build="$(gcc -dumpmachine)"
+
+    make -j${jobs} V=1
+    make -j${jobs} DESTDIR="$destdir" install
+
+    # Compress info documents and manual page
+
+    rm -f "${destdir}/${infodir}/dir";	# Redundancy
+    lzip -9 \
+     "${destdir}/${infodir}/tarlz.info" \
+     "${destdir}/${mandir}/man1/tarlz.1"
+
+    # Copy documentation
+    mkdir -p "${destdir}/$docsdir"
+    cp -p $docs "${destdir}/$docsdir"
+}

@@ -1,0 +1,11 @@
+--- tarlz-0.28/decode.h	2025-06-20 22:25:56.000000000 +0700
++++ tarlz-0.28/decode.h.new	2025-06-24 18:34:00.512912948 +0700
+@@ -14,6 +14,8 @@
+    You should have received a copy of the GNU General Public License
+    along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ */
++#include <sys/types.h>
++#include <sys/stat.h>
+ 
+ inline bool data_may_follow( const Typeflag typeflag )
+   { return typeflag == tf_regular || typeflag == tf_hiperf; }
