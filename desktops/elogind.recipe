@@ -36,7 +36,7 @@ build()
     patch -p1 -d .. < "${worktree}/patches-255/getdents.patch" 
     patch -p1 -d .. < "${worktree}/patches-255/gshadow.patch" 
     patch -p1 -d .. < "${worktree}/patches-255/no-bash.patch" 
-    patch -p1 -d .. < "${worktree}/patches-255/no-runtime-dir.patch" 
+    # patch -p1 -d .. < "${worktree}/patches-255/no-runtime-dir.patch" 
     patch -p1 -d .. < "${worktree}/patches-255/rlim-max.patch" 
     patch -p1 -d .. < "${worktree}/patches-255/strerror_r.patch" 
     patch -p1 -d .. < "${worktree}/patches-255/strerror_r_1.patch" 
