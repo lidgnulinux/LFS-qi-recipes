@@ -1,0 +1,52 @@
+# Build recipe for patch.
+#
+# Exit immediately on any error
+set -e
+
+program=patch
+version=2.8
+release=0
+
+# Define a category for the output of the package name
+pkgcategory=tools
+
+tarname=${program}-${version}.tar.xz
+
+# Remote source(s)
+fetch=https://ftp.gnu.org/gnu/patch/$tarname
+
+description="
+A tool to patch files.
+
+The patch package contains a program to modify or create files through
+the aplication of a patch file created with the diff(1) program.
+"
+
+homepage=https://www.gnu.org/software/patch
+license=GPLv3+
+
+# Source documentation
+docs="AUTHORS COPYING ChangeLog NEWS README TODO"
+docsdir="${docdir}/${program}-${version}"
+
+build()
+{
+    unpack "${tardir}/$tarname"
+
+    cd "$srcdir"
+
+    # Set sane permissions
+    chmod -R u+w,go-w,a+rX-s .
+
+    gl_cv_func_gettimeofday_clobber=no \
+    gl_cv_func_tzset_clobber=no \
+    ./configure CPPFLAGS="$QICPPFLAGS" CFLAGS="$QICFLAGS" LDFLAGS="$QILDFLAGS -static" \
+     $configure_args \
+     --libdir=/usr/lib \
+     --mandir=$mandir \
+     --build="$(gcc -dumpmachine)"
+
+    make -j2
+    make -j2 DESTDIR="$destdir" install
+
+}
