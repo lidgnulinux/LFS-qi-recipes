@@ -1,12 +1,11 @@
 # Build recipe for elogind.
 #
-
 # Exit immediately on any error
 set -e
 
 program=elogind
-version=252.24
-release=1
+version=255.17
+release=0
 
 # Define a category for the output of the package name
 pkgcategory=daemon
@@ -34,29 +33,27 @@ build()
     mkdir BUILD
     cd BUILD
 
-    patch -p1 -d .. < "${worktree}/elogind-252.24/getdents.patch" 
-    patch -p1 -d .. < "${worktree}/elogind-252.24/gshadow.patch" 
-    patch -p1 -d .. < "${worktree}/elogind-252.24/more-strerror_r.patch" 
-    patch -p1 -d .. < "${worktree}/elogind-252.24/no-bash.patch" 
-    patch -p1 -d .. < "${worktree}/elogind-252.24/sigfillset.patch" 
-    patch -p1 -d .. < "${worktree}/elogind-252.24/statx.patch" 
-    patch -p1 -d .. < "${worktree}/elogind-252.24/strerror_r.patch" 
-    patch -p1 -d .. < "${worktree}/elogind-252.24/re-add_GNU_basename_macro_for_musl.patch" 
-    patch -p1 -d .. < "${worktree}/elogind-252.24/rlimit-util-no-cast.patch" 
+    patch -p1 -d .. < "${worktree}/patches-255/getdents.patch" 
+    patch -p1 -d .. < "${worktree}/patches-255/gshadow.patch" 
+    patch -p1 -d .. < "${worktree}/patches-255/no-bash.patch" 
+    patch -p1 -d .. < "${worktree}/patches-255/no-runtime-dir.patch" 
+    patch -p1 -d .. < "${worktree}/patches-255/rlim-max.patch" 
+    patch -p1 -d .. < "${worktree}/patches-255/strerror_r.patch" 
+    patch -p1 -d .. < "${worktree}/patches-255/strerror_r_1.patch" 
+    patch -p1 -d .. < "${worktree}/patches-255/tests.patch" 
+    patch -p1 -d .. < "${worktree}/patches-255/xxx-musl-fixes.patch" 
 
     CPPFLAGS="$QICPPFLAGS" CFLAGS="$QICFLAGS" LDFLAGS="$QILDFLAGS" \
     meson setup $configure_args \
         -Ddefault-kill-user-processes=false \
         -Dhalt-path=/sbin/halt \
-        -Dman=false \
-        -Dpolkit=true \
+        -Dman=disabled \
+        -Dpolkit=enabled \
         -Dreboot-path=/sbin/reboot \
         -Dtests=false \
+        -Dutmp=false \
         -Dpamconfdir=/etc/pam.d \
-        -Drootlibdir=/usr/lib \
-        -Drootlibexecdir=/usr/libexec/elogind \
         -Dudevrulesdir=/lib/udev/rules.d \
-        -Dsplit-usr=false \
         -Ddbuspolicydir=/etc/dbus-1/system.d \
         -Dcgroup-controller=elogind \
 	..
@@ -65,6 +62,9 @@ build()
     DESTDIR="$destdir" ninja -j2 install
     ln -sfv libelogind.pc "$destdir"/usr/lib/pkgconfig/libsystemd.pc
     ln -sfvn elogind "$destdir"/usr/include/systemd 
+
+    install -Dm644 ../src/systemd/sd-id128.h "$destdir"/usr/include
+    install -Dm644 ../src/systemd/_sd-common.h "$destdir"/usr/include
 
     cd ..
 }
