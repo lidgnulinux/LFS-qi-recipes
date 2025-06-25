@@ -4,8 +4,8 @@
 set -e
 
 program=harfbuzz
-version=10.4.0
-release=1
+version=11.2.1
+release=0
 
 # Define a category for the output of the package name
 pkgcategory=x-libs
@@ -40,12 +40,21 @@ build()
     mkdir BUILD
     cd BUILD
 
-    CPPFLAGS="$QICPPFLAGS" \
-    CFLAGS="$QICFLAGS" CXXFLAGS="$QICXXFLAGS" LDFLAGS="$QILDFLAGS" \
+    export CPPFLAGS="$QICPPFLAGS -O2 -flto=auto -ffat-lto-objects"
+    export CFLAGS="$QICFLAGS -O2 -flto=auto -ffat-lto-objects"
+    export CXXFLAGS="$QICXXFLAGS -O2 -flto=auto -ffat-lto-objects"
     meson setup $configure_args \
-     --buildtype=release \
-     -Ddocs=disabled \
-     ..
+	--buildtype=release \
+	--default-library=both \
+	-Ddocs=disabled \
+	-Dglib=enabled \
+	-Dgobject=enabled \
+	-Dgraphite=disabled \
+	-Dicu=enabled \
+	-Dfreetype=enabled \
+	-Dtests=disabled \
+	-Dcairo=enabled \
+	..
 
     ninja -j${jobs}
     DESTDIR="$destdir" ninja -j${jobs} install
