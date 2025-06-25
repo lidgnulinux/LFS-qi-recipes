@@ -4,15 +4,11 @@
 set -e
 
 program=pango
-version=1.56.1
+version=1.56.3
 release=0
-
-# Define a category for the output of the package name
 pkgcategory=x-libs
 
 tarname=${program}-${version}.tar.xz
-
-# Remote source(s)
 fetch="https://ftp.gnome.org/pub/gnome/sources/pango/${version%.*}/$tarname"
 
 description="
@@ -46,11 +42,14 @@ build()
     CPPFLAGS="$QICPPFLAGS" \
     CFLAGS="$QICFLAGS" CXXFLAGS="$QICXXFLAGS" LDFLAGS="$QILDFLAGS" \
     meson setup $configure_args \
-     --mandir $mandir \
      --buildtype=release \
      --strip \
      --wrap-mode=nofallback \
+     -Db_lto=true \
      -Dintrospection=enabled \
+     -Dfontconfig=enabled \
+     -Dfreetype=enabled \
+     -Dxft=enabled \
      ..
 
     ninja -j${jobs}
