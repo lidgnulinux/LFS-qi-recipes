@@ -4,8 +4,8 @@
 set -e
 
 program=pixman
-version=0.44.2
-release=2
+version=0.46.2
+release=0
 
 # Define a category for the output of the package name
 pkgcategory=xorg_lib
@@ -28,6 +28,7 @@ license="MIT X Consortium"
 # Source documentation
 docs="AUTHORS COPYING ChangeLog NEWS README*"
 docsdir="${docdir}/${program}-${version}"
+jobs=2
 
 build()
 {
@@ -53,16 +54,9 @@ build()
     mkdir BUILD
     cd BUILD
 
-    meson setup $configure_args --buildtype=release \
-	-D loongson-mmi=disabled \
-    	-D vmx=disabled \
-    	-D arm-simd=disabled \
-    	-D neon=disabled \
-    	-D a64-neon=disabled \
-    	-D rvv=disabled \
-    	-D mips-dspr2=disabled \
-    	-D gtk=disabled \
-	..
+    LDFLAGS="$LDFLAGS -Wl,-z,stack-size=2097152" \
+    meson setup $configure_args --buildtype=release -Dtests=disabled \
+	-Ddefault_library=both -Ddemos=disabled ..
 
 
     ninja -j${jobs}
