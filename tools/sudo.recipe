@@ -4,8 +4,9 @@
 set -e
 
 program=sudo
-version=1.9.16p2
-release=1
+version=1.9.17
+_realver=${version/_/}
+release=0
 
 # Define a category for the output of the package name
 pkgcategory=tools
@@ -30,6 +31,7 @@ license=ISC
 # Source documentation
 docs="ChangeLog LICENSE.md NEWS README* docs/*.md"
 docsdir="${docdir}/${program}-${version}"
+srcdir="sudo-$_realver"
 
 build()
 {
