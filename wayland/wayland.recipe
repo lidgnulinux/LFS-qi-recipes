@@ -1,12 +1,11 @@
 # Build recipe for wayland.
 #
-
 # Exit immediately on any error
 set -e
 
 program=wayland
-version=1.23.1
-release=2
+version=1.23.93
+release=1
 
 # Define a category for the output of the package name
 pkgcategory=libs
@@ -38,6 +37,7 @@ build()
     CPPFLAGS="$QICPPFLAGS" CFLAGS="$QICFLAGS" LDFLAGS="$QILDFLAGS" \
     meson setup $configure_args \
 	-Dtests=false \
+	-Ddefault_library=both \
         -Ddocumentation=false \
 	..
 
