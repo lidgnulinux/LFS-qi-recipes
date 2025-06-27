@@ -1,11 +1,10 @@
 # Build recipe for imagemagick.
 #
-
 # Exit immediately on any error
 set -e
 
 program=imagemagick
-version=7.1.1.44
+version=7.1.1.47
 _pkgver=${version%.*}-${version##*.}
 release=1
 description="Collection of tools and libraries for many image formats"
@@ -41,7 +40,7 @@ build()
 		--with-png \
 		--with-threads \
 		--with-tiff \
-		--with-x \
+		--without-x \
 		--with-xml
 
 	make -j4 
