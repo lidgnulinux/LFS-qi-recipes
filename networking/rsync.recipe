@@ -1,0 +1,61 @@
+# Build recipe for rsync.
+#
+# Exit immediately on any error
+set -e
+
+program=rsync
+version=3.4.1
+release=0
+
+# Define a category for the output of the package name
+pkgcategory=networking
+
+tarname=${program}-${version}.tar.gz
+
+# Remote source(s)
+fetch=https://download.samba.org/pub/rsync/src/$tarname
+
+description="
+A fast, versatile, remote (and local) file-copying tool.
+
+Rsync is a fast and extraordinarily versatile file copying tool.
+It can copy locally, to/from another host over any remote shell,
+or to/from a remote rsync daemon.
+"
+
+homepage=https://rsync.samba.org
+license=GPLv3+
+
+# Source documentation
+docs="COPYING NEWS.md README.md TODO"
+docsdir="${docdir}/${program}-${version}"
+
+build()
+{
+    unpack "${tardir}/$tarname"
+
+    cd "$srcdir"
+
+    # Set sane permissions
+    chmod -R u+w,go-w,a+rX-s .
+
+    patch -p1 -i ${worktree}/dont-use-nobody.patch
+    patch -p1 -i ${worktree}/gcc15.patch
+
+    ./configure CPPFLAGS="$QICPPFLAGS" \
+    CFLAGS="$QICFLAGS -flto=auto" LDFLAGS="$QILDFLAGS -static" \
+     $configure_args \
+     --libdir=/usr/lib${libSuffix} \
+     --mandir=$mandir \
+     --enable-zstd \
+     --disable-debug \
+     --disable-xxhash \
+     --disable-lz4 \
+     --with-protected-args \
+     --without-included-zlib \
+     --without-included-popt \
+     --build="$(gcc -dumpmachine)"
+
+    make -j${jobs} V=1
+    make -j${jobs} DESTDIR="$destdir" install
+}
