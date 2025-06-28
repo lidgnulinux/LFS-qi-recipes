@@ -1,0 +1,53 @@
+# Build recipe for findutils.
+#
+# Exit immediately on any error
+set -e
+
+program=findutils
+version=4.10.0
+release=0
+
+# Define a category for the output of the package name
+pkgcategory=tools
+
+tarname=${program}-${version}.tar.xz
+
+# Remote source(s)
+fetch=https://ftp.gnu.org/gnu/findutils/$tarname
+
+description="
+Utilities to find files.
+
+The set of GNU find utilities contains tools to find files
+such as exact name, creation date, size, permissions, etc.
+"
+
+homepage=https://www.gnu.org/software/findutils
+license=GPLv3+
+
+# Source documentation
+docs="AUTHORS COPYING ChangeLog NEWS README* THANKS TODO"
+docsdir="${docdir}/${program}-${version}"
+
+build()
+{
+    unpack "${tardir}/$tarname"
+
+    cd "$srcdir"
+
+    # Set sane permissions
+    chmod -R u+w,go-w,a+rX-s .
+
+    ./configure CPPFLAGS="$QICPPFLAGS" \
+    CFLAGS="$QICFLAGS" LDFLAGS="$QILDFLAGS -static" \
+     $configure_args \
+     --localstatedir=/var/lib/locate \
+     --infodir=$infodir \
+     --mandir=$mandir \
+     --docdir=$docsdir \
+     --build="$(gcc -dumpmachine)"
+
+    make -j${jobs} V=1
+    make -j${jobs} DESTDIR="$destdir" install
+
+}
