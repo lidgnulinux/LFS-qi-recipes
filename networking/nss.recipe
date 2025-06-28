@@ -4,7 +4,7 @@
 set -e
 
 program=nss
-version=3_110
+version=3_113
 pkgversion=$(echo $version | tr _ .)
 release=0
 pkgcategory=networking

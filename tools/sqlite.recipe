@@ -4,8 +4,8 @@
 set -e
 
 program=sqlite
-version=3490200
-pkgversion=3.49.2
+version=3500100
+pkgversion=3.50.1
 release=0
 
 # Define a category for the output of the package name
