@@ -1,0 +1,126 @@
+#!/bin/bash
+
+cd $(dirname $0) ; CWD=$(pwd)
+
+PKGNAM=python3
+SRCNAM=Python
+VERSION=$(echo $SRCNAM-*.tar.xz | rev | cut -f 3- -d . | cut -f 1 -d - | rev)
+BRANCH_VERSION=$(echo $VERSION | cut -f 1,2 -d . )
+BUILD=${BUILD:-1}
+
+NUMJOBS=${NUMJOBS:-" -j$(expr $(nproc) + 1) "}
+
+# Automatically determine the architecture we're building on:
+if [ -z "$ARCH" ]; then
+  case "$( uname -m )" in
+    i?86) export ARCH=i686 ;;
+    arm*) export ARCH=arm ;;
+    # Unless $ARCH is already set, use uname -m for all other archs:
+       *) export ARCH=$( uname -m ) ;;
+  esac
+fi
+
+# If the variable PRINT_PACKAGE_NAME is set, then this script will report what
+# the name of the created package would be, and then exit. This information
+# could be useful to other scripts.
+if [ ! -z "${PRINT_PACKAGE_NAME}" ]; then
+  echo "$PKGNAM-$VERSION-$ARCH-$BUILD.txz"
+  exit 0
+fi
+
+TMP=${TMP:-/tmp}
+PKG=$TMP/package-$PKGNAM
+rm -rf $PKG
+mkdir -p $TMP $PKG
+
+# Don't set any SLKCFLAGS here, or OPT="$SLKCFLAGS" before the ./configure.
+# Python gets the compile options right without any help.
+if [ "$ARCH" = "i686" ]; then
+  LIBDIRSUFFIX=""
+elif [ "$ARCH" = "x86_64" ]; then
+  LIBDIRSUFFIX=""
+elif [ "$ARCH" = "arm" ]; then
+  LIBDIRSUFFIX=""
+elif [ "$ARCH" = "armel" ]; then
+  LIBDIRSUFFIX=""
+elif [ "$ARCH" = "aarch64" ]; then
+  LIBDIRSUFFIX="64"
+else
+  LIBDIRSUFFIX=""
+fi
+
+# Location for Python site-packages:
+SITEPK=$PKG/usr/lib${LIBDIRSUFFIX}/python${BRANCH_VERSION}/site-packages
+# same as above without $PKG
+TOOLSDIR=/usr/lib${LIBDIRSUFFIX}/python${BRANCH_VERSION}/site-packages
+
+cd $TMP
+rm -rf $SRCNAM-$VERSION
+tar xf $CWD/$SRCNAM-$VERSION.tar.xz || exit 1
+cd $SRCNAM-$VERSION || exit 1
+
+# Fix python3 path in cgi.py.
+sed -i '1s|^#.*/usr/local/bin/python|#!/usr/bin/python3|' Lib/cgi.py
+
+# apply some patches
+patch -p0 < "$CWD/patches/patch-Modules__hashopenssl_c"
+patch -p0 < "$CWD/patches/patch-Modules__ssl_c"
+patch -p1 < "$CWD/patches/musl-find_library.patch"
+patch -p1 < "$CWD/patches/test_posix-nodev-disable.patch"
+patch -p1 < "$CWD/patches/fix-run_fileexflags-test.patch"
+
+## If system we're building on already has Python3 with pip in site-packages,
+## ignore it and install pip anyway.
+#sed -i 's|\("install",\)|\1 "--ignore-installed",|' Lib/ensurepip/__init__.py
+
+chown -R root:root .
+find -L . \
+ \( -perm 777 -o -perm 775 -o -perm 750 -o -perm 711 -o -perm 555 \
+  -o -perm 511 \) -exec chmod 755 {} \+ -o \
+ \( -perm 666 -o -perm 664 -o -perm 640 -o -perm 600 -o -perm 444 \
+  -o -perm 440 -o -perm 400 \) -exec chmod 644 {} \+
+
+./configure \
+  --prefix=/usr \
+  --enable-shared \
+  --with-system-expat \
+  --enable-optimizations \
+  --without-static-libpython || exit 1
+
+make $NUMJOBS || make || exit 1
+make install DESTDIR=$PKG || exit 1
+
+# PEP says we can claim this link:
+( cd $PKG/usr/bin
+  rm -f python
+  ln -sf python${BRANCH_VERSION} python
+)
+
+# Make sure we have a non-platform-specific site-packages directory:
+mkdir -p $PKG/usr/lib/python${BRANCH_VERSION}/site-packages
+
+# We'll install the python-tools under site-packages.
+mkdir -p $SITEPK
+cp -a Tools/* $SITEPK
+
+# Remove DOS batch/exe files.
+find $PKG \( -name '*.exe' -o -name '*.bat' \) -exec rm -f '{}' \+
+
+# Fix permissions on dynamic libraries.
+find $PKG -type f -perm 555 -exec chmod 755 '{}' \+
+
+# Fix possible incorrect permissions.
+( cd $PKG
+  find . -type d -exec chmod 755 "{}" \+
+  find . -perm 640 -exec chmod 644 "{}" \+
+  find . -perm 750 -exec chmod 755 "{}" \+
+)
+
+find $PKG -print0 | xargs -0 file | grep -e "executable" -e "shared object" | grep ELF \
+  | cut -f 1 -d : | xargs strip --strip-unneeded 2> /dev/null || true
+
+mkdir -p $PKG/install
+cat $CWD/slack-desc > $PKG/install/slack-desc
+
+cd $PKG
+/sbin/makepkg -l y -c n /var/cache/slack/amd64/python3-$VERSION-$ARCH-$BUILD.txz
