@@ -4,7 +4,7 @@
 set -e
 
 program=tarlz
-version=0.28
+version=0.28.1
 release=0
 
 # Define a category for the output of the package name
@@ -45,8 +45,6 @@ build()
 
     # Set sane permissions
     chmod -R u+w,go-w,a+rX-s .
-
-    patch -p1 -i ${worktree}/missing_header_decode.h.patch
 
     ./configure CPPFLAGS="$QICPPFLAGS" \
     CXXFLAGS+="$QICXXFLAGS" LDFLAGS="$QILDFLAGS -static" \
