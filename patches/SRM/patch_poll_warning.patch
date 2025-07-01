@@ -1,0 +1,13 @@
+diff --git a/src/lib/private/SRMCorePrivate.h b/src/lib/private/SRMCorePrivate.h
+index 7685bf3..c9736b1 100644
+--- a/src/lib/private/SRMCorePrivate.h
++++ b/src/lib/private/SRMCorePrivate.h
+@@ -5,7 +5,7 @@
+ #include <SRMEGL.h>
+ 
+ #include <libudev.h>
+-#include <sys/poll.h>
++#include <poll.h>
+ 
+ #ifdef __cplusplus
+ extern "C" {

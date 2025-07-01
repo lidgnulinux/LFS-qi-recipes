@@ -1,0 +1,42 @@
+# Build recipe for SRM.
+#
+# Exit immediately on any error
+set -e
+
+program=SRM
+version=0.13.0
+release=1
+description="Simple Rendering Manager"
+homepage="https://github.com/CuarzoSoftware/SRM"
+license="LGPL-2.1"
+
+tarname=v0.13.0-1.tar.gz
+fetch="https://github.com/CuarzoSoftware/SRM/archive/refs/tags/$tarname"
+srcdir=SRM-$version-1/src
+
+build() 
+{
+	unpack "${tardir}/$tarname"
+	
+	cd "$srcdir"
+	
+	# Set sane permissions
+	chmod -R u+w,go-w,a+rX-s .
+
+	patch -p1 -d .. -i ${worktree}/patch_poll_warning.patch
+
+	rm -rf BUILD
+	mkdir BUILD
+	cd BUILD
+	
+	CPPFLAGS="$QICPPFLAGS" CFLAGS="$QICFLAGS" LDFLAGS="$QILDFLAGS" \
+	meson setup $configure_args \
+		-Dbuild_examples=false \
+		-Dbuild_tests=false \
+		..
+	
+	ninja -j2
+	DESTDIR="$destdir" ninja -j2 install
+	
+	cd ..
+}
