@@ -5,8 +5,8 @@
 set -e
 
 program=i3status
-version=2.14
-release=1
+version=2.15
+release=0
 
 # Define a category for the output of the package name
 pkgcategory=x-apps
