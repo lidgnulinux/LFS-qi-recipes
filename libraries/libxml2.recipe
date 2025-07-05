@@ -4,9 +4,9 @@
 set -e
 
 program=libxml2
-version=2.13.6
-pkgver=2.13.6
-release=1
+version=2.13.8
+pkgver=2.13.8
+release=0
 
 # Define a category for the output of the package name
 pkgcategory=libs
@@ -44,14 +44,14 @@ build()
      $configure_args \
      --mandir=$mandir \
      --docdir=$docsdir \
-     --enable-static=no \
+     --enable-static=yes \
      --enable-shared=yes \
      --with-python=/usr/bin/python3 \
      --with-history \
-     --with-icu \
+     --without-icu \
      --with-lzma \
      --with-iso8859x \
-     --without-legacy \
+     --with-legacy \
      --build="$(gcc -dumpmachine)"
      
     make -j2 V=1
