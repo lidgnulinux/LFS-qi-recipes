@@ -1,0 +1,40 @@
+# Build recipe for imv.
+set -e
+
+program=imv
+pkgname=imv-libgrapheme
+version=4.5.0
+release=0
+
+pkgcategory=x-apps
+replace="imv"
+
+tarname=v${version}.tar.gz
+
+fetch=https://git.sr.ht/~exec64/imv/archive/$tarname
+
+description="Image viewer for X11/Wayland."
+
+homepage=https://sr.ht/~exec64/imv
+
+license="MIT"
+
+srcdir="imv-v4.5.0"
+
+build()
+{
+    unpack "${tardir}/$tarname"
+
+    cd "$srcdir"
+
+    # Set sane permissions
+    chmod -R u+w,go-w,a+rX-s .
+
+    meson setup -Dwindows=wayland \
+	-Dtest=disabled \
+	-Dunicode=grapheme \
+	--prefix=/usr . output
+
+    meson compile -C output
+    DESTDIR="$destdir" meson install --no-rebuild -C output
+}

@@ -1,0 +1,27 @@
+# Build recipe for libgrapheme.
+#
+# Exit immediately on any error
+set -e
+
+program=libgrapheme
+version=2.0.1
+release=0
+description="unicode string library"
+homepage="https://libs.suckless.org/libgrapheme"
+license="ISC"
+
+tarname=libgrapheme-$version.tar.gz
+fetch="https://dl.suckless.org/libgrapheme/$tarname"
+
+build() 
+{
+	unpack "${tardir}/$tarname"
+	
+	cd "$srcdir"
+	
+	# Set sane permissions
+	chmod -R u+w,go-w,a+rX-s .
+
+	make all PREFIX=/usr
+	make install PREFIX=/usr DESTDIR="$destdir"
+}
