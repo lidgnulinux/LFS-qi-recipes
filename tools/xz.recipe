@@ -1,0 +1,45 @@
+# Build recipe for xz.
+#
+# Exit immediately on any error
+set -e
+
+program=xz
+version=5.8.1
+release=0
+description="Library and CLI tools for XZ and LZMA compressed files"
+homepage="https://tukaani.org/xz/"
+license="GPL-2.0-or-later AND 0BSD AND Public-Domain AND LGPL-2.1-or-later"
+
+tarname=xz-$version.tar.xz
+fetch="https://github.com//tukaani-project/xz/releases/download/v5.8.1/$tarname"
+
+srcdir=
+
+build() 
+{
+	unpack "${tardir}/$tarname"
+	
+	cd "$srcdir"
+	
+	# Set sane permissions
+	chmod -R u+w,go-w,a+rX-s .
+
+	CFLAGS="$CFLAGS -O3" \
+	./configure \
+		--prefix=/usr \
+		--sysconfdir=/etc \
+		--mandir=/usr/share/man \
+		--infodir=/usr/share/info \
+		--localstatedir=/var \
+		--disable-rpath \
+		--disable-werror \
+		--disable-doc
+
+	sed -i \
+		-e 's|^hardcode_libdir_flag_spec=.*|hardcode_libdir_flag_spec=""|g' \
+		-e 's|^runpath_var=LD_RUN_PATH|runpath_var=DIE_RPATH_DIE|g' \
+		libtool
+
+	make -j2
+	make DESTDIR="$destdir" install 
+}
