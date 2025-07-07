@@ -1,0 +1,33 @@
+# Build recipe for automake.
+#
+# Exit immediately on any error
+set -e
+
+program=automake
+version=1.18.1
+pkgver=1.18.1
+release=0
+description="GNU tool for automatically creating Makefiles"
+homepage="https://www.gnu.org/software/automake"
+license="GPL-2.0-or-later"
+
+tarname=automake-$pkgver.tar.xz
+fetch="https://ftp.gnu.org/gnu/automake/$tarname"
+
+build() 
+{
+	unpack "${tardir}/$tarname"
+	
+	cd "$srcdir"
+	
+	# Set sane permissions
+	chmod -R u+w,go-w,a+rX-s .
+
+	./configure \
+		--sysconfdir=/etc \
+		--mandir=/usr/share/man \
+		--localstatedir=/var
+
+	make 
+	make DESTDIR="$destdir" install 
+}
