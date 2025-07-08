@@ -4,7 +4,7 @@
 set -e
 
 program=jq
-version=1.7.1
+version=1.8.0
 release=0
 
 # Define a category for the output of the package name
@@ -29,6 +29,8 @@ build()
     # Set sane permissions
     chmod -R u+w,go-w,a+rX-s .
 	
+    # static build can be achieved by using LDFLAGS="-static"
+
     ./configure \
 	--prefix=/usr \
 	--libdir=/usr/lib \
