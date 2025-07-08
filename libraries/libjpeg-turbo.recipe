@@ -4,7 +4,7 @@
 set -e
 
 program=libjpeg-turbo
-version=3.1.0
+version=3.1.1
 release=0
 
 # Define a category for the output of the package name
@@ -46,6 +46,8 @@ build()
     mkdir BUILD
     cd BUILD
 
+    CFLAGS="$CFLAGS -O2 -DNDEBUG -flto=auto" \
+    CXXFLAGS="$CXXFLAGS -O2 -DNDEBUG -flto=auto" \
     cmake \
      -DCMAKE_C_FLAGS_RELEASE:STRING="$QICFLAGS"       \
      -DCMAKE_EXE_LINKER_FLAGS:STRING="$QILDFLAGS"     \

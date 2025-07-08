@@ -4,8 +4,8 @@
 set -e
 
 program=libpng
-version=1.6.47
-release=1
+version=1.6.49
+release=0
 
 # Define a category for the output of the package name
 pkgcategory=libs
@@ -39,12 +39,12 @@ build() {
     # Set sane permissions
     chmod -R u+w,go-w,a+rX-s .
 
-    patch -p1 -i ${worktree}/libpng-1.6.47-apng.patch
+    patch -p1 -i ${worktree}/libpng-1.6.49-apng.patch
 
     ./configure CPPFLAGS="$QICPPFLAGS" \
     CFLAGS="$QICFLAGS" LDFLAGS="$QILDFLAGS" \
     $configure_args \
-    --enable-static=no \
+    --enable-static=yes \
     --enable-shared=yes \
     --build="$(gcc -dumpmachine)"
 
