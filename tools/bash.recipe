@@ -1,0 +1,63 @@
+# Build recipe for GNU bash.
+#
+# Exit immediately on any error
+set -e
+
+program=bash
+version=5.3
+release=1
+
+# Define a category for the output of the package name
+pkgcategory=shells
+full_pkgname="${program}@${pkgcategory}"
+
+tarname=${program}-${version}.tar.gz
+
+# Remote source(s)
+fetch=https://ftp.gnu.org/gnu/bash/$tarname
+
+description="
+The Bourne Again SHell (version $version).
+
+Bash is an sh-compatible shell that incorporates useful features from
+the Korn shell (ksh) and C shell (csh).  It is intended to conform to
+the IEEE POSIX P1003.2/ISO 9945.2 shell and tools standard.
+
+It offers functional improvements over sh for both programming and
+interactive use.
+"
+
+homepage=https://www.gnu.org/software/bash
+license=GPLv3+
+
+# Source documentation
+docsdir="${docdir}/${program}"
+jobs=2
+
+build()
+{
+    unpack "${tardir}/$tarname"
+
+    cd "$srcdir"
+
+    # Set sane permissions
+    chmod -R u+w,go-w,a+rX-s .
+
+    patch -p1 -i ${worktree}/bash-noinfo.patch
+
+    ./configure CPPFLAGS="$QICPPFLAGS" \
+    CFLAGS="$QICFLAGS -std=gnu17" LDFLAGS="$QILDFLAGS -static" \
+     $configure_args \
+     --libdir=/usr/lib \
+     --libexecdir=/usr/libexec/bash \
+     --infodir=$infodir \
+     --mandir=$mandir \
+     --docdir=$docsdir \
+     --with-installed-readline \
+     --without-bash-malloc \
+     --enable-readline \
+     --build="$(gcc -dumpmachine)"
+
+    make -j${jobs} V=1
+    make -j${jobs} DESTDIR="$destdir" install
+}
