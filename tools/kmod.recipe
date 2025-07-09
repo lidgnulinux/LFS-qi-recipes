@@ -4,7 +4,7 @@
 set -e
 
 program=kmod
-version=34
+version=34.2
 release=0
 
 # Define a category for the output of the package name
@@ -54,8 +54,8 @@ build()
      --with-zstd \
      --build="$(gcc -dumpmachine)"
 
-    make -j${jobs} V=1
-    make -j${jobs} DESTDIR="$destdir" install
+    make -j2 V=1
+    make -j2 DESTDIR="$destdir" install
 
     # Make symlinks for compatibility
 
