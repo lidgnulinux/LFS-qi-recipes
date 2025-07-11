@@ -1,0 +1,31 @@
+# Build recipe for pkgconf.
+#
+# Exit immediately on any error
+set -e
+
+program=pkgconf
+version=2.5.1
+release=0
+description="development framework configuration tools"
+homepage="https://gitea.treehouse.systems/ariadne/pkgconf"
+license="ISC"
+
+tarname=pkgconf-$version.tar.xz
+fetch="https://distfiles.ariadne.space/pkgconf/$tarname"
+
+build() 
+{
+	unpack "${tardir}/$tarname"
+	
+	cd "$srcdir"
+	
+	# Set sane permissions
+	chmod -R u+w,go-w,a+rX-s .
+
+	./configure \
+		--prefix=/usr
+
+	make -j2 
+	make DESTDIR="$destdir" install 
+	ln -s pkgconf "$destdir"/usr/bin/pkg-config
+}

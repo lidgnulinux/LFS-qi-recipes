@@ -1,0 +1,40 @@
+# Build recipe for man-db.
+#
+# Exit immediately on any error
+set -e
+
+program=man-db
+version=2.13.1
+release=0
+description="The man command and related utilities for examining on-line help files"
+homepage="https://man-db.gitlab.io/man-db/"
+license="GPL-2.0-or-later"
+
+tarname=man-db-$version.tar.xz
+fetch="https://download.savannah.nongnu.org/releases/man-db/$tarname"
+
+build() 
+{
+	unpack "${tardir}/$tarname"
+	
+	cd "$srcdir"
+	
+	# Set sane permissions
+	chmod -R u+w,go-w,a+rX-s .
+
+	patch -p1 -i ${worktree}/ignore.patch
+
+	./configure --prefix=/usr                         \
+		--docdir=/usr/share/doc/man-db-2.13.1 \
+		--sysconfdir=/etc                     \
+		--disable-setuid                      \
+		--enable-cache-owner=bin              \
+		--with-browser=/usr/bin/lynx          \
+		--with-vgrind=/usr/bin/vgrind         \
+		--with-grap=/usr/bin/grap             \
+		--with-systemdtmpfilesdir=            \
+		--with-systemdsystemunitdir=
+
+	make -j2 
+	make DESTDIR="$destdir" install 
+}
