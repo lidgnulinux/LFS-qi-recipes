@@ -1,0 +1,33 @@
+# Build recipe for gdbm.
+#
+# Exit immediately on any error
+set -e
+
+program=gdbm
+version=1.25
+release=0
+description="GNU dbm is a set of database routines that use extensible hashing"
+homepage="https://www.gnu.org/software/gdbm/"
+license="GPL-3.0-or-later"
+
+tarname=gdbm-$version.tar.gz
+fetch="https://ftp.gnu.org/gnu/gdbm/$tarname"
+
+build() 
+{
+	unpack "${tardir}/$tarname"
+	
+	cd "$srcdir"
+	
+	# Set sane permissions
+	chmod -R u+w,go-w,a+rX-s .
+
+	patch -p0 -i ${worktree}/unknown_ssize_t.patch
+
+	./configure \
+		--prefix=/usr \
+		--enable-libgdbm-compat
+
+	make -j2
+	make DESTDIR="$destdir" install 
+}
