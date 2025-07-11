@@ -1,0 +1,40 @@
+# Build recipe for gawk.
+#
+# Exit immediately on any error
+set -e
+
+program=gawk
+version=5.3.2
+release=0
+description="GNU awk pattern-matching language"
+homepage="https://www.gnu.org/software/gawk/gawk.html"
+license="GPL-3.0-or-later"
+
+tarname=gawk-$version.tar.xz
+fetch="https://ftp.gnu.org/gnu/gawk/$tarname"
+
+build() 
+{
+	unpack "${tardir}/$tarname"
+	
+	cd "$srcdir"
+	
+	# Set sane permissions
+	chmod -R u+w,go-w,a+rX-s .
+
+	patch -p1 -i ${worktree}/echild-strerror.patch
+
+	sed -i test/Makefile.in -e "/clos1way6/d"
+
+	CFLAGS="$CFLAGS -flto=auto" \
+	./configure \
+		--prefix=/usr \
+		--sysconfdir=/etc \
+		--mandir=/usr/share/man \
+		--infodir=/usr/share/info \
+		--disable-nls \
+		--disable-pma
+
+	make -j2 
+	make DESTDIR="$destdir" install 
+}
