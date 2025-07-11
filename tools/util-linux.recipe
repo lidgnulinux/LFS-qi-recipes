@@ -4,7 +4,8 @@
 set -e
 
 program=util-linux
-version=2.41
+version=2.41.1
+_v=2.41
 release=0
 
 # Define a category for the output of the package name
@@ -16,7 +17,7 @@ replace=util-linux-pass1
 tarname=${program}-${version}.tar.xz
 
 # Remote source(s)
-fetch="https://www.kernel.org/pub/linux/utils/util-linux/v$version/$tarname"
+fetch="https://www.kernel.org/pub/linux/utils/util-linux/v$_v/$tarname"
 
 description="
 Suite of essential utilities.
@@ -45,7 +46,6 @@ build()
 	cp -r "${worktree}"/ttydefaults.h include/
 
 	patch -p1 -i "${worktree}"/utmps.patch	
-	patch -p1 -i "${worktree}"/libmount-fix-no-canonicalize-regression.patch
 
 	./configure \
 		--prefix=/usr \
@@ -67,6 +67,6 @@ build()
 		ADJTIME_PATH=/var/lib/hwclock/adjtime \
 		--docdir=/usr/share/doc/util-linux-2.41
 
-	make -j${jobs} V=1
+	make -j${jobs}
 	make -j${jobs} DESTDIR="$destdir" install	
 }
