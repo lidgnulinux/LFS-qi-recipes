@@ -1,78 +1,42 @@
-# Build recipe for libva (final).
+# Build recipe for libva.
 #
 # Exit immediately on any error
 set -e
 
 program=libva
-version=2.17.0
+version=2.22.0
 release=0
+description="Video Acceleration (VA) API for Linux"
+homepage="https://01.org/linuxmedia"
+license="MIT"
 
-# Define a category for the output of the package name
-pkgcategory=xorg_extra
+tarname=$version.tar.gz
+fetch="https://github.com/intel/libva/archive/$tarname"
 
-# The installation of this package replaces to
-replace=libva-pass1
-
-tarname=${program}-${version}.tar.bz2
-
-# Remote source(s)
-fetch=https://github.com/intel/libva/releases/download/${version}/$tarname
-
-description="
-An implementation for VA-API (Video Acceleration API).
-
-VA-API is an open-source library and API specification, which provides
-access to graphics hardware acceleration capabilities for video
-processing.  It consists of a main library and driver-specific
-acceleration backends for each supported hardware vendor.
-"
-
-homepage=https://01.org/linuxmedia
-license="MIT X Consortium"
-
-# Source documentation
-docs="COPYING NEWS"
-docsdir="${docdir}/${program}-${version}"
-
-build()
+build() 
 {
-    unpack "${tardir}/$tarname"
+	unpack "${tardir}/$tarname"
+	
+	cd "$srcdir"
+	
+	# Set sane permissions
+	chmod -R u+w,go-w,a+rX-s .
 
-    cd "$srcdir"
-
-    # Set sane permissions
-    chmod -R u+w,go-w,a+rX-s .
-
-    ./configure CPPFLAGS="$QICPPFLAGS" \
-    CFLAGS="$QICFLAGS" LDFLAGS="$QILDFLAGS" \
-     $configure_args \
-     --mandir=$mandir \
-     --docdir=$docsdir \
-     --enable-docs=no \
-     --enable-shared=yes \
-     --enable-static=no \
-     --with-drivers-path=/usr/lib/dri \
-     --enable-glx=yes \
-     --build="$(gcc -dumpmachine)"
-
-    make -j${jobs} V=1
-    make -j${jobs} DESTDIR="$destdir" install
-
-    # Compress and link man pages (if needed)
-    if test -d "${destdir}/$mandir"
-    then
-        (
-            cd "${destdir}/$mandir"
-            find . -type f -exec lzip -9 {} +
-            find . -type l | while read -r file
-            do
-                ln -sf "$(readlink -- "$file").lz" "${file}.lz"
-                rm -- "$file"
-            done
-        )
-    fi
-
-    # Copy documentation
-    mkdir -p "${destdir}/$docsdir"
-    cp -p $docs "${destdir}/$docsdir"
+	rm -rf BUILD
+	mkdir BUILD
+	cd BUILD
+	
+	CPPFLAGS="$QICPPFLAGS" CFLAGS="$QICFLAGS" LDFLAGS="$QILDFLAGS" \
+	meson setup $configure_args \
+		-Db_lto=true \
+		-Dwith_x11=yes \
+		-Dwith_glx=no \
+		-Dwith_wayland=yes \
+		-Dwith_win32=no \
+		..
+	
+	ninja -j2
+	DESTDIR="$destdir" ninja -j2 install
+	
+	cd ..
 }
