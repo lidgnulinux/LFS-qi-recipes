@@ -1,0 +1,36 @@
+# Build recipe for olm.
+#
+# Exit immediately on any error
+set -e
+
+program=olm
+version=3.2.16
+release=0
+description="Implementation of the olm and megolm cryptographic ratchets"
+homepage="https://gitlab.matrix.org/matrix-org/olm"
+license="Apache-2.0"
+
+tarname=olm-$version.tar.gz
+fetch="https://gitlab.matrix.org/matrix-org/olm/-/archive/$version/$tarname"
+
+build() 
+{
+	unpack "${tardir}/$tarname"
+	
+	cd "$srcdir"
+	
+	# Set sane permissions
+	chmod -R u+w,go-w,a+rX-s .
+
+	cmake -B build -G Ninja \
+		-DCMAKE_BUILD_TYPE=RelWithDebInfo \
+		-DCMAKE_INSTALL_PREFIX=/usr \
+		-DCMAKE_INSTALL_LIBDIR=lib
+	cmake --build build
+	cd python
+	python3 setup.py build
+	cd ..
+
+	DESTDIR="$destdir" cmake --install build
+	DESTDIR="$destdir" make -C python install-python3
+}

@@ -1,0 +1,57 @@
+# Build recipe for gettext.
+#
+# Exit immediately on any error
+set -e
+
+program=gettext
+version=0.25
+release=0
+
+# Define a category for the output of the package name
+pkgcategory=libs
+
+tarname=gettext-0.25.tar.xz
+
+# Remote source(s)
+fetch=https://ftp.gnu.org/gnu/gettext/$tarname
+
+description="
+Utilities for internationalization and localization.
+
+The GNU gettext package contains utilities for internationalization
+and localization.  These allow programs to be compiled with NLS
+(Native Language Support), enabling them to output messages in the
+user's native language.
+"
+
+homepage=https://www.gnu.org/software/gettext
+license=GPLv3+
+
+# Source documentation
+docs="AUTHORS COPYING ChangeLog HACKING NEWS README THANKS"
+docsdir="${docdir}/${program}-${version}"
+
+build()
+{
+    unpack "${tardir}/$tarname"
+
+    cd "$srcdir"
+
+    # Set sane permissions
+    chmod -R u+w,go-w,a+rX-s .
+
+    ./configure CPPFLAGS="$QICPPFLAGS" \
+    CFLAGS="$QICFLAGS" CXXFLAGS="$QICXXFLAGS" LDFLAGS="$QILDFLAGS" \
+     $configure_args \
+     --libdir=/usr/lib \
+     --infodir=$infodir \
+     --mandir=$mandir \
+     --docdir=$docsdir \
+     --htmldir=${docsdir}/html \
+     --enable-shared=yes \
+     --enable-static=yes \
+     --build="$(gcc -dumpmachine)"
+
+    make -j4
+    make -j4 DESTDIR="$destdir" install
+}
