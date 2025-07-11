@@ -1,0 +1,36 @@
+# Build recipe for kbd.
+#
+# Exit immediately on any error
+set -e
+
+program=kbd
+version=2.8.0
+release=0
+description="Tools for configuring the console (keyboard, virtual terminals, etc.)"
+homepage="https://kbd-project.org/"
+license="GPL-2.0-or-later"
+
+tarname=kbd-2.8.0.tar.xz
+fetch="https://www.kernel.org/pub/linux/utils/kbd/$tarname"
+
+srcdir=
+
+build() 
+{
+	unpack "${tardir}/$tarname"
+	
+	cd "$srcdir"
+	
+	# Set sane permissions
+	chmod -R u+w,go-w,a+rX-s .
+
+	patch -Np1 -i ${worktree}/kbd-2.8.0-backspace-1.patch
+
+	sed -i '/RESIZECONS_PROGS=/s/yes/no/' configure
+	sed -i 's/resizecons.8 //' docs/man/man8/Makefile.in
+
+	./configure --prefix=/usr --disable-vlock
+
+	make -j2 
+	make DESTDIR="$destdir" install 
+}
