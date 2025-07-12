@@ -4,15 +4,11 @@
 set -e
 
 program=libassuan
-version=2.5.5
+version=3.0.2
 release=0
-
-# Define a category for the output of the package name
 pkgcategory=gnupg
 
 tarname=${program}-${version}.tar.bz2
-
-# Remote source(s)
 fetch=https://www.gnupg.org/ftp/gcrypt/libassuan/$tarname
 
 description="
@@ -30,21 +26,22 @@ docsdir="${docdir}/${program}-${version}"
 
 build()
 {
-    unpack "${tardir}/$tarname"
-
-    cd "$srcdir"
-
-    # Set sane permissions
-    chmod -R u+w,go-w,a+rX-s .
-
-    ./configure CPPFLAGS="$QICPPFLAGS" \
-    CFLAGS="$QICFLAGS" LDFLAGS="$QILDFLAGS" \
-     $configure_args \
-     --infodir=$infodir \
-     --mandir=$mandir \
-     --docdir=$docsdir \
-     --build="$(gcc -dumpmachine)"
-
-    make -j${jobs} V=1
-    make -j${jobs} DESTDIR="$destdir" install
+	unpack "${tardir}/$tarname"
+	
+	cd "$srcdir"
+	
+	# Set sane permissions
+	chmod -R u+w,go-w,a+rX-s .
+	
+	./configure CPPFLAGS="$QICPPFLAGS" \
+		CFLAGS="$QICFLAGS" LDFLAGS="$QILDFLAGS" \
+		$configure_args \
+		--infodir=$infodir \
+		--mandir=$mandir \
+		--docdir=$docsdir \
+		--enable-static \
+		--build="$(gcc -dumpmachine)"
+	
+	make -j${jobs} V=1
+	make -j${jobs} DESTDIR="$destdir" install
 }

@@ -5,15 +5,11 @@ set -e
 
 program=gnupg
 pkgname=gnupg2
-version=2.4.7
+version=2.4.8
 release=0
 
-# Define a category for the output of the package name
 pkgcategory=gnupg
-
 tarname=${program}-${version}.tar.bz2
-
-# Remote source(s)
 fetch=https://www.gnupg.org/ftp/gcrypt/gnupg/$tarname
 
 description="
@@ -32,25 +28,37 @@ docsdir="${docdir}/${pkgname}-${version}"
 
 build()
 {
-    unpack "${tardir}/$tarname"
+	unpack "${tardir}/$tarname"
+	
+	cd "$srcdir"
+	
+	# Set sane permissions
+	chmod -R u+w,go-w,a+rX-s .
+	
+	patch -p1 -i ${worktree}/0001-include-unistd.patch
+	patch -p1 -i ${worktree}/0010-avoid-beta-warning.patch
+	patch -p1 -i ${worktree}/0020-avoid-regenerating-defsincdate-use-shipped-file.patch
+	patch -p1 -i ${worktree}/0110-avoid-simple-memory-dumps-via-ptrace.patch
+	patch -p1 -i ${worktree}/0210-dirmngr-hkp-avoid-potential-race-condition-when-some-host-die.patch
+	patch -p1 -i ${worktree}/0230-dirmngr-avoid-automatically-checking-upstream-swdb.patch
+	patch -p1 -i ${worktree}/0330-gpg-default-to-sha512-for-all-signature-types-on-rsa-keys.patch
+	patch -p1 -i ${worktree}/0340-gpg-prefer-sha512-and-sha384-in-personal-digest.patch
+	patch -p1 -i ${worktree}/0420-gpg-drop-import-clean-from-default-keyserver-import-options.patch
+	patch -p1 -i ${worktree}/fix-i18n.patch
+	patch -p1 -i ${worktree}/HACK-revert-rfc4880bis-default.patch
 
-    cd "$srcdir"
-
-    # Set sane permissions
-    chmod -R u+w,go-w,a+rX-s .
-
-    # tries to mkdir -p setup.scm/tests but this is a file?
-    rm tests/gpgme/setup.scm
-
-    autoreconf -vif
-    ./configure CPPFLAGS="$QICPPFLAGS" \
-    CFLAGS="$QICFLAGS" LDFLAGS="$QILDFLAGS" \
-     $configure_args \
-     --infodir=$infodir \
-     --mandir=$mandir \
-     --docdir=$docsdir \
-     --build="$(gcc -dumpmachine)"
-
-    make -j${jobs} V=1
-    make -j${jobs} DESTDIR="$destdir" install
+	# tries to mkdir -p setup.scm/tests but this is a file?
+	rm tests/gpgme/setup.scm
+	
+	autoreconf -vif
+	./configure CPPFLAGS="$QICPPFLAGS" \
+	CFLAGS="$QICFLAGS" LDFLAGS="$QILDFLAGS" \
+	 $configure_args \
+	 --infodir=$infodir \
+	 --mandir=$mandir \
+	 --docdir=$docsdir \
+	 --build="$(gcc -dumpmachine)"
+	
+	make -j2 V=1
+	make -j2 DESTDIR="$destdir" install
 }

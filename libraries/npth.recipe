@@ -4,16 +4,9 @@
 set -e
 
 program=npth
-version=1.6
+version=1.8
 release=0
-
-# Define a category for the output of the package name
 pkgcategory=libs
-
-tarname=${program}-${version}.tar.bz2
-
-# Remote source(s)
-fetch=https://www.gnupg.org/ftp/gcrypt/npth/$tarname
 
 description="
 A new portable thread library.
@@ -28,6 +21,9 @@ program-counter, run-time stack, signal mask and errno variable.
 
 homepage=https://www.gnupg.org
 license=LGPLv2+
+
+tarname=${program}-${version}.tar.bz2
+fetch=https://www.gnupg.org/ftp/gcrypt/npth/$tarname
 
 # Source documentation
 docs="AUTHORS COPYING.LIB ChangeLog NEWS README VERSION"
@@ -49,6 +45,6 @@ build()
      --docdir=$docsdir \
      --build="$(gcc -dumpmachine)"
 
-    make -j${jobs} V=1
-    make -j${jobs} DESTDIR="$destdir" install
+    make -j2
+    make -j2 DESTDIR="$destdir" install
 }
