@@ -5,7 +5,7 @@ set -e
 
 program=vulkan-header
 _program=Vulkan-Headers
-version=1.4.304.1
+version=1.4.313.0
 release=0
 
 # Define a category for the output of the package name
