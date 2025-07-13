@@ -54,7 +54,7 @@ build()
      $configure_args \
      --mandir=$mandir \
      --docdir=$docsdir \
-     --enable-static=no \
+     --enable-static=yes \
      --enable-shared=yes \
      --enable-icu-config \
      --disable-tests \
