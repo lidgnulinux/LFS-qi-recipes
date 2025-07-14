@@ -1,0 +1,56 @@
+# Build recipe for ncurses.
+#
+# Exit immediately on any error
+set -e
+
+program=ncurses
+version=6.5_p20250705
+_version=${version/_p/-}
+release=0
+description="Console display library"
+homepage="https://invisible-island.net/ncurses/"
+license="X11"
+
+tarname=ncurses-$_version.tgz
+fetch="https://invisible-mirror.net/archives/ncurses/current/$tarname"
+
+srcdir=ncurses-$_version
+
+build() 
+{
+	unpack "${tardir}/$tarname"
+	
+	cd "$srcdir"
+	
+	# Set sane permissions
+	chmod -R u+w,go-w,a+rX-s .
+
+	patch -p1 -i ${worktree}/cleanup-pkgconfig-ldflags.patch
+
+	./configure --prefix=/usr --libdir=/usr/lib \
+		--mandir=/usr/share/man \
+		--with-shared           \
+		--without-debug         \
+		--without-normal        \
+		--with-cxx-shared       \
+		--enable-pc-files       \
+		--with-pkg-config-libdir=/usr/lib/pkgconfig
+
+	make -j2 
+	make DESTDIR="$destdir" install 
+	
+	pushd $destdir
+		local lib; for lib in ncurses ncurses++ form panel menu; do
+			ln -s ${lib}w.pc usr/lib/pkgconfig/$lib.pc
+			ln -s lib${lib}w.a usr/lib/lib$lib.a
+			ln -s lib${lib}w.so usr/lib/lib$lib.so
+		done
+
+		for lib in curses tic tinfo; do
+			ln -s libncurses.a usr/lib/lib${lib}.a
+			ln -s libncurses.so usr/lib/lib${lib}.so
+			ln -s ncurses.pc usr/lib/pkgconfig/${lib}.pc
+		done
+		ln -s libncursesw.so usr/lib/libcursesw.so
+	popd
+}
