@@ -1,11 +1,10 @@
 # Build recipe for gst-plugins-base.
 #
-
 # Exit immediately on any error
 set -e
 
 program=gst-plugins-base
-version=1.26.0
+version=1.26.3
 release=0
 description="GStreamer streaming media framework base plug-ins"
 homepage="https://gstreamer.freedesktop.org"

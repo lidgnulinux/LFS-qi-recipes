@@ -1,0 +1,19 @@
+--- docs/meson.build	2025-07-15 15:17:35.524865199 +0700
++++ docs/meson.build.new	2025-07-15 15:22:57.953927966 +0700
+@@ -144,7 +144,6 @@
+     'base': gst_base_gir[0].full_path(),
+     'controller': gst_controller_gir[0].full_path(),
+     'net': gst_net_gir[0].full_path(),
+-    'check': gst_check_gir[0].full_path(),
+   },
+   output_format: 'json')
+ 
+@@ -165,7 +164,7 @@
+     '--output', '@OUTPUT@',
+   ],
+   output: 'hotdoc-libs-configs.json',
+-  depends: [gst_base_gir[0], gst_controller_gir[0], gst_net_gir[0], gst_check_gir[0]],
++  depends: [gst_base_gir[0], gst_controller_gir[0], gst_net_gir[0]],
+ )
+ 
+ doc_source_file = configure_file(output: 'doc_sources.json', configuration: plugin_sources, output_format: 'json')

@@ -4,7 +4,7 @@
 set -e
 
 program=gst-plugins-ugly
-version=1.26.0
+version=1.26.3
 release=0
 description="GStreamer streaming media framework ugly plug-ins"
 homepage="https://gstreamer.freedesktop.org"
