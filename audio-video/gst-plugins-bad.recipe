@@ -5,7 +5,7 @@
 set -e
 
 program=gst-plugins-bad
-version=1.26.0
+version=1.26.3
 release=0
 description="GStreamer streaming media framework bad plug-ins"
 homepage="https://gstreamer.freedesktop.org/"
@@ -28,7 +28,6 @@ build()
 	mkdir BUILD
 	cd BUILD
 	
-	CPPFLAGS="$QICPPFLAGS" CFLAGS="$QICFLAGS" LDFLAGS="$QILDFLAGS" \
 	CFLAGS="$CFLAGS -O2" \
 	CXXFLAGS="$CXXFLAGS -O2" \
 	CPPFLAGS="$CPPFLAGS -O2" \
