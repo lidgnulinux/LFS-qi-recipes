@@ -4,8 +4,9 @@
 set -e
 
 program=glib
-version=2.84.0
-release=3
+version=2.84.3
+_gi_version=1.84.0
+release=1
 
 # Define a category for the output of the package name
 pkgcategory=libs
@@ -17,9 +18,13 @@ pkgname=glib2
 replace=glib2-pass1
 
 tarname=${program}-${version}.tar.xz
+targiname=gobject-introspection-$_gi_version.tar.xz
 
 # Remote source(s)
-fetch="https://download.gnome.org/sources/glib/${version%.*}/$tarname"
+fetch="
+https://download.gnome.org/sources/glib/${version%.*}/$tarname
+https://download.gnome.org/sources/gobject-introspection/${_gi_version%.*}/$targiname
+"
 
 description="
 General purpose library of C routines.
@@ -40,30 +45,57 @@ jobs=2
 
 build()
 {
-    unpack "${tardir}/$tarname"
+	unpack "${tardir}/$tarname"
+	
+	cd "$srcdir"
+	
+	# Set sane permissions
+	chmod -R u+w,go-w,a+rX-s .
 
-    cd "$srcdir"
+	export CFLAGS="$CFLAGS -ffat-lto-objects -O2"
+	export CXXFLAGS="$CXXFLAGS -O2"
+	export CPPFLAGS="$CPPFLAGS -O2"
+	local _prefix="$PWD/boostrap-glib"
 
-    # Set sane permissions
-    chmod -R u+w,go-w,a+rX-s .
+	meson setup \
+		--default-library=shared \
+		--prefix="$_prefix" \
+		-Dman-pages=disabled \
+		-Dlibmount=disabled \
+		-Dtests=false \
+		-Dintrospection=disabled \
+		-Dnls=disabled \
+		output
+	meson compile -C output
+	meson install --no-rebuild -C output
 
-    rm -rf BUILD
-    mkdir BUILD
-    cd BUILD
+	unpack "${tardir}/$targiname"
+	meson setup \
+		--pkg-config-path="$_prefix"/lib/pkgconfig \
+		--prefix="$_prefix" \
+		-Dbuild_introspection_data=false \
+		-Dcairo=disabled \
+		-Ddoctool=disabled \
+		gobject-introspection-$_gi_version \
+		gioutput
+	meson compile -C gioutput
+	meson install --no-rebuild -C gioutput
 
-    CPPFLAGS="$QICPPFLAGS" CFLAGS="$QICFLAGS" LDFLAGS="$QILDFLAGS" \
-    meson setup $configure_args \
-     --buildtype=release \
-     --strip \
-     -Dlibmount=disabled \
-     -Dselinux=disabled \
-     -Dtests=false \
-     -Dinstalled_tests=false \
-     -Dintrospection=enabled \
-     ..
+	PATH="$_prefix/bin:$PATH" LD_LIBRARY_PATH="$_prefix/lib" \
+		meson \
+		--reconfigure \
+		--prefix=/usr \
+		--libdir=/usr/lib \
+		--pkg-config-path="$_prefix"/lib/pkgconfig \
+		--default-library=both \
+		-Dman-pages=enabled \
+		-Dlibmount=enabled \
+		-Dtests="false" \
+		-Dintrospection=enabled \
+		-Dnls=enabled \
+		output
+	PATH="$_prefix/bin:$PATH" LD_LIBRARY_PATH="$_prefix/lib" \
+		meson compile -C output
 
-    ninja -j${jobs}
-    DESTDIR="$destdir" ninja -j${jobs} install
-
-    cd ..
+	DESTDIR="$destdir" meson install --no-rebuild -C output
 }
