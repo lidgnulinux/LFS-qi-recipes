@@ -4,8 +4,8 @@
 set -e
 
 program=neovim
-version=0.11.2
-release=3
+version=0.11.3
+release=0
 description="Vim-fork focused on extensibility and agility"
 homepage="https://neovim.io/"
 license="Apache License"
@@ -23,6 +23,11 @@ build()
 	chmod -R u+w,go-w,a+rX-s .
 
 	make deps
-	make CMAKE_FLAGS="-D CI_BUILD=ON -D CMAKE_INSTALL_PREFIX:PATH=/usr -DCMAKE_INSTALL_LIBDIR=lib"
-	make CMAKE_FLAGS="-D CI_BUILD=ON -D CMAKE_INSTALL_PREFIX:PATH=/usr -DCMAKE_INSTALL_LIBDIR=lib" DESTDIR="$destdir" install
+	make CMAKE_FLAGS="-D CI_BUILD=ON \
+			-D CMAKE_INSTALL_PREFIX:PATH=/usr \
+			-DCMAKE_INSTALL_LIBDIR=lib"
+	make CMAKE_FLAGS="-D CI_BUILD=ON \
+			-D CMAKE_INSTALL_PREFIX:PATH=/usr \
+			-DCMAKE_INSTALL_LIBDIR=lib" \
+			DESTDIR="$destdir" install
 }
