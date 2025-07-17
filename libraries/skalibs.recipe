@@ -4,40 +4,34 @@
 set -e
 
 program=skalibs
-version=2.14.3.0
+version=2.14.4.0
 release=1
-
-# Define a category for the output of the package name
-pkgcategory=libs
-
-tarname=${program}-${version}.tar.gz
-
-# Remote source(s)
-fetch=https://skarnet.org/software/skalibs/$tarname
-
 description="Set of general-purpose C programming libraries for skarnet.org software."
-
+pkgcategory=libs
 homepage=https://skarnet.org/software/skalibs/
 license="ISC"
 
+tarname=${program}-${version}.tar.gz
+fetch=https://skarnet.org/software/skalibs/$tarname
+
 build()
 {
-    unpack "${tardir}/$tarname"
-
-    cd "$srcdir"
-
-    # Set sane permissions
-    chmod -R u+w,go-w,a+rX-s .
+	unpack "${tardir}/$tarname"
 	
-    ./configure \
-	--prefix=/usr \
-	--libdir=/usr/lib \
-	--with-sysdep-devurandom=yes \
-	--with-sysdep-posixspawnearlyreturn=no
+	cd "$srcdir"
+	
+	# Set sane permissions
+	chmod -R u+w,go-w,a+rX-s .
+	    
+	./configure \
+		--prefix=/usr \
+		--libdir=/usr/lib \
+		--enable-pkgconfig \
+		--with-sysdep-devurandom=yes \
+		--with-sysdep-posixspawnearlyreturn=no \
+		--with-sysdep-procselfexe=/proc/self/exe
 
-    make DESTDIR="$destdir" install
-    sed -e "s/@@VERSION@@/$version/g;" "${worktree}/$program.pc.in" > "${worktree}/$program.pc"
-    install -D -m 0644 "${worktree}/skalibs.pc" "$destdir/usr/lib/pkgconfig/skalibs.pc"
-
+	make 
+	make DESTDIR="$destdir" install
 }
 

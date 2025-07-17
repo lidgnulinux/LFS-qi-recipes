@@ -5,7 +5,7 @@ set -e
 
 program=coreutils
 version=9.7
-release=0
+release=1
 
 # Define a category for the output of the package name
 pkgcategory=tools
@@ -46,8 +46,6 @@ build()
 	patch -p1 < ${worktree}/renameat2-fakeroot.patch
 
 	fu_cv_sys_stat_statvfs=n \
-	CFLAGS="$CFLAGS -I/usr/include/utmps -flto=auto" \
-	LIBS="-lutmps -lskarnet" \
 	./configure FORCE_UNSAFE_CONFIGURE="1" \
 		--prefix=/usr \
 		--bindir=/bin \
