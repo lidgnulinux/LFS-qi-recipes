@@ -1,0 +1,37 @@
+# Build recipe for attr.
+#
+# Exit immediately on any error
+set -e
+
+program=attr
+version=2.5.2
+release=0
+description="utilities for managing filesystem extended attributes"
+homepage="https://savannah.nongnu.org/projects/attr"
+license="LGPL-2.1-or-later"
+
+tarname=attr-$version.tar.gz
+fetch="https://download.savannah.nongnu.org/releases/attr/$tarname"
+
+build() 
+{
+	unpack "${tardir}/$tarname"
+	
+	cd "$srcdir"
+	
+	# Set sane permissions
+	chmod -R u+w,go-w,a+rX-s .
+
+	patch -p1 -i ${worktree}/attr-basename.patch
+
+	./configure \
+		--prefix=/usr \
+		--sysconfdir=/etc \
+		--mandir=/usr/share/man \
+		--infodir=/usr/share/info \
+		--localstatedir=/var \
+		--disable-nls
+
+	make -j2 
+	make DESTDIR="$destdir" install 
+}

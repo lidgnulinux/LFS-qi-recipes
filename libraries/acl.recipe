@@ -1,0 +1,33 @@
+# Build recipe for acl.
+#
+# Exit immediately on any error
+set -e
+
+program=acl
+version=2.3.2
+release=0
+description="Access control list utilities"
+homepage="https://savannah.nongnu.org/projects/acl"
+license="LGPL-2.1-or-later AND GPL-2.0-or-later"
+
+tarname=acl-$version.tar.xz
+fetch="https://download.savannah.nongnu.org/releases/acl/$tarname"
+
+build() 
+{
+	unpack "${tardir}/$tarname"
+	
+	cd "$srcdir"
+	
+	# Set sane permissions
+	chmod -R u+w,go-w,a+rX-s .
+
+	./configure \
+		--prefix=/usr \
+		--sysconfdir=/etc \
+		--mandir=/usr/share/man \
+		--infodir=/usr/share/info
+
+	make -j2 
+	make DESTDIR="$destdir" install 
+}

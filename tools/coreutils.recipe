@@ -5,7 +5,7 @@ set -e
 
 program=coreutils
 version=9.7
-release=1
+release=2
 
 # Define a category for the output of the package name
 pkgcategory=tools
@@ -46,7 +46,7 @@ build()
 	patch -p1 < ${worktree}/renameat2-fakeroot.patch
 
 	fu_cv_sys_stat_statvfs=n \
-	./configure FORCE_UNSAFE_CONFIGURE="1" \
+	./configure LDFLAGS="-static" FORCE_UNSAFE_CONFIGURE="1" \
 		--prefix=/usr \
 		--bindir=/bin \
 		--sysconfdir=/etc \
@@ -55,6 +55,8 @@ build()
 		--disable-nls \
 		--enable-no-install-program=hostname,su,kill,uptime \
 		--enable-single-binary=symlinks \
+     		--without-libgmp \
+     		--without-selinux \
 		--enable-single-binary-exceptions=env,fmt,sha512sum
 
 	make -j4
