@@ -5,7 +5,7 @@ set -e
 
 program=gstreamer
 version=1.26.3
-release=0
+release=2
 description="GStreamer streaming media framework"
 homepage="https://gstreamer.freedesktop.org"
 license="LGPL-2.0-or-later"
@@ -22,7 +22,7 @@ build()
 	# Set sane permissions
 	chmod -R u+w,go-w,a+rX-s .
 
-	patch -p0 -i ${worktree}/patch_gst_check_gir.patch
+	# patch -p0 -i ${worktree}/patch_gst_check_gir.patch
 
 	rm -rf BUILD
 	mkdir BUILD
@@ -33,14 +33,6 @@ build()
 		-Dbash-completion=disabled \
 		-Dpackage-name="GStreamer (LFS Musl)" \
 		-Dtests=disabled \
-		-Dtools=enabled \
-		-Dbenchmarks=disabled \
-		-Dcheck=disabled \
-		-Dglib_debug=disabled \
-		-Dglib_assert=false \
-		-Dglib_checks=false \
-		-Dlibunwind=disabled \
-		-Dlibdw=disabled \
 		..
 	
 	ninja -j2
