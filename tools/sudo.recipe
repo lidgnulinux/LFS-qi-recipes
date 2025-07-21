@@ -6,7 +6,7 @@ set -e
 program=sudo
 version=1.9.17
 _realver=${version/_/}
-release=0
+release=3
 
 # Define a category for the output of the package name
 pkgcategory=tools
@@ -42,7 +42,7 @@ build()
     # Set sane permissions
     chmod -R u+w,go-w,a+rX-s .
 
-    ./configure CPPFLAGS="$QICPPFLAGS" \
+    ./configure ac_cv_lib_md_SHA224Update=no CPPFLAGS="$QICPPFLAGS" \
     CFLAGS="$QICFLAGS" LDFLAGS="$QILDFLAGS" \
      $configure_args \
      --libdir=/usr/lib \
@@ -57,6 +57,7 @@ build()
      --with-env-editor \
      --with-man \
      --without-pam \
+     --disable-openssl \
      --build="$(gcc -dumpmachine)"
 
     make -j${jobs} V=1
