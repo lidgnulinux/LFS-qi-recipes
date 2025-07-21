@@ -1,25 +1,18 @@
 # Build recipe for polkit.
 #
-
 # Exit immediately on any error
 set -e
 
 program=polkit
-version=125
-release=1
-
-# Define a category for the output of the package name
 pkgcategory=daemon
-
-tarname=${program}-${version}.tar.gz
-
-# Remote source(s)
-fetch=https://github.com/polkit-org/polkit/archive/refs/tags/$version/$tarname
-
+version=126
+release=0
 description="Application development toolkit for controlling system-wide privileges"
-
 homepage=https://www.freedesktop.org/wiki/Software/polkit/
 license="GPL-2.0-or-later"
+
+tarname=${program}-${version}.tar.gz
+fetch=https://github.com/polkit-org/polkit/archive/refs/tags/$version/$tarname
 
 build()
 {
@@ -33,8 +26,6 @@ build()
     rm -rf BUILD
     mkdir BUILD
     cd BUILD
-
-    patch -p1 -d .. < "${worktree}/args.patch" 
 
     CPPFLAGS="$QICPPFLAGS" CFLAGS="$QICFLAGS" LDFLAGS="$QILDFLAGS" \
     meson setup $configure_args \
