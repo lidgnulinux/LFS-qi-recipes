@@ -4,7 +4,7 @@
 set -e
 
 program=shadow
-version=4.17.3
+version=4.18.0
 release=0
 
 # Define a category for the output of the package name
@@ -39,10 +39,6 @@ build()
 	# Set sane permissions
 	chmod -R u+w,go-w,a+rX-s .
 	
-	# Disable the installation of the groups program and its man pages,
-	# as Coreutils provides a better version.  Also, prevent the
-	# installation of manual pages that were already installed in the
-	# man-pages package (Thanks to "Linux From Scratch" :-)
 	sed -i 's/groups$(EXEEXT) //' src/Makefile.in
 	find man -type f -name Makefile.in -exec sed -i 's/groups\.1 / /'   {} \;
 	find man -type f -name Makefile.in -exec sed -i 's/getspnam\.3 / /' {} \;
