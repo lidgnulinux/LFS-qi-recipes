@@ -4,30 +4,24 @@
 set -e
 
 program=v4l-utils
-version=1.28.1
+version=1.30.1
 release=0
-
-# Define a category for the output of the package name
 pkgcategory=media
-
-tarname=${program}-${version}.tar.xz
-
-# Remote source(s)
-fetch=https://www.linuxtv.org/downloads/v4l-utils/$tarname
-
 description="
 Utilities and libraries to handle media devices.
 
 Linux utilities and libraries to handle media devices (TV devices,
 capture devices, radio devices, remote controllers).
 "
-
 homepage=https://www.linuxtv.org
 license="GPLv2+, LGPLv2.1"
 
-# Source documentation
 docs="COPYING* ChangeLog README* TODO*"
 docsdir="${docdir}/${program}-${version}"
+
+tarname=${program}-${version}.tar.xz
+fetch=https://www.linuxtv.org/downloads/v4l-utils/$tarname
+
 
 build()
 {

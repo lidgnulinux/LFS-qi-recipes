@@ -4,8 +4,8 @@
 set -e
 
 program=ffmpeg
-version=6.1.2
-release=3
+version=7.1.1
+release=0
 description="Complete and free Internet live audio and video broadcasting solution for Linux/Unix"
 homepage="https://ffmpeg.org/"
 license="GPL-2.0-or-later AND LGPL-2.1-or-later"
@@ -22,19 +22,9 @@ build()
 	# Set sane permissions
 	chmod -R u+w,go-w,a+rX-s .
 
-	patch -p1 < "${worktree}/patches/0001-ffbuild-libversion.sh-add-shebang.patch"
-	patch -p1 < "${worktree}/patches/add-av_stream_get_first_dts-for-chromium.patch"
-	patch -p1 < "${worktree}/patches/vaapi-type.patch"
-	patch -p1 < "${worktree}/patches/vulkan-gcc14.patch"
-	patch -p1 < "${worktree}/patches/s390x-pcm-bluray.patch"
-	patch -p1 < "${worktree}/patches/riscv-compliant-rvv.patch"
-	patch -p1 < "${worktree}/patches/mlpdsp_armv5te-labels.patch"
-	patch -p1 < "${worktree}/patches/detect-v4l2-fbdev.patch"
-	patch -p1 < "${worktree}/patches/posix-ioctl.patch"
-	patch -p1 < "${worktree}/patches/FFmpeg-devel-v2-1-2-lavc-vaapi_decode-Make-it-possible-to-send-multiple-slice-params-buffers.patch"
-	patch -p1 < "${worktree}/patches/FFmpeg-devel-v2-2-2-lavc-vaapi_av1-Avoid-sending-the-same-slice-buffer-multiple-times.patch"
+	patch -p1 < "${worktree}/fix_build_with_v4l2_1.30.patch" 
 
-	CFLAGS="-Wno-incompatible-pointer-types" LDFLAGS="-fuse-ld=mold" ./configure \
+	CFLAGS="-Wno-incompatible-pointer-types" ./configure \
 		--prefix=/usr \
 		--disable-librtmp \
 		--disable-lzma \
@@ -79,7 +69,7 @@ build()
 		--enable-asm \
 		--enable-libssh \
 		--enable-libpulse \
-		--enable-openssl 
+		--disable-openssl 
 
 	make -j4 
 	make DESTDIR="$destdir" install  
