@@ -4,7 +4,7 @@
 set -e
 
 program=glslang
-version=1.4.304.0
+version=1.4.321.0
 release=0
 description="Khronos reference front-end for GLSL, ESSL, and sample SPIR-V generator"
 homepage="https://github.com/KhronosGroup/glslang"

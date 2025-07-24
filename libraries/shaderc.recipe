@@ -1,11 +1,10 @@
 # Build recipe for shaderc.
 #
-
 # Exit immediately on any error
 set -e
 
 program=shaderc
-version=2024.0
+version=2025.3
 release=0
 description="Collection of tools, libraries, and tests for Vulkan shader compilation"
 homepage="https://github.com/google/shaderc"
@@ -37,6 +36,7 @@ build()
 		-DBUILD_SHARED_LIBS=ON \
 		-DSHADERC_SKIP_TESTS=ON \
 		-DSHADERC_ENABLE_TESTS=OFF \
+		-Dglslang_SOURCE_DIR=/usr/include/glslang \
 		-DSHADERC_ENABLE_EXAMPLES=OFF
 	
 	cmake --build build
