@@ -5,7 +5,7 @@
 set -e
 
 program=wf-recorder
-version=0.4.1
+version=0.5.0
 release=0
 description="Screen recording for wlroots-based compositors"
 homepage="https://github.com/ammen99/wf-recorder"
@@ -22,6 +22,8 @@ build()
 	
 	# Set sane permissions
 	chmod -R u+w,go-w,a+rX-s .
+
+	patch -p1 -i ${worktree}/279.patch
 
 	rm -rf BUILD
 	mkdir BUILD
