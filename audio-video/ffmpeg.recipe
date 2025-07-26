@@ -22,9 +22,7 @@ build()
 	# Set sane permissions
 	chmod -R u+w,go-w,a+rX-s .
 
-	patch -p1 < "${worktree}/fix_build_with_v4l2_1.30.patch" 
-
-	CFLAGS="-Wno-incompatible-pointer-types" ./configure \
+	./configure \
 		--prefix=/usr \
 		--disable-librtmp \
 		--disable-lzma \
