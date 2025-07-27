@@ -6,7 +6,7 @@ set -e
 program=ncurses
 version=6.5_p20250705
 _version=${version/_p/-}
-release=0
+release=1
 description="Console display library"
 homepage="https://invisible-island.net/ncurses/"
 license="X11"
@@ -31,9 +31,11 @@ build()
 		--mandir=/usr/share/man \
 		--with-shared           \
 		--without-debug         \
-		--without-normal        \
 		--with-cxx-shared       \
+		--with-cxx-binding \
+		--enable-symlinks \
 		--enable-pc-files       \
+		--enable-widec \
 		--with-pkg-config-libdir=/usr/lib/pkgconfig
 
 	make -j2 

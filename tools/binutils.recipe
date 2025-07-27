@@ -1,0 +1,47 @@
+# Build recipe for binutils.
+#
+# Exit immediately on any error
+set -e
+
+program=binutils
+version=2.45
+release=0
+description="Tools necessary to build programs"
+homepage="https://www.gnu.org/software/binutils/"
+license="GPL-2.0-or-later AND LGPL-2.1-or-later AND BSD-3-Clause"
+
+tarname=binutils-2.45.tar.xz
+fetch="https://sourceware.org/pub/binutils/releases/$tarname"
+
+build() 
+{
+	unpack "${tardir}/$tarname"
+	
+	cd "$srcdir"
+	
+	# Set sane permissions
+	chmod -R u+w,go-w,a+rX-s .
+
+	rm -rf BUILD
+	mkdir BUILD
+	cd BUILD
+
+	../configure --prefix=/usr       \
+		--sysconfdir=/etc   \
+		--enable-ld=default \
+		--enable-plugins    \
+		--enable-shared     \
+		--disable-werror    \
+		--disable-gprofng    \
+		--disable-nls    \
+		--disable-multilib    \
+		--enable-64-bit-bfd \
+		--enable-new-dtags  \
+		--with-system-zlib  \
+		--enable-default-hash-style=gnu
+
+	make -j2 tooldir=/usr 
+	make tooldir=/usr DESTDIR="$destdir" install 
+
+	cd ../
+}
