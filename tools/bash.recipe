@@ -4,14 +4,15 @@
 set -e
 
 program=bash
-version=5.3
-release=1
+version=5.3.3
+_myver=${version%.*}
+release=0
 
 # Define a category for the output of the package name
 pkgcategory=shells
 full_pkgname="${program}@${pkgcategory}"
 
-tarname=${program}-${version}.tar.gz
+tarname=${program}-${_myver}.tar.gz
 
 # Remote source(s)
 fetch=https://ftp.gnu.org/gnu/bash/$tarname
@@ -33,6 +34,7 @@ license=GPLv3+
 # Source documentation
 docsdir="${docdir}/${program}"
 jobs=2
+srcdir=bash-5.3
 
 build()
 {
@@ -44,6 +46,9 @@ build()
     chmod -R u+w,go-w,a+rX-s .
 
     patch -p1 -i ${worktree}/bash-noinfo.patch
+    patch -Np0 -i ${worktree}/bash53-001
+    patch -Np0 -i ${worktree}/bash53-002
+    patch -Np0 -i ${worktree}/bash53-003
 
     ./configure CPPFLAGS="$QICPPFLAGS" \
     CFLAGS="$QICFLAGS -std=gnu17" LDFLAGS="$QILDFLAGS -static" \
