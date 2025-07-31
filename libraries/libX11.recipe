@@ -4,16 +4,9 @@
 set -e
 
 program=libX11
-version=1.8.11
+version=1.8.12
 release=0
-
-# Define a category for the output of the package name
 pkgcategory=xorg_lib
-
-tarname=${program}-${version}.tar.gz
-
-# Remote source(s)
-fetch=https://www.x.org/releases/individual/lib/$tarname
 
 description="
 Core X11 protocol client library.
@@ -29,28 +22,29 @@ docs="AUTHORS COPYING ChangeLog README.md"
 docsdir="${docdir}/${program}-${version}"
 jobs=2
 
+tarname=${program}-${version}.tar.gz
+fetch=https://www.x.org/releases/individual/lib/$tarname
+
 build()
 {
-    unpack "${tardir}/$tarname"
-
-    cd "$srcdir"
-
-    # Set sane permissions
-    chmod -R u+w,go-w,a+rX-s .
-
-    ./configure CPPFLAGS="$QICPPFLAGS" \
-    CFLAGS="$QICFLAGS" LDFLAGS="$QILDFLAGS" \
-     $configure_args \
-     --mandir=$mandir \
-     --docdir=$docsdir \
-     --enable-static=no \
-     --enable-shared=yes \
-     --enable-ipv6 \
-     --enable-loadable-i18n \
-     --enable-ipv6 \
-     --without-xmlto \
-     --build="$(gcc -dumpmachine)"
-
-    make -j${jobs} V=1
-    make -j${jobs} DESTDIR="$destdir" install-strip
+	unpack "${tardir}/$tarname"
+	
+	cd "$srcdir"
+	
+	# Set sane permissions
+	chmod -R u+w,go-w,a+rX-s .
+	
+	./configure CPPFLAGS="$QICPPFLAGS" \
+	CFLAGS="$QICFLAGS" LDFLAGS="$QILDFLAGS" \
+	 $configure_args \
+	 --mandir=$mandir \
+	 --docdir=$docsdir \
+	 --enable-ipv6 \
+	 --enable-loadable-i18n \
+	 --enable-ipv6 \
+	 --without-xmlto \
+	 --build="$(gcc -dumpmachine)"
+	
+	make -j${jobs} V=1
+	make -j${jobs} DESTDIR="$destdir" install
 }
