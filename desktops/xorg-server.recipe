@@ -4,27 +4,21 @@
 set -e
 
 program=xorg-server
-version=21.1.16
+version=21.1.18
 release=0
-
-# Define a category for the output of the package name
 pkgcategory=xorg_xserver
-
-tarname=${program}-${version}.tar.xz
-
-# Remote source(s)
-fetch=https://www.x.org/releases/individual/xserver/$tarname
-
 description="
 A portable, network-transparent Window System.
 
 The X Window System is a network transparent window system which
 runs on a wide range of computing and graphics machines.
 "
-
 homepage=https://www.x.org
 license="MIT X Consortium"
 jobs=4
+
+tarname=${program}-${version}.tar.xz
+fetch=https://www.x.org/releases/individual/xserver/$tarname
 
 build()
 {
