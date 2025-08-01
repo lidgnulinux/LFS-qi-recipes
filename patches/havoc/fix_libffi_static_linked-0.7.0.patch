@@ -1,0 +1,19 @@
+--- havoc-0.7.0/Makefile	2025-07-20 21:28:44.000000000 +0700
++++ havoc-0.7.0/Makefile.new	2025-08-01 08:22:15.497584101 +0700
+@@ -1,6 +1,6 @@
+ VERSION = "0.7.0"
+ 
+-PREFIX ?= /usr/local
++PREFIX ?= /usr
+ BINDIR ?= $(PREFIX)/bin
+ 
+ PKG_CONFIG ?= pkg-config
+@@ -11,7 +11,7 @@
+ 
+ WAYLAND_PROTOCOLS_DIR != $(PKG_CONFIG) --variable=pkgdatadir wayland-protocols
+ 
+-LIBRARIES = wayland-client wayland-cursor xkbcommon
++LIBRARIES = wayland-client wayland-cursor xkbcommon libffi
+ PKG_CFLAGS != $(PKG_CONFIG) --cflags $(LIBRARIES)
+ PKG_LIBS != $(PKG_CONFIG) --libs $(LIBRARIES)
+ 
