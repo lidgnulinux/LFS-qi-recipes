@@ -4,16 +4,11 @@
 set -e
 
 program=harfbuzz
-version=11.2.1
-release=0
-
-# Define a category for the output of the package name
 pkgcategory=x-libs
-
-tarname=${program}-${version}.tar.xz
-
-# Remote source(s)
-fetch="https://github.com/harfbuzz/harfbuzz/releases/download/${version}/$tarname"
+version=11.3.2
+release=0
+homepage=https://www.freedesktop.org/wiki/Software/HarfBuzz/
+license=BSD
 
 description="
 An OpenType text shaping engine.
@@ -21,11 +16,13 @@ An OpenType text shaping engine.
 The harfbuzz package contains an OpenType text shaping engine.
 "
 
-homepage=https://www.freedesktop.org/wiki/Software/HarfBuzz/
-license=BSD
-
 docs="AUTHORS CONFIG.md COPYING ChangeLog NEWS README* THANKS"
 docsdir="${docdir}/${program}-${version}"
+
+tarname=${program}-${version}.tar.xz
+fetch="https://github.com/harfbuzz/harfbuzz/releases/download/${version}/$tarname"
+
+jobs=2
 
 build()
 {
