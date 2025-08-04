@@ -4,15 +4,11 @@
 set -e
 
 program=mesa
-version=25.0.5
+version=25.1.7
 release=0
-
-# Define a category for the output of the package name
 pkgcategory=xorg_mesa
 
 tarname=${program}-${version/_/-}.tar.xz
-
-# Remote source(s)
 fetch=https://mesa.freedesktop.org/archive/$tarname
 
 description="
@@ -25,10 +21,10 @@ specification - a system for rendering interactive 3D graphics.
 homepage=https://www.mesa3d.org/
 license=MIT
 
-# Source documentation
 docs="CODEOWNERS README.rst VERSION"
 docsdir="${docdir}/${program}-${version}"
 jobs=4
+srcdir=mesa-${version/_/-}
 
 build()
 {
