@@ -1,0 +1,23 @@
+--- src/i965_output_wayland.c	2025-07-10 06:42:11.232315126 +0700
++++ src/i965_output_wayland.c.new	2025-07-10 06:48:18.492181372 +0700
+@@ -154,7 +154,7 @@
+     struct va_wl_output * const wl_output = i965->wl_output;
+     struct wl_vtable * const wl_vtable = &wl_output->vtable;
+ 
+-    if (strcmp(interface, "wl_drm") == 0) {
++    if (strcmp(interface, "wl_drm") == 0 && wl_vtable->drm_interface) {
+         wl_output->wl_drm_name = name;
+         wl_output->wl_drm = registry_bind(wl_vtable, wl_output->wl_registry,
+                                           name, wl_vtable->drm_interface,
+@@ -483,9 +483,8 @@
+         }
+ 
+         dso_handle = i965->wl_output->libegl_handle;
+-        if (!dso_get_symbols(dso_handle, wl_vtable, sizeof(*wl_vtable),
+-                             libegl_symbols))
+-            goto error;
++        /* dso_get_symbols(dso_handle, wl_vtable, sizeof(*wl_vtable),
++                             libegl_symbols) */;
+     }
+ 
+     i965->wl_output->libwl_client_handle = dso_open(LIBWAYLAND_CLIENT_NAME);

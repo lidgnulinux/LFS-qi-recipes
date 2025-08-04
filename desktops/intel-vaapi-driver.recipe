@@ -39,6 +39,8 @@ build()
     # Set sane permissions
     chmod -R u+w,go-w,a+rX-s .
 
+    patch -p0 -i ${worktree}/make_wl_drm_optional.patch
+
     ./configure CPPFLAGS="$QICPPFLAGS" CFLAGS="$QICFLAGS" LDFLAGS="$QILDFLAGS -Wl,-z,lazy" \
      $configure_args \
      --mandir=$mandir \
