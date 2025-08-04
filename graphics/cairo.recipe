@@ -4,33 +4,23 @@
 set -e
 
 program=cairo
-version=1.18.2
-release=4
-
-# Define a category for the output of the package name
+version=1.18.4
+release=0
 pkgcategory=x-libs
-
-# The installation of this package replaces to
 replace=cairo-pass1
-
-tarname=${program}-${version}.tar.bz2
-
-# Remote source(s)
-fetch=https://gitlab.freedesktop.org/cairo/cairo/-/archive/$version/$tarname
-
 description="
 A vector graphics library.
 
 Cairo is designed to produce identical output on all output media while
 taking advantage of display hardware acceleration when available.
 "
-
 homepage=https://www.cairographics.org/
 license="LGPLv2.1 | MPLv1.1"
-
-# Copy documentation
 docs="AUTHORS BIBLIOGRAPHY BUGS CODING_STYLE COPYING* HACKING NEWS README"
 docsdir="${docdir}/${program}-${version}"
+
+tarname=${program}-${version}.tar.bz2
+fetch=https://gitlab.freedesktop.org/cairo/cairo/-/archive/$version/$tarname
 
 build()
 {

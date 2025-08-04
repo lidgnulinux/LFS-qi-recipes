@@ -4,7 +4,7 @@
 set -e
 
 program=pango
-version=1.56.3
+version=1.56.4
 release=0
 pkgcategory=x-libs
 
@@ -21,10 +21,7 @@ platform.  Pango forms the core of text and font handling for GTK+-2.
 
 homepage=https://www.pango.org/Introduction/
 license=LGPLv2+
-
-# Copy documentation
-docs="CODING_STYLE.md COPYING NEWS README.md THANKS"
-docsdir="${docdir}/${program}-${version}"
+jobs=2
 
 build()
 {
@@ -50,6 +47,7 @@ build()
      -Dfontconfig=enabled \
      -Dfreetype=enabled \
      -Dxft=enabled \
+     -Ddefault_library=both \
      ..
 
     ninja -j${jobs}

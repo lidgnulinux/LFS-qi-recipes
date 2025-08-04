@@ -4,16 +4,9 @@
 set -e
 
 program=pixman
-version=0.46.2
+version=0.46.4
 release=0
-
-# Define a category for the output of the package name
 pkgcategory=xorg_lib
-
-tarname=${program}-${version}.tar.gz
-
-# Remote source(s)
-fetch=https://www.cairographics.org/releases/$tarname
 
 description="
 Library for pixel manipulation.
@@ -25,9 +18,11 @@ features such as image compositing and trapezoid rasterization.
 homepage=https://www.x.org
 license="MIT X Consortium"
 
-# Source documentation
 docs="AUTHORS COPYING ChangeLog NEWS README*"
 docsdir="${docdir}/${program}-${version}"
+
+tarname=${program}-${version}.tar.gz
+fetch=https://www.cairographics.org/releases/$tarname
 jobs=2
 
 build()
@@ -57,7 +52,6 @@ build()
     LDFLAGS="$LDFLAGS -Wl,-z,stack-size=2097152" \
     meson setup $configure_args --buildtype=release -Dtests=disabled \
 	-Ddefault_library=both -Ddemos=disabled ..
-
 
     ninja -j${jobs}
     DESTDIR="$destdir" ninja -j${jobs} install
