@@ -4,21 +4,16 @@
 set -e
 
 program=wofi
-version=1.4.1
+version=1.5.1
 release=0
-
-# Define a category for the output of the package name
 pkgcategory=wayland-apps
-
-tarname=v${version}.tar.gz
-
-# Remote source(s)
-fetch=https://hg.sr.ht/~scoopta/wofi/archive/$tarname
-
 description="A launcher/menu program for wlroots based wayland compositors."
-
 homepage=https://hg.sr.ht/~scoopta/wofi
 license="GPL-3.0-only"
+
+tarname=v${version}.tar.gz
+fetch=https://hg.sr.ht/~scoopta/wofi/archive/$tarname
+
 srcdir="${program}-v${version}"
 
 build()
