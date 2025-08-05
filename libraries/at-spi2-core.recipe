@@ -4,16 +4,11 @@
 set -e
 
 program=at-spi2-core
-version=2.56.1
-release=1
-
-# Define a category for the output of the package name
+version=2.56.4
+release=0
 pkgcategory=x-libs
-
-tarname=${program}-${version}.tar.xz
-
-# Remote source(s)
-fetch="https://ftp.gnome.org/pub/gnome/sources/at-spi2-core/${version%.*}/$tarname"
+homepage=https://wiki.gnome.org/Accessibility/
+license=LGPLv2.1
 
 description="
 A part of the GNOME Accessibility Project.
@@ -23,11 +18,11 @@ available on the GNOME platform and a library against which
 applications can be linked.
 "
 
-homepage=https://wiki.gnome.org/Accessibility/
-license=LGPLv2.1
-
 docs="COPYING MAINTAINERS NEWS README.md"
 docsdir="${docdir}/${program}-${version}"
+
+tarname=${program}-${version}.tar.xz
+fetch="https://download.gnome.org/sources/at-spi2-core/${version%.*}/$tarname"
 
 build()
 {
@@ -45,6 +40,10 @@ build()
     meson setup $configure_args \
      --libdir /usr/lib \
      --buildtype=release \
+     -Dx11=enabled \
+     -Dintrospection=enabled \
+     -Ddocs=false \
+     -Ddbus_daemon=/usr/bin/dbus-daemon \
      --strip \
      ..
 
