@@ -4,21 +4,15 @@
 set -e
 
 program=ostree
-version=2024.9
-release=1
-
-# Define a category for the output of the package name
+version=2025.4
+release=0
 pkgcategory=libs
-
-tarname=lib${program}-${version}.tar.xz
-
-# Remote source(s)
-fetch=https://github.com/ostreedev/ostree/releases/download/v$version/$tarname
-
 description="Operating system and container binary deployment and upgrades"
-
 homepage=https://github.com/ostreedev/ostree
 license="LGPL-2.1-or-later"
+
+tarname=lib${program}-${version}.tar.xz
+fetch=https://github.com/ostreedev/ostree/releases/download/v$version/$tarname
 
 srcdir=lib${program}-${version}
 
