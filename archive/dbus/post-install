@@ -1,0 +1,13 @@
+
+# To validate UUIDs (Universally Unique IDs)
+chroot "$rootdir" /usr/bin/dbus-uuidgen --ensure 2> /dev/null
+
+# fix permission and ownership on symlink
+chmod 4750 "${rootdir}/usr/libexec/dbus-daemon-launch-helper"
+chown -h root:messagebus "${rootdir}/usr/libexec/dbus-daemon-launch-helper"
+
+# Make symlink for compatibility at /etc
+mkdir -p -- "${rootdir}/var/lib/dbus"
+chown -- messagebus "${rootdir}/var/lib/dbus"
+( cd -- "${rootdir}/etc" && ln -sf /var/lib/dbus/machine-id . )
+
