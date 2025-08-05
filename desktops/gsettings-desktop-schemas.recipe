@@ -4,11 +4,12 @@
 set -e
 
 program=gsettings-desktop-schemas
-version=46.0
+version=48.0
 release=0
 description="A collection of GSettings schemas"
 homepage="https://gitlab.gnome.org/GNOME/gsettings-desktop-schemas"
 license="LGPL-2.0-or-later"
+arch=noarch
 
 tarname=$program-$version.tar.xz
 fetch="https://download.gnome.org/sources/gsettings-desktop-schemas/${version%.*}/$tarname"
