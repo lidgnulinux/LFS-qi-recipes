@@ -1,25 +1,18 @@
 # Build recipe for fuzzel.
 #
-
 # Exit immediately on any error
 set -e
 
 program=fuzzel
-version=1.11.1
+version=1.12.0
 release=0
-
-# Define a category for the output of the package name
 pkgcategory=wayland_apps
-
-tarname=${version}.tar.gz
-
-# Remote source(s)
-fetch=https://codeberg.org/dnkl/fuzzel/archive/$tarname
-
 description="Application launcher for wlroots-based Wayland compositors"
-
 homepage=https://codeberg.org/dnkl/fuzzel/
 license="MIT"
+
+tarname=${version}.tar.gz
+fetch=https://codeberg.org/dnkl/fuzzel/archive/$tarname
 
 srcdir=${program}
 
@@ -31,6 +24,8 @@ build()
 
     # Set sane permissions
     chmod -R u+w,go-w,a+rX-s .
+
+    patch -p1 -i ${worktree}/no-werror.patch
 
     rm -rf BUILD
     mkdir BUILD
