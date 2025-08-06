@@ -4,8 +4,9 @@
 set -e
 
 program=libatomic_ops
+pkgname=libatomic-ops
 version=7.8.2
-release=1
+release=2
 
 # Define a category for the output of the package name
 pkgcategory=libs
@@ -47,7 +48,7 @@ build()
     CFLAGS="$QICFLAGS" LDFLAGS="$QILDFLAGS" \
      $configure_args \
      --docdir=$docsdir \
-     --enable-static=no \
+     --enable-static=yes \
      --enable-shared=yes \
      --build="$(gcc -dumpmachine)"
 

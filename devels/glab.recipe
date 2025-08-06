@@ -5,16 +5,16 @@
 set -e
 
 program=glab
-version=1.58.0
+version=1.65.0
 release=0
 
 # Define a category for the output of the package name
 pkgcategory=devel
 
-tarname=glab_1.58.0_linux_amd64.tar.gz
+tarname=glab_1.65.0_linux_amd64.tar.gz
 
 # Remote source(s)
-fetch="https://gitlab.com/gitlab-org/cli/-/releases/v1.58.0/downloads/$tarname"
+fetch="https://gitlab.com/gitlab-org/cli/-/releases/v1.65.0/downloads/$tarname"
 
 description="GLab is an open source GitLab CLI tool that brings GitLab to your command line."
 
