@@ -5,20 +5,15 @@ set -e
 
 program=wlroots
 version=0.19.0
-release=0
-
-# Define a category for the output of the package name
+release=1
 pkgcategory=libs
-
-tarname=${program}-${version}.tar.gz
-
-# Remote source(s)
-fetch=https://gitlab.freedesktop.org/wlroots/wlroots/-/archive/$version/$tarname
-
 description="Modular Wayland compositor library"
-
 homepage=https://gitlab.freedesktop.org/wlroots/wlroots
 license="MIT"
+
+tarname=${program}-${version}.tar.gz
+fetch=https://gitlab.freedesktop.org/wlroots/wlroots/-/archive/$version/$tarname
+
 jobs=2
 
 build()
@@ -38,6 +33,7 @@ build()
     meson setup $configure_args \
 	-Dexamples=false \
 	-Dxwayland=enabled \
+	-Ddefault_library=both \
 	..
 
     ninja -j${jobs}
