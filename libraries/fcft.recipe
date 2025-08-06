@@ -1,25 +1,18 @@
 # Build recipe for fcft.
 #
-
 # Exit immediately on any error
 set -e
 
 program=fcft
-version=3.1.8
+version=3.3.2
 release=0
-
-# Define a category for the output of the package name
 pkgcategory=libs
-
-tarname=${version}.tar.gz
-
-# Remote source(s)
-fetch=https://codeberg.org/dnkl/fcft/archive/$tarname
-
 description="Simple library for font loading and glyph rasterization using FontConfig, FreeType and pixman"
-
 homepage=https://codeberg.org/dnkl/fcft
 license="MIT"
+
+tarname=${version}.tar.gz
+fetch=https://codeberg.org/dnkl/fcft/archive/$tarname
 
 srcdir=$program
 
