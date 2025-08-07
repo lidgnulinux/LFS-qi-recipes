@@ -1,0 +1,24 @@
+#!/bin/sh
+# Begin /etc/init.d/polkitd
+
+case "$1" in
+    start)
+        echo "Starting polkitd..."
+        /usr/lib/polkit-1/polkitd &
+        ;;
+    stop)
+        echo "Stopping polkitd..."
+        killall polkitd
+        ;;
+    restart)
+        $0 stop
+        sleep 1
+        $0 start
+        ;;
+    *)
+        echo "Usage: $0 {start|stop|restart}"
+        exit 1
+        ;;
+esac
+
+# End /etc/init.d/polkitd
