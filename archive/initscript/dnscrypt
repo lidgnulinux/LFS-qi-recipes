@@ -1,0 +1,33 @@
+#!/bin/sh
+
+dc_start() {
+	if [ -x /usr/bin/dnscrypt-proxy ]; then
+		echo "start dnscrypt-proxy service."
+		/usr/bin/dnscrypt-proxy -config /etc/dnscrypt-proxy/dnscrypt-proxy.toml 1> /dev/null 2> /dev/null &
+	fi
+}
+
+dc_stop() {
+	echo "stop seatd service."
+	killall5 dnscrypt-proxy 1> /dev/null 2> /dev/null & 
+}
+
+dc_restart() {
+	dc_stop
+	sleep 2
+	dc_start
+}
+
+case "$1" in
+'start')
+	dc_start
+	;;
+'stop')
+	dc_stop
+	;;
+'restart')
+	dc_restart
+	;;
+*)
+	echo "usage $0 start|stop|restart"
+esac
