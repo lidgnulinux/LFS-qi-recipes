@@ -1,0 +1,46 @@
+# Build recipe for emacs.
+#
+# Exit immediately on any error
+set -e
+
+program=emacs
+version=30.1
+release=0
+description="Extensible, customizable, self-documenting real-time display editor"
+homepage="https://www.gnu.org/software/emacs/emacs.html"
+license="GPL-3.0-or-later"
+
+tarname=emacs-$version.tar.xz
+fetch="https://ftp.gnu.org/gnu/emacs/$tarname"
+
+build() 
+{
+	unpack "${tardir}/$tarname"
+	
+	cd "$srcdir"
+	
+	# Set sane permissions
+	chmod -R u+w,go-w,a+rX-s .
+
+	patch -p1 -i ${worktree}/no-git-repo.patch
+
+	./autogen.sh
+	rm etc/emacs.service # systemd unit
+
+	./configure \
+		--prefix=/usr \
+		--libdir=/usr/lib \
+		--sysconfdir=/etc \
+		--mandir=/usr/share/man \
+		--infodir=/usr/share/info \
+		--with-harfbuzz \
+		--localstatedir=/var \
+		--with-gameuser=:games \
+		--without-sound \
+		--without-x \
+		--without-file-notification \
+		--with-native-compilation=no
+
+	make -j2 
+	make DESTDIR="$destdir" install 
+}

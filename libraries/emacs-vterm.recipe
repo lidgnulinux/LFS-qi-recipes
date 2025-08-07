@@ -1,0 +1,50 @@
+# Build recipe for emacs-vterm.
+#
+# Exit immediately on any error
+set -e
+
+program=emacs-vterm
+version=0_git20240821
+_gitrev=988279316fc89e6d78947b48513f248597ba969a
+_pkgreal=vterm
+release=0
+description="Fully-fledged terminal emulator based on libvterm"
+homepage="https://github.com/akermu/emacs-libvterm"
+license="GPL-3.0-or-later"
+
+tarname=emacs-vterm-$_gitrev.tar.gz
+fetch="https://github.com/akermu/emacs-libvterm/archive/$_gitrev/$tarname"
+
+srcdir=emacs-libvterm-$_gitrev
+
+build() 
+{
+	unpack "${tardir}/$tarname"
+	
+	cd "$srcdir"
+	
+	# Set sane permissions
+	chmod -R u+w,go-w,a+rX-s .
+
+	rm -v emacs-module.h
+
+	cmake -B build -G Ninja \
+		-DCMAKE_INSTALL_PREFIX=/usr \
+		-DCMAKE_INSTALL_LIBDIR=/usr/lib \
+		-DUSE_SYSTEM_LIBVTERM=ON \
+		-DBUILD_SHARED_LIBS=ON \
+		-DCMAKE_BUILD_TYPE=None
+	cmake --build build
+
+	emacs -batch -q -no-site-file -L . \
+		-f batch-byte-compile \
+		./*.el
+
+	install -Dvm644 ./*.el ./*.elc vterm-module.so \
+		-t "$destdir"/usr/share/emacs/site-lisp/
+
+	pushd $destdir/usr/share/emacs/site-lisp
+		emacs -batch -q -no-site-file \
+			-eval "(loaddefs-generate \".\" \"$_pkgreal-loaddefs.el\")"
+	popd
+}
