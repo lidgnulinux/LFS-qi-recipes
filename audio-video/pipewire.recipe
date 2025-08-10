@@ -1,7 +1,9 @@
 # Build recipe for pipewire.
 #
+set -e
+
 program=pipewire
-version=1.4.5
+version=1.4.7
 release=0
 description="Multimedia processing graphs"
 homepage="https://pipewire.org/"
