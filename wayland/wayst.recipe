@@ -1,0 +1,37 @@
+# Build recipe for wayst.
+#
+
+# Exit immediately on any error
+set -e
+
+program=wayst
+version=0
+release=1
+description="A simple terminal emulator."
+homepage="https://github.com/91861/wayst"
+license="MIT"
+
+commit=f5a6c220b376caa8d60bd5c31b8747aba1fb7d6d
+tarname=$commit.zip
+fetch="https://github.com/91861/wayst/archive/$tarname"
+
+srcdir=wayst-$commit
+
+build() 
+{
+	unpack "${tardir}/$tarname"
+	
+	cd "$srcdir"
+	
+	# Set sane permissions
+	chmod -R u+w,go-w,a+rX-s .
+
+	patch Makefile < "${worktree}/default_not_local_install.patch"
+
+	make 
+	make DESTDIR="$destdir" PREFIX=/usr install 
+
+	mkdir -p "$destdir/usr/share/applications"
+        install -Dm644 "${worktree}/wayst.desktop" \
+                -t "$destdir/usr/share/applications/"
+}

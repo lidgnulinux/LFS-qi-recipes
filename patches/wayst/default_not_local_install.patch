@@ -1,0 +1,11 @@
+diff --git a/Makefile b/Makefile
+index 53b74d3..22235b9 100644
+--- a/Makefile
++++ b/Makefile
+@@ -1,5 +1,5 @@
+ EXEC = wayst
+-INSTALL_DIR = /usr/local/bin
++INSTALL_DIR = /usr/bin
+ 
+ ARGS =
+ 
