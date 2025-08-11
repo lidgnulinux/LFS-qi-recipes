@@ -4,27 +4,17 @@
 set -e
 
 program=cmake
-version=3.31.6
-release=1
-
-# Define a category for the output of the package name
+version=4.1.0
+_ver=${version/_rc/-rc}
+release=0
 pkgcategory=devel
-
-tarname=${program}-${version}.tar.gz
-
-# Remote source(s)
-fetch="https://cmake.org/files/v${version%.*}/$tarname"
-
-description="
-Cross-platform make system.
-
-CMake is a family of tools designed to build, test and package
-software.  CMake is used to control the software compilation process
-using simple platform and compiler independent configuration files.
-"
-
+description="Cross-platform open-source make system."
 homepage=https://www.cmake.org
 license=Custom
+
+tarname=${program}-${version}.tar.gz
+fetch="https://cmake.org/files/v${version%.*}/$tarname"
+srcdir=cmake-$_ver
 
 build()
 {
@@ -35,18 +25,20 @@ build()
     # Set sane permissions
     chmod -R u+w,go-w,a+rX-s .
 
-    patch -p1 -i "${worktree}/cmake-3.31.6-curl-8.13.0.patch"
+    sed -i '/"lib64"/s/64//' Modules/GNUInstallDirs.cmake
 
     ./bootstrap \
     CFLAGS="$QICFLAGS" CXXFLAGS="$QICXXFLAGS" LDFLAGS="$QILDFLAGS" \
      --prefix=/usr \
      --system-libuv \
-     --no-system-curl \
      --system-expat \
      --system-zlib \
      --system-bzip2 \
      --system-libarchive \
      --no-system-jsoncpp \
+     --no-system-curl \
+     --no-system-cppdap \
+     --no-system-nghttp2 \
      --generator=Ninja \
      --parallel=4
 
