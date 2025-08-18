@@ -1,0 +1,35 @@
+# Build recipe for libvdpau-va-gl.
+#
+# Exit immediately on any error
+set -e
+
+program=libvdpau-va-gl
+version=0.4.2
+release=0
+description="VDPAU driver with OpenGL/VAAPI backend"
+homepage="https://github.com/i-rinat/libvdpau-va-gl"
+license="MIT"
+
+tarname=libvdpau-va-gl-$version.tar.gz
+fetch="https://github.com/i-rinat/libvdpau-va-gl/archive/v$version/$tarname"
+
+build() 
+{
+	unpack "${tardir}/$tarname"
+	
+	cd "$srcdir"
+	
+	# Set sane permissions
+	chmod -R u+w,go-w,a+rX-s .
+
+	cmake -B build -G Ninja \
+		-DCMAKE_INSTALL_PREFIX=/usr \
+		-DCMAKE_INSTALL_LIBDIR=lib \
+		-DBUILD_SHARED_LIBS=True \
+		-DCMAKE_POLICY_VERSION_MINIMUM=3.5 \
+		-DCMAKE_BUILD_TYPE=None
+
+	cmake --build build
+
+	DESTDIR="$destdir" cmake --install build
+}

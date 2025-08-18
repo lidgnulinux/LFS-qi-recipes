@@ -1,0 +1,66 @@
+# Build recipe for xterm.
+#
+# Exit immediately on any error
+set -e
+
+program=xterm
+version=401
+release=0
+description="X Terminal Emulator"
+homepage="https://invisible-island.net/xterm"
+license="MIT"
+
+tarname=xterm-$version.tgz
+fetch="https://invisible-island.net/archives/xterm/$tarname"
+
+build() 
+{
+	unpack "${tardir}/$tarname"
+	
+	cd "$srcdir"
+	
+	# Set sane permissions
+	chmod -R u+w,go-w,a+rX-s .
+
+	export CFLAGS="$CFLAGS -flto=auto -D_BSD_SOURCE"
+	./configure \
+		--prefix=/usr \
+		--sysconfdir=/etc \
+		--mandir=/usr/share/man \
+		--infodir=/usr/share/info \
+		--localstatedir=/var \
+		--with-x \
+		--disable-full-tgetent \
+		--disable-imake \
+		--enable-ansi-color \
+		--enable-88-color \
+		--enable-256-color \
+		--enable-broken-osc \
+		--enable-broken-st \
+		--enable-load-vt-fonts \
+		--enable-i18n \
+		--enable-wide-chars \
+		--enable-doublechars \
+		--enable-warnings \
+		--enable-tcap-query \
+		--enable-logging \
+		--enable-dabbrev \
+		--enable-freetype \
+		--enable-luit \
+		--enable-mini-luit \
+		--enable-narrowproto \
+		--enable-exec-xterm \
+		--enable-sixel-graphics \
+		--enable-block-select \
+		--with-tty-group=tty \
+		--with-utempter
+
+	make -j2 
+	make DESTDIR="$destdir" install 
+
+	install -m755 -d "$destdir"/usr/share/applications
+	install -m644 xterm.desktop "$destdir"/usr/share/applications/
+	install -m644 uxterm.desktop "$destdir"/usr/share/applications/
+	install -Dm644 COPYING "$destdir"/usr/share/licenses/$pkgname/COPYING
+	install -Dm644 README.i18n "$destdir"/usr/share/doc/$pkgname/README.i18n
+}

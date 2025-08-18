@@ -1,0 +1,35 @@
+# Build recipe for stow.
+#
+# Exit immediately on any error
+set -e
+
+program=stow
+version=2.4.1
+release=0
+description="Manage installation of multiple softwares in the same directory tree"
+homepage="https://www.gnu.org/software/stow/"
+license="GPL-3.0-or-later"
+
+tarname=stow-$version.tar.bz2
+fetch="https://ftp.gnu.org/gnu/stow/$tarname"
+
+build() 
+{
+	unpack "${tardir}/$tarname"
+	
+	cd "$srcdir"
+	
+	# Set sane permissions
+	chmod -R u+w,go-w,a+rX-s .
+
+	./configure \
+		--prefix=/usr \
+		--mandir=/usr/share/man \
+		--infodir=/usr/share/info \
+		--with-pmdir=/usr/lib/perl5/vendor_perl
+
+	make 
+	make DESTDIR="$destdir" install 
+
+	rm -v "$destdir"/usr/share/doc/stow/version.texi
+}

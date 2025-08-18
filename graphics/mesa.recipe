@@ -5,7 +5,7 @@ set -e
 
 program=mesa
 version=25.1.7
-release=0
+release=3
 pkgcategory=xorg_mesa
 
 tarname=${program}-${version/_/-}.tar.xz
@@ -49,9 +49,8 @@ build()
      -Ddri-drivers-path=/usr/lib/dri \
      -Dglx=dri \
      -Dplatforms=x11,wayland \
-     -Dgallium-drivers=i915,crocus \
-     -Dvulkan-drivers="" \
-     -Dgallium-xa=enabled \
+     -Dgallium-drivers=i915,crocus,nouveau \
+     -Dvulkan-drivers="swrast,intel" \
      -Dlmsensors=enabled \
      -Degl=enabled \
      -Dgles1=enabled \
@@ -59,8 +58,10 @@ build()
      -Dosmesa=false \
      -Dopengl=true \
      -Dgallium-nine=false \
-     -Dllvm=disabled \
-     -Dshared-llvm=disabled \
+     -Dllvm=enabled \
+     -Dshared-llvm=enabled \
+     -Dgallium-rusticl=false \
+     -Dlibunwind=disabled \
      -Dshared-glapi=enabled \
      -Dvalgrind=disabled \
      -Db_lto=false \

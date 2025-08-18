@@ -1,0 +1,62 @@
+# Build recipe for mplayer.
+#
+# Exit immediately on any error
+set -e
+
+program=mplayer
+version=1.5_p20241125
+release=0
+description="Movie player for linux"
+homepage="http://www.mplayerhq.hu/design7/news.html"
+license="GPL-2.0-or-later"
+
+tarname=mplayer-1.5_p20241125.tar.xz
+fetch="https://dev.gentoo.org/~sam/distfiles/media-video/mplayer/$tarname"
+
+build() 
+{
+	unpack "${tardir}/$tarname"
+	
+	cd "$srcdir"
+	
+	# Set sane permissions
+	chmod -R u+w,go-w,a+rX-s .
+
+	patch -p1 -i ${worktree}/x11-libs.patch
+	patch -p0 -i ${worktree}/c99.patch
+
+	./configure \
+		--prefix=/usr \
+		--enable-runtime-cpudetection \
+		--disable-gui \
+		--disable-gif \
+		--disable-arts \
+		--enable-x11 \
+		--confdir=/etc/mplayer \
+		--disable-nas \
+		--enable-gl \
+		--disable-tv-v4l1 \
+		--enable-tv-v4l2 \
+		--disable-ffmpeg_a \
+		--disable-liblzo \
+		--disable-speex \
+		--disable-openal \
+		--disable-fribidi \
+		--disable-libdv \
+		--disable-musepack \
+		--language=all \
+		--disable-esd \
+		--disable-mga \
+		--disable-lirc \
+		--enable-debug \
+		--enable-radio \
+		--enable-radio-capture \
+		--disable-nemesi \
+		--disable-jack \
+		--enable-freetype \
+		--extra-cflags="-std=gnu17 -Wno-incompatible-pointer-types" \
+		--yasm=nasm
+
+	make -j2 
+	make DESTDIR="$destdir" install 
+}

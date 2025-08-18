@@ -1,0 +1,41 @@
+# Build recipe for vulkan-tools.
+#
+# Exit immediately on any error
+set -e
+
+program=vulkan-tools
+_pkgname=Vulkan-Tools
+version=1.4.313.0
+release=0
+description="https://www.khronos.org/vulkan"
+homepage="Vulkan Utilities and Tools"
+license="Apache-2.0"
+
+tarname=vulkan-tools-sdk-$version.tar.gz
+fetch="https://github.com/KhronosGroup/Vulkan-Tools/archive/refs/tags/vulkan-sdk-$version/$tarname"
+
+srcdir=$_pkgname-vulkan-sdk-$version
+
+build() 
+{
+	unpack "${tardir}/$tarname"
+	
+	cd "$srcdir"
+	
+	# Set sane permissions
+	chmod -R u+w,go-w,a+rX-s .
+
+	CXXFLAGS="$CXXFLAGS -flto=auto" \
+	cmake -B build -G Ninja \
+		-DCMAKE_BUILD_TYPE=MinSizeRel \
+		-DCMAKE_INSTALL_PREFIX=/usr \
+		-DCMAKE_INSTALL_LIBDIR=lib \
+		-DCMAKE_INSTALL_SYSCONFDIR=/etc \
+		-DCMAKE_INSTALL_DATADIR=/usr/share \
+		-DCMAKE_SKIP_RPATH=True \
+		-DBUILD_CUBE=OFF \
+		-DBUILD_VULKANINFO=ON
+	cmake --build build
+
+	DESTDIR="$destdir" cmake --install build
+}

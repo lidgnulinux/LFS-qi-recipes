@@ -1,0 +1,32 @@
+# Build recipe for xrandr.
+#
+# Exit immediately on any error
+set -e
+
+program=xrandr
+version=1.5.3
+release=0
+description="Command line interface to RandR extension"
+homepage="https://www.x.org/wiki/"
+license="MIT"
+
+tarname=$program-$version.tar.xz
+fetch="https://www.x.org/releases/individual/app/$tarname"
+
+build() 
+{
+	unpack "${tardir}/$tarname"
+	
+	cd "$srcdir"
+	
+	# Set sane permissions
+	chmod -R u+w,go-w,a+rX-s .
+
+	./configure \
+		--prefix=/usr \
+		--mandir=/usr/share/man
+
+	make 
+	make DESTDIR="$destdir" install 
+	rm "$destdir"/usr/bin/xkeystone
+}

@@ -1,0 +1,36 @@
+# Build recipe for libdecor.
+#
+# Exit immediately on any error
+set -e
+
+program=libdecor
+version=0.2.3
+release=0
+description="Client-side decorations library for Wayland clients"
+homepage="https://gitlab.freedesktop.org/libdecor/libdecor"
+license="MIT"
+
+tarname=libdecor-$version.tar.gz
+fetch="https://gitlab.freedesktop.org/libdecor/libdecor/-/archive/$version/$tarname"
+
+build() 
+{
+	unpack "${tardir}/$tarname"
+	
+	cd "$srcdir"
+	
+	# Set sane permissions
+	chmod -R u+w,go-w,a+rX-s .
+
+	rm -rf BUILD
+	mkdir BUILD
+	cd BUILD
+	
+	CPPFLAGS="$QICPPFLAGS" CFLAGS="$QICFLAGS" LDFLAGS="$QILDFLAGS" \
+	meson setup $configure_args -Ddemo=false ..
+	
+	ninja -j2
+	DESTDIR="$destdir" ninja -j2 install
+	
+	cd ..
+}

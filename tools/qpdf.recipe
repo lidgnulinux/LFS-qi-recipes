@@ -1,0 +1,34 @@
+# Build recipe for qpdf.
+#
+# Exit immediately on any error
+set -e
+
+program=qpdf
+version=12.2.0
+release=0
+description="Command-line tools and library for transforming PDF files"
+homepage="https://github.com/qpdf/qpdf"
+license="Apache-2.0"
+
+tarname=qpdf-$version.tar.gz
+fetch="https://github.com/qpdf/qpdf/releases/download/v$version/$tarname"
+
+build() 
+{
+	unpack "${tardir}/$tarname"
+	
+	cd "$srcdir"
+	
+	# Set sane permissions
+	chmod -R u+w,go-w,a+rX-s .
+
+	cmake -B build -G Ninja \
+		-DCMAKE_INSTALL_PREFIX=/usr \
+		-DCMAKE_BUILD_TYPE=MinSizeRel \
+		-DBUILD_DOC_PDF=OFF \
+		-DBUILD_DOC_HTML=OFF \
+		-DINSTALL_EXAMPLES=OFF
+	cmake --build build
+
+	DESTDIR="$destdir" cmake --install build
+}
