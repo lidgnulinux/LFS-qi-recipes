@@ -1,0 +1,39 @@
+# Build recipe for gst-libav.
+#
+# Exit immediately on any error
+set -e
+
+program=gst-libav
+version=1.26.5
+release=0
+description="GStreamer streaming media framework libav plugin"
+homepage="https://gstreamer.freedesktop.org"
+license="GPL-2.0-or-later LGPL-2.0-or-later"
+
+tarname=gst-libav-$version.tar.xz
+fetch="https://gstreamer.freedesktop.org/src/gst-libav/$tarname"
+
+build() 
+{
+	unpack "${tardir}/$tarname"
+	
+	cd "$srcdir"
+	
+	# Set sane permissions
+	chmod -R u+w,go-w,a+rX-s .
+
+	rm -rf BUILD
+	mkdir BUILD
+	cd BUILD
+	
+	CFLAGS="$CFLAGS -O2" \
+	CXXFLAGS="$CXXFLAGS -O2" \
+	CPPFLAGS="$CPPFLAGS -O2" \
+	CPPFLAGS="$QICPPFLAGS" CFLAGS="$QICFLAGS" LDFLAGS="$QILDFLAGS" \
+	meson setup $configure_args ..
+	
+	ninja -j2
+	DESTDIR="$destdir" ninja -j2 install
+	
+	cd ..
+}

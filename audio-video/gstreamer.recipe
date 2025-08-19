@@ -4,8 +4,8 @@
 set -e
 
 program=gstreamer
-version=1.26.3
-release=2
+version=1.26.5
+release=0
 description="GStreamer streaming media framework"
 homepage="https://gstreamer.freedesktop.org"
 license="LGPL-2.0-or-later"
@@ -33,6 +33,7 @@ build()
 		-Dbash-completion=disabled \
 		-Dpackage-name="GStreamer (LFS Musl)" \
 		-Dtests=disabled \
+		-Dtools=enabled \
 		..
 	
 	ninja -j2

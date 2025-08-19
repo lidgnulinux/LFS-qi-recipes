@@ -1,11 +1,12 @@
 # Build recipe for libsoup3.
 #
+
 # Exit immediately on any error
 set -e
 
 program=libsoup3
-version=3.6.1
-pkgver=3.6.1
+version=3.6.5
+pkgver=3.6.5
 release=0
 description="Gnome HTTP client/server Library"
 homepage="https://wiki.gnome.org/Projects/libsoup"
