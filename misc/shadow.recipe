@@ -5,15 +5,10 @@ set -e
 
 program=shadow
 version=4.18.0
-release=0
-
-# Define a category for the output of the package name
+release=2
 pkgcategory=tools
-
-tarname=${program}-${version}.tar.xz
-
-# Remote source(s)
-fetch=https://github.com/shadow-maint/shadow/releases/download/${version}/$tarname
+homepage=https://pkg-shadow.alioth.debian.org
+license=BSD
 
 description="
 The shadow tool suite.
@@ -22,12 +17,8 @@ The shadow package contains programs for handling
 passwords in a secure way.
 "
 
-homepage=https://pkg-shadow.alioth.debian.org
-license=BSD
-
-# Source documentation
-docs="COPYING NEWS README TODO"
-docsdir="${docdir}/${pkgname}"
+tarname=${program}-${version}.tar.xz
+fetch=https://github.com/shadow-maint/shadow/releases/download/${version}/$tarname
 jobs=4
 
 build()
@@ -61,10 +52,13 @@ build()
 		--without-tcb \
 		--with-yescrypt \
 		--without-nscd \
+		--without-libbsd \
 		--without-group-name-max-length \
 		--with-fcaps
 	
 	make -j${jobs} V=1
 	make -j${jobs} V=1 check
-	make -j${jobs} DESTDIR="$destdir" install	
+	make -j${jobs} DESTDIR="$destdir" install
+
+	mv $destdir/etc/pam.d/login $destdir/etc/pam.d/login.new	
 }

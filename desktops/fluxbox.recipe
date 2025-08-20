@@ -1,0 +1,40 @@
+# Build recipe for fluxbox.
+#
+# Exit immediately on any error
+set -e
+
+program=fluxbox
+version=1.3.7
+release=0
+description="A lightweight and highly-configurable window manager"
+homepage="http://www.fluxbox.org/"
+license="MIT"
+
+tarname=fluxbox-$version.tar.bz2
+fetch="https://downloads.sourceforge.net/sourceforge/fluxbox/$tarname"
+
+build() 
+{
+	unpack "$tardir/$tarname"
+	cd "$srcdir"
+	
+	# Set sane permissions
+	chmod -R u+w,go-w,a+rX-s .
+
+	patch -p1 -i ${worktree}/gcc11.patch
+
+	./configure \
+		--prefix=/usr \
+		--enable-imlib2 \
+		--enable-nls \
+		--enable-xft \
+		--enable-xinerama
+
+	make -j2
+	make DESTDIR="$destdir" install
+
+	install -D -m0644 "${worktree}/fluxbox.desktop" \
+		"${destdir}/usr/share/xsessions/fluxbox.desktop"
+	install -D -m0644 COPYING \
+		"${destdir}/usr/share/licenses/${program}/LICENSE"
+}

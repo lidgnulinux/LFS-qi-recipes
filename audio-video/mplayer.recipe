@@ -5,7 +5,7 @@ set -e
 
 program=mplayer
 version=1.5_p20241125
-release=0
+release=1
 description="Movie player for linux"
 homepage="http://www.mplayerhq.hu/design7/news.html"
 license="GPL-2.0-or-later"
@@ -54,6 +54,7 @@ build()
 		--disable-nemesi \
 		--disable-jack \
 		--enable-freetype \
+		--enable-menu \
 		--extra-cflags="-std=gnu17 -Wno-incompatible-pointer-types" \
 		--yasm=nasm
 
