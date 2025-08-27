@@ -1,0 +1,47 @@
+# Build recipe for fakeroot.
+#
+# Exit immediately on any error
+set -e
+
+program=fakeroot
+version=1.37.1.2
+release=0
+description="Gives a fake root environment, useful for building packages as a non-privileged user"
+homepage="https://packages.debian.org/fakeroot"
+license="GPL-3.0-or-later"
+
+tarname=fakeroot-upstream-$version.tar.gz
+fetch="https://salsa.debian.org/clint/fakeroot/-/archive/upstream/$version/$tarname"
+srcdir=$program-upstream-$version
+
+build() 
+{
+	unpack "${tardir}/$tarname"
+	
+	cd "$srcdir"
+	
+	# Set sane permissions
+	chmod -R u+w,go-w,a+rX-s .
+
+	patch -p1 -i ${worktree}/fakeroot-no64.patch
+	patch -p1 -i ${worktree}/fakeroot-stdint.patch
+	patch -p1 -i ${worktree}/xstatjunk.patch
+	patch -p1 -i ${worktree}/fix-shell-in-fakeroot.patch
+	patch -p1 -i ${worktree}/fix-format.patch
+	patch -p1 -i ${worktree}/t-xattr.patch
+
+	CONFIG_SHELL=/usr/bin/bash ./bootstrap
+
+	export CFLAGS="-D_STAT_VER=0 $CFLAGS"
+
+	CONFIG_SHELL=/usr/bin/bash ./configure \
+		--prefix=/usr \
+		--disable-static
+
+	make -j2 
+
+	touch doc/{de,es,fr,nl,pt,ro,sv}/faked.1
+	touch doc/{de,es,fr,nl,pt,ro,sv}/fakeroot.1
+
+	make DESTDIR="$destdir" install 
+}

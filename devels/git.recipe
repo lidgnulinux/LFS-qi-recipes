@@ -4,7 +4,8 @@
 set -e
 
 program=git
-version=2.50.0
+pkgname=git
+version=2.51.0
 release=0
 
 # Define a category for the output of the package name
@@ -35,6 +36,7 @@ license="GPLv2 only, LGPLv2.1"
 # Source documentation
 docs="COPYING LGPL-2.1 README*"
 docsdir="${docdir}/${program}-${version}"
+jobs=2
 
 build()
 {
