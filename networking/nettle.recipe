@@ -5,7 +5,7 @@
 set -e
 
 program=nettle
-version=3.10.1
+version=3.10.2
 release=0
 
 # Define a category for the output of the package name
@@ -44,7 +44,7 @@ build()
     ./configure \
     CPPFLAGS="$QICPPFLAGS" CFLAGS="$QICFLAGS" LDFLAGS="$QILDFLAGS" \
      $configure_args \
-     --enable-static=no \
+     --enable-static=yes \
      --enable-shared=yes \
      --build="$(gcc -dumpmachine)"
 

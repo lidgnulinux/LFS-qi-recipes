@@ -1,0 +1,31 @@
+# Build recipe for pkgutils.
+#
+# Exit immediately on any error
+set -e
+
+program=pkgutils
+version=5.40.11
+release=0
+description="
+Set of utilities (pkgadd, pkgrm, pkginfo, pkgmk and rejmerge)
+
+which are used for managing software packages in Linux.
+It is developed for and used by the CRUX distribution (http://crux.nu).
+"
+homepage="http://www.fukt.bth.se/~per/pkgutils/"
+license="GNU General Public License"
+
+tarname=pkgutils-5.40.11.tar.xz
+fetch="https://crux.nu/files/$tarname"
+
+build() 
+{
+	unpack "${tardir}/$tarname"
+	
+	cd "$srcdir"
+	
+	# Set sane permissions
+	chmod -R u+w,go-w,a+rX-s .
+
+	make PREFIX=/usr DESTDIR="$destdir" install 
+}

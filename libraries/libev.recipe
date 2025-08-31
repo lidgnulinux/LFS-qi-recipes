@@ -1,0 +1,33 @@
+# Build recipe for libev.
+#
+
+# Exit immediately on any error
+set -e
+
+program=libev
+version=4.33
+release=0
+description="event dispatch library"
+homepage="http://software.schmorp.de/pkg/libev.html"
+license="BSD-2-Clause OR GPL-2.0-or-later"
+
+tarname=libev-$version.tar.gz
+fetch="http://dist.schmorp.de/libev/Attic/$tarname"
+
+build() 
+{
+	unpack "${tardir}/$tarname"
+	
+	cd "$srcdir"
+	
+	# Set sane permissions
+	chmod -R u+w,go-w,a+rX-s .
+
+	./configure \
+		--sysconfdir=/etc \
+		--prefix=/usr
+
+	make 
+	make DESTDIR="$destdir" install 
+	rm "$destdir"/usr/include/event.h
+}

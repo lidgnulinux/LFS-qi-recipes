@@ -4,16 +4,11 @@
 set -e
 
 program=curl
-version=8.14.1
+version=8.15.0
 release=0
-
-# Define a category for the output of the package name
 pkgcategory=networking
-
-tarname=${program}-${version}.tar.bz2
-
-# Remote source(s)
-fetch=https://curl.haxx.se/download/$tarname
+homepage=https://curl.haxx.se/
+license="Custom MIT/X derivate"
 
 description="
 Command line tool and library for transferring data with URLs.
@@ -24,12 +19,8 @@ HTTPS, IMAP, IMAPS, LDAP, LDAPS, POP3, POP3S, RTMP, RTSP, SCP, SFTP,
 SMB, SMBS, SMTP, SMTPS, Telnet and TFTP.
 "
 
-homepage=https://curl.haxx.se/
-license="Custom MIT/X derivate"
-
-# Source documentation
-#docs="CHANGES COPYING README RELEASE-NOTES"
-docsdir="${docdir}/${program}-${version}"
+tarname=${program}-${version}.tar.xz
+fetch=https://curl.haxx.se/download/$tarname
 jobs=2
 
 build()
@@ -46,7 +37,7 @@ build()
      $configure_args \
      --infodir=$infodir \
      --mandir=$mandir \
-     --enable-static=no \
+     --enable-static=yes \
      --enable-shared=yes \
      --enable-ipv6 \
      --enable-pthreads \

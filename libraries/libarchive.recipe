@@ -5,7 +5,7 @@ set -e
 
 program=libarchive
 version=3.8.1
-release=0
+release=1
 
 # Define a category for the output of the package name
 pkgcategory=libs
@@ -48,7 +48,7 @@ build()
      $configure_args \
      --mandir=$mandir \
      --docdir=$docsdir \
-     --enable-static=no \
+     --enable-static=yes \
      --enable-shared=yes \
      --without-xml2 \
      --without-openssl \
@@ -57,7 +57,7 @@ build()
      --with-nettle \
      --build="$(gcc -dumpmachine)"
 
-    make -j${jobs} V=1
+    make -j2 V=1
     make -j${jobs} DESTDIR="$destdir" install
 
     rmdir "${destdir}/usr/bin" 2> /dev/null || true;

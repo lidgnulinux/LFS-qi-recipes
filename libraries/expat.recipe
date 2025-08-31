@@ -5,7 +5,7 @@ set -e
 
 program=expat
 version=2.7.1
-release=0
+release=1
 pkgcategory=libs
 
 description="
@@ -40,7 +40,7 @@ build() {
      $configure_args \
      --mandir=$mandir \
      --docdir=$docsdir \
-     --enable-static=no \
+     --enable-static=yes \
      --enable-shared=yes \
      --build="$(gcc -dumpmachine)"
 
