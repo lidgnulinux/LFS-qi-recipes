@@ -4,7 +4,7 @@
 set -e
 
 program=gdbm
-version=1.25
+version=1.26
 release=0
 description="GNU dbm is a set of database routines that use extensible hashing"
 homepage="https://www.gnu.org/software/gdbm/"
@@ -22,11 +22,12 @@ build()
 	# Set sane permissions
 	chmod -R u+w,go-w,a+rX-s .
 
-	patch -p0 -i ${worktree}/unknown_ssize_t.patch
-
 	./configure \
 		--prefix=/usr \
-		--enable-libgdbm-compat
+		--enable-libgdbm-compat \
+		--disable-largefile \
+		--disable-dependency-tracking \
+		--enable-fast-install
 
 	make -j2
 	make DESTDIR="$destdir" install 

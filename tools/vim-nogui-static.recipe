@@ -4,17 +4,12 @@
 set -e
 
 program=vim
-version=9.1.1582 
+version=9.1.1629 
 release=0
-
 pkgname=vim-nogui-static
-
-# Define a category for the output of the package name
 pkgcategory=tools
 
 tarname=${program}-${version}.tar.gz
-
-# Remote source(s)
 fetch=https://github.com/vim/vim/archive/v${version}/$tarname
 
 homepage=https://www.vim.org
@@ -44,8 +39,6 @@ build()
     # Set sane permissions
     chmod -R u+w,go-w,a+rX-s .
 
-    # Workaround for the special 'srcdir' variable, it is internally
-    # imported and exported from vim's ./configure
     saved_srcdir=$srcdir
     unset -v srcdir
 

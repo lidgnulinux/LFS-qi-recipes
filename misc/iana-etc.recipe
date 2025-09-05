@@ -4,14 +4,14 @@
 set -e
 
 program=iana-etc
-version=20250618
+version=20250807
 release=0
 description="package provides data for network services and protocols"
 homepage="https://github.com/Mic92/iana-etc"
 license="MIT"
 
-tarname=iana-etc-20250618.tar.gz
-fetch="https://github.com/Mic92/iana-etc/releases/download/20250618/$tarname"
+tarname=iana-etc-20250807.tar.gz
+fetch="https://github.com/Mic92/iana-etc/releases/download/20250807/$tarname"
 
 build() 
 {

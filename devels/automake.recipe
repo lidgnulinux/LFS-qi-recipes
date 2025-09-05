@@ -5,13 +5,12 @@ set -e
 
 program=automake
 version=1.18.1
-pkgver=1.18.1
-release=0
+release=1
 description="GNU tool for automatically creating Makefiles"
 homepage="https://www.gnu.org/software/automake"
 license="GPL-2.0-or-later"
 
-tarname=automake-$pkgver.tar.xz
+tarname=automake-$version.tar.xz
 fetch="https://ftp.gnu.org/gnu/automake/$tarname"
 
 build() 
@@ -24,6 +23,7 @@ build()
 	chmod -R u+w,go-w,a+rX-s .
 
 	./configure \
+		--prefix=/usr \
 		--sysconfdir=/etc \
 		--mandir=/usr/share/man \
 		--localstatedir=/var

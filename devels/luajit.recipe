@@ -6,7 +6,7 @@ set -e
 
 program=luajit
 _program=luajit2
-version=2.1_p20240314
+version=2.1_p20240815
 _version=${version/_p/-}
 release=0
 description="OpenResty's branch of LuaJIT"

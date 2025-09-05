@@ -4,7 +4,7 @@
 set -e
 
 program=ncurses
-version=6.5_p20250705
+version=6.5_p20250809
 _version=${version/_p/-}
 release=1
 description="Console display library"

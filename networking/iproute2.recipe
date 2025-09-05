@@ -4,7 +4,7 @@
 set -e
 
 program=iproute2
-version=6.15.0
+version=6.16.0
 release=0
 description="IP Routing Utilities"
 homepage="https://wiki.linuxfoundation.org/networking/iproute2"

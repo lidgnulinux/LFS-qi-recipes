@@ -4,13 +4,13 @@
 set -e
 
 program=gettext
-version=0.25
+version=0.26
 release=0
 
 # Define a category for the output of the package name
 pkgcategory=libs
 
-tarname=gettext-0.25.tar.xz
+tarname=gettext-0.26.tar.xz
 
 # Remote source(s)
 fetch=https://ftp.gnu.org/gnu/gettext/$tarname
