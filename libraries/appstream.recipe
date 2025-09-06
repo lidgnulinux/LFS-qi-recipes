@@ -4,22 +4,15 @@
 set -e
 
 program=appstream
-version=1.0.5
+version=1.0.6
 release=0
-
-# Define a category for the output of the package name
 pkgcategory=libs
-
-tarname=AppStream-${version}.tar.xz
-
-# Remote source(s)
-fetch=https://www.freedesktop.org/software/appstream/releases/$tarname
-
 description="Provides a standard for creating app stores across distributions"
-
 homepage=https://distributions.freedesktop.org/wiki/AppStream
 license="LGPL-2.1-or-later"
 
+tarname=AppStream-${version}.tar.xz
+fetch=https://www.freedesktop.org/software/appstream/releases/$tarname
 srcdir=AppStream-$version
 
 build()

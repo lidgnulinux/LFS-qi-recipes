@@ -4,7 +4,7 @@
 set -e
 
 program=libadwaita
-version=1.7.0
+version=1.7.6
 release=0
 description="Building blocks for modern GNOME applications"
 homepage="https://gitlab.gnome.org/GNOME/libadwaita"
