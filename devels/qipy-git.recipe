@@ -4,8 +4,8 @@
 set -e
 
 program=qipy-git
-commit=b11a93540e2012a5d930ad9be7951de73cc89a51
-version=0.4.r59.cb11a9354
+commit=40b4400573e18df2200e989b042496d0d7ac9a14
+version=0.4.r66.c40b44005
 release=0
 description="Simple helper for qi to query information about package."
 homepage="https://gitlab.com/lidgnulinux/qi_wrapper"
@@ -26,19 +26,5 @@ build()
 	# Set sane permissions
 	chmod -R u+w,go-w,a+rX-s .
 
-	mkdir -p "$destdir/etc/qipy"
-	mkdir -p "$destdir/usr/share/qipy"
-	mkdir -p "$destdir/usr/share/man/man1"
-	mkdir -p "$destdir/usr/bin"
-	mkdir -p "$destdir/usr/share/bash-completion/completions/"
-
-	cp -r recipe-templates "${destdir}/etc/qipy/"
-	cp -r patches "${destdir}/etc/qipy/"
-	cp -r doc "${destdir}/usr/share/qipy/"
-	cp -r doc/qipy.1 "$destdir/usr/share/man/man1"
-
-	install -Dm0755 qi.py "${destdir}/usr/bin/qipy"
-	install -Dm0755 bash-completion/qipy "$destdir/usr/share/bash-completion/completions/qipy"
-	install -Dm0644 patches/enable_update_installed_packages.diff "${destdir}/etc/qipy/enable_update_installed_packages.diff"
-
+	make DESTDIR="$destdir" PREFIX=/usr install 
 }
