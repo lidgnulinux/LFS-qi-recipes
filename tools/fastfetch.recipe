@@ -5,7 +5,7 @@ set -e
 
 program=fastfetch
 version=2.48.0
-release=0
+release=1
 
 # Define a category for the output of the package name
 pkgcategory=tools
@@ -29,7 +29,7 @@ build()
     # Set sane permissions
     chmod -R u+w,go-w,a+rX-s .
 	
-    patch -p0 -i ${worktree}/fix_Qi_packages_detection.patch
+    patch -p1 -i ${worktree}/fix_Qi_packages_detection_add_stow.patch
 
     cmake -B build -G Ninja \
 	-DCMAKE_INSTALL_PREFIX=/usr \

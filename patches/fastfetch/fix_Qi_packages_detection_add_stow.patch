@@ -1,0 +1,116 @@
+diff -bur fastfetch-2.48.0/doc/json_schema.json fastfetch-2.48.0-new/doc/json_schema.json
+--- fastfetch-2.48.0/doc/json_schema.json	2025-07-16 14:19:48.000000000 +0700
++++ fastfetch-2.48.0-new/doc/json_schema.json	2025-09-09 04:57:58.979021418 +0700
+@@ -279,7 +279,7 @@
+             "type": "string"
+         },
+         "packagesFormat": {
+-            "description": "Output format of the module `Packages`. See Wiki for formatting syntax\n    1. {all}: Number of all packages\n    2. {pacman}: Number of pacman packages\n    3. {pacman-branch}: Pacman branch on manjaro\n    4. {dpkg}: Number of dpkg packages\n    5. {rpm}: Number of rpm packages\n    6. {emerge}: Number of emerge packages\n    7. {eopkg}: Number of eopkg packages\n    8. {xbps}: Number of xbps packages\n    9. {nix-system}: Number of nix-system packages\n    10. {nix-user}: Number of nix-user packages\n    11. {nix-default}: Number of nix-default packages\n    12. {apk}: Number of apk packages\n    13. {pkg}: Number of pkg packages\n    14. {flatpak-system}: Number of flatpak-system app packages\n    15. {flatpak-user}: Number of flatpak-user app packages\n    16. {snap}: Number of snap packages\n    17. {brew}: Number of brew packages\n    18. {brew-cask}: Number of brew-cask packages\n    19. {macports}: Number of macports packages\n    20. {scoop}: Number of scoop packages\n    21. {choco}: Number of choco packages\n    22. {pkgtool}: Number of pkgtool packages\n    23. {paludis}: Number of paludis packages\n    24. {winget}: Number of winget packages\n    25. {opkg}: Number of opkg packages\n    26. {am-system}: Number of am-system packages\n    27. {sorcery}: Number of sorcery packages\n    28. {lpkg}: Number of lpkg packages\n    29. {lpkgbuild}: Number of lpkgbuild packages\n    30. {guix-system}: Number of guix-system packages\n    31. {guix-user}: Number of guix-user packages\n    32. {guix-home}: Number of guix-home packages\n    33. {linglong}: Number of linglong packages\n    34. {pacstall}: Number of pacstall packages\n    35. {mport}: Number of mport packages\n    36. {qi}: Number of qi packages\n    37. {am-user}: Number of am-user (aka appman) packages\n    38. {pkgsrc}: Number of pkgsrc packages\n    39. {hpkg-system}: Number of hpkg-system packages\n    40. {hpkg-user}: Number of hpkg-user packages\n    41. {pisi}: Number of pisi packages\n    42. {soar}: Number of soar packages\n    43. {nix-all}: Total number of all nix packages\n    44. {flatpak-all}: Total number of all flatpak app packages\n    45. {brew-all}: Total number of all brew packages\n    46. {guix-all}: Total number of all guix packages\n    47. {hpkg-all}: Total number of all hpkg packages",
++            "description": "Output format of the module `Packages`. See Wiki for formatting syntax\n    1. {all}: Number of all packages\n    2. {pacman}: Number of pacman packages\n    3. {pacman-branch}: Pacman branch on manjaro\n    4. {dpkg}: Number of dpkg packages\n    5. {rpm}: Number of rpm packages\n    6. {emerge}: Number of emerge packages\n    7. {eopkg}: Number of eopkg packages\n    8. {xbps}: Number of xbps packages\n    9. {nix-system}: Number of nix-system packages\n    10. {nix-user}: Number of nix-user packages\n    11. {nix-default}: Number of nix-default packages\n    12. {apk}: Number of apk packages\n    13. {pkg}: Number of pkg packages\n    14. {flatpak-system}: Number of flatpak-system app packages\n    15. {flatpak-user}: Number of flatpak-user app packages\n    16. {snap}: Number of snap packages\n    17. {brew}: Number of brew packages\n    18. {brew-cask}: Number of brew-cask packages\n    19. {macports}: Number of macports packages\n    20. {scoop}: Number of scoop packages\n    21. {choco}: Number of choco packages\n    22. {pkgtool}: Number of pkgtool packages\n    23. {paludis}: Number of paludis packages\n    24. {winget}: Number of winget packages\n    25. {opkg}: Number of opkg packages\n    26. {am-system}: Number of am-system packages\n    27. {sorcery}: Number of sorcery packages\n    28. {lpkg}: Number of lpkg packages\n    29. {lpkgbuild}: Number of lpkgbuild packages\n    30. {guix-system}: Number of guix-system packages\n    31. {guix-user}: Number of guix-user packages\n    32. {guix-home}: Number of guix-home packages\n    33. {linglong}: Number of linglong packages\n    34. {pacstall}: Number of pacstall packages\n    35. {mport}: Number of mport packages\n    36. {qi}: Number of qi packages\n    37. {am-user}: Number of am-user (aka appman) packages\n    38. {pkgsrc}: Number of pkgsrc packages\n    39. {hpkg-system}: Number of hpkg-system packages\n    40. {hpkg-user}: Number of hpkg-user packages\n    41. {pisi}: Number of pisi packages\n    42. {soar}: Number of soar packages\n    43. {stow}: Total number of stow packages\n    44. {nix-all}: Total number of all nix packages\n    45. {flatpak-all}: Total number of all flatpak app packages\n    46. {brew-all}: Total number of all brew packages\n    47. {guix-all}: Total number of all guix packages\n    48. {hpkg-all}: Total number of all hpkg packages\n",
+             "type": "string"
+         },
+         "physicaldiskFormat": {
+@@ -2689,6 +2689,7 @@
+                                                 "scoop",
+                                                 "snap",
+                                                 "sorcery",
++                                                "stow",
+                                                 "winget",
+                                                 "xbps"
+                                             ],
+diff -bur fastfetch-2.48.0/src/detection/packages/packages.h fastfetch-2.48.0-new/src/detection/packages/packages.h
+--- fastfetch-2.48.0/src/detection/packages/packages.h	2025-07-16 14:19:48.000000000 +0700
++++ fastfetch-2.48.0-new/src/detection/packages/packages.h	2025-09-08 18:18:40.283432538 +0700
+@@ -42,6 +42,7 @@
+     uint32_t snap;
+     uint32_t soar;
+     uint32_t sorcery;
++    uint32_t stow;
+     uint32_t winget;
+     uint32_t xbps;
+ 
+diff -bur fastfetch-2.48.0/src/detection/packages/packages_linux.c fastfetch-2.48.0-new/src/detection/packages/packages_linux.c
+--- fastfetch-2.48.0/src/detection/packages/packages_linux.c	2025-07-16 14:19:48.000000000 +0700
++++ fastfetch-2.48.0-new/src/detection/packages/packages_linux.c	2025-09-08 18:17:56.223022686 +0700
+@@ -576,9 +576,10 @@
+     }
+     if (!(options->disabled & FF_PACKAGES_FLAG_LINGLONG_BIT)) packageCounts->linglong += getNumElements(baseDir, "/var/lib/linglong/repo/refs/heads/main", true);
+     if (!(options->disabled & FF_PACKAGES_FLAG_PACSTALL_BIT)) packageCounts->pacstall += getNumElements(baseDir, "/var/lib/pacstall/metadata", false);
+-    if (!(options->disabled & FF_PACKAGES_FLAG_QI_BIT)) packageCounts->qi += getNumStrings(baseDir, "/var/qi/installed_packages.list", "\n", "qi");
++    if (!(options->disabled & FF_PACKAGES_FLAG_QI_BIT)) packageCounts->qi += getNumElements(baseDir, "/usr/pkg", true);
+     if (!(options->disabled & FF_PACKAGES_FLAG_PISI_BIT)) packageCounts->pisi += getNumElements(baseDir, "/var/lib/pisi/package", true);
+     if (!(options->disabled & FF_PACKAGES_FLAG_PKGSRC_BIT)) packageCounts->pkgsrc += getNumElements(baseDir, "/usr/pkg/pkgdb", DT_DIR);
++    if (!(options->disabled & FF_PACKAGES_FLAG_STOW_BIT)) packageCounts->stow += getNumElements(baseDir, "/usr/local/stow", true);
+ }
+ 
+ static void getPackageCountsRegular(FFstrbuf* baseDir, FFPackagesResult* packageCounts, FFPackagesOptions* options)
+diff -bur fastfetch-2.48.0/src/modules/packages/option.h fastfetch-2.48.0-new/src/modules/packages/option.h
+--- fastfetch-2.48.0/src/modules/packages/option.h	2025-07-16 14:19:48.000000000 +0700
++++ fastfetch-2.48.0-new/src/modules/packages/option.h	2025-09-08 18:24:32.647048813 +0700
+@@ -39,6 +39,7 @@
+     FF_PACKAGES_FLAG_HPKG_BIT = 1ULL << 29,
+     FF_PACKAGES_FLAG_PISI_BIT = 1ULL << 30,
+     FF_PACKAGES_FLAG_SOAR_BIT = 1ULL << 31,
++    FF_PACKAGES_FLAG_STOW_BIT = 1ULL << 31,
+     FF_PACKAGES_FLAG_FORCE_UNSIGNED = UINT64_MAX,
+ } FFPackagesFlags;
+ static_assert(sizeof(FFPackagesFlags) == sizeof(uint64_t), "");
+diff -bur fastfetch-2.48.0/src/modules/packages/packages.c fastfetch-2.48.0-new/src/modules/packages/packages.c
+--- fastfetch-2.48.0/src/modules/packages/packages.c	2025-07-16 14:19:48.000000000 +0700
++++ fastfetch-2.48.0-new/src/modules/packages/packages.c	2025-09-08 18:29:39.211222592 +0700
+@@ -79,6 +79,7 @@
+         FF_PRINT_PACKAGE(qi)
+         FF_PRINT_PACKAGE(pisi)
+         FF_PRINT_PACKAGE(soar)
++        FF_PRINT_PACKAGE(stow)
+ 
+         putchar('\n');
+     }
+@@ -132,6 +133,7 @@
+             FF_FORMAT_ARG(counts.hpkgUser, "hpkg-user"),
+             FF_FORMAT_ARG(counts.pisi, "pisi"),
+             FF_FORMAT_ARG(counts.soar, "soar"),
++            FF_FORMAT_ARG(counts.stow, "stow"),
+             FF_FORMAT_ARG(nixAll, "nix-all"),
+             FF_FORMAT_ARG(flatpakAll, "flatpak-all"),
+             FF_FORMAT_ARG(brewAll, "brew-all"),
+@@ -226,6 +228,7 @@
+                     FF_TEST_PACKAGE_NAME(SNAP)
+                     FF_TEST_PACKAGE_NAME(SOAR)
+                     FF_TEST_PACKAGE_NAME(SORCERY)
++                    FF_TEST_PACKAGE_NAME(STOW)
+                     break;
+                 case 'W': if (false);
+                     FF_TEST_PACKAGE_NAME(WINGET)
+@@ -346,6 +349,7 @@
+                             FF_TEST_PACKAGE_NAME(SNAP)
+                             FF_TEST_PACKAGE_NAME(SOAR)
+                             FF_TEST_PACKAGE_NAME(SORCERY)
++                            FF_TEST_PACKAGE_NAME(STOW)
+                             break;
+                         case 'W': if (false);
+                             FF_TEST_PACKAGE_NAME(WINGET)
+@@ -406,6 +410,7 @@
+         FF_TEST_PACKAGE_NAME(SNAP)
+         FF_TEST_PACKAGE_NAME(SOAR)
+         FF_TEST_PACKAGE_NAME(SORCERY)
++        FF_TEST_PACKAGE_NAME(STOW)
+         FF_TEST_PACKAGE_NAME(WINGET)
+         FF_TEST_PACKAGE_NAME(XBPS)
+         #undef FF_TEST_PACKAGE_NAME
+@@ -466,6 +471,7 @@
+     FF_APPEND_PACKAGE_COUNT(snap)
+     FF_APPEND_PACKAGE_COUNT(soar)
+     FF_APPEND_PACKAGE_COUNT(sorcery)
++    FF_APPEND_PACKAGE_COUNT(stow)
+     FF_APPEND_PACKAGE_COUNT(winget)
+     FF_APPEND_PACKAGE_COUNT(xbps)
+     yyjson_mut_obj_add_strbuf(doc, obj, "pacmanBranch", &counts.pacmanBranch);
+@@ -522,6 +528,7 @@
+         {"Number of hpkg-user packages", "hpkg-user"},
+         {"Number of pisi packages", "pisi"},
+         {"Number of soar packages", "soar"},
++        {"Number of stow packages", "stow"},
+         {"Total number of all nix packages", "nix-all"},
+         {"Total number of all flatpak app packages", "flatpak-all"},
+         {"Total number of all brew packages", "brew-all"},
