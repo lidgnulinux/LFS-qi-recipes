@@ -1,0 +1,32 @@
+# Build recipe for bluez-tools.
+#
+# Exit immediately on any error
+set -e
+
+program=bluez-tools
+version=0_git20201025
+_commit=f65321736475429316f07ee94ec0deac8e46ec4a
+release=0
+description="Tools to manage Bluetooth devices and networks"
+homepage="https://github.com/khvzak/bluez-tools"
+license="GPL-2.0-only"
+
+tarname=$_commit.tar.gz
+fetch="https://github.com/khvzak/bluez-tools/archive/$tarname"
+
+srcdir=bluez-tools-$_commit
+
+build() 
+{
+	unpack "${tardir}/$tarname"
+	
+	cd "$srcdir"
+	
+	# Set sane permissions
+	chmod -R u+w,go-w,a+rX-s .
+
+	./autogen.sh --prefix=/usr
+
+	make 
+	make DESTDIR="$destdir" install 
+}

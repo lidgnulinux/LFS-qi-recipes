@@ -1,0 +1,17 @@
+# Build recipe for .
+#
+# Exit immediately on any error
+set -e
+
+program=ath3k-bluetooth
+version=0
+release=0
+description="ath3k bluetooth firmware"
+homepage="https://git.kernel.org/pub/scm/linux/kernel/git/firmware/linux-firmware.git"
+license="Limited patent"
+
+build() 
+{
+	mkdir -p "$destdir"/lib/firmware
+	cp -r ${worktree}/ath3k-1.fw "$destdir"/lib/firmware/
+}

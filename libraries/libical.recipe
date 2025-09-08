@@ -1,0 +1,37 @@
+# Build recipe for libical.
+#
+# Exit immediately on any error
+set -e
+
+program=libical
+version=3.0.20
+release=0
+description="Reference implementation of the iCalendar format"
+homepage="https://libical.github.io/libical/"
+license="LGPL-2.1-only OR MPL-2.0"
+
+tarname=libical-$version.tar.gz
+fetch="https://github.com/libical/libical/releases/download/v$version/$tarname"
+
+build() 
+{
+	unpack "${tardir}/$tarname"
+	
+	cd "$srcdir"
+	
+	# Set sane permissions
+	chmod -R u+w,go-w,a+rX-s .
+
+	cmake -B build -G Ninja \
+		-DCMAKE_BUILD_TYPE=MinSizeRel \
+		-DCMAKE_INSTALL_PREFIX=/usr \
+		-DCMAKE_INSTALL_LIBDIR=lib \
+		-DSHARED_ONLY=true \
+		-DENABLE_GTK_DOC=false \
+		-DGOBJECT_INTROSPECTION=true \
+		-DICAL_GLIB_VAPI=true
+
+	cmake --build build
+
+	DESTDIR="$destdir" cmake --install build
+}
