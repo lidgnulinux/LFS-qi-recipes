@@ -4,13 +4,13 @@
 set -e
 
 program=sudo-rs
-version=0.2.6
+version=0.2.7
 release=0
 description="A memory safe implementation of sudo and su."
 homepage="https://github.com/trifectatechfoundation/sudo-rs"
 license="Apache-2.0"
 
-tarname=v0.2.6.tar.gz
+tarname=v0.2.7.tar.gz
 fetch="https://github.com/trifectatechfoundation/sudo-rs/archive/refs/tags/$tarname"
 
 build() 
