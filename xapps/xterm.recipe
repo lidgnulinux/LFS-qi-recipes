@@ -4,7 +4,7 @@
 set -e
 
 program=xterm
-version=401
+version=402
 release=0
 description="X Terminal Emulator"
 homepage="https://invisible-island.net/xterm"
