@@ -4,8 +4,8 @@
 set -e
 
 program=mesa
-version=25.1.7
-release=3
+version=25.2.2
+release=0
 pkgcategory=xorg_mesa
 
 tarname=${program}-${version/_/-}.tar.xz
@@ -55,9 +55,7 @@ build()
      -Degl=enabled \
      -Dgles1=enabled \
      -Dgles2=enabled \
-     -Dosmesa=false \
      -Dopengl=true \
-     -Dgallium-nine=false \
      -Dllvm=enabled \
      -Dshared-llvm=enabled \
      -Dgallium-rusticl=false \
