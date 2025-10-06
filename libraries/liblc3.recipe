@@ -1,0 +1,36 @@
+# Build recipe for liblc3.
+#
+# Exit immediately on any error
+set -e
+
+program=liblc3
+version=1.0.4
+release=0
+description="An efficient low latency audio codec"
+homepage="https://github.com/google/liblc3"
+license="Apache-2.0"
+
+tarname=v$version.tar.gz
+fetch="https://github.com/google/liblc3/archive/refs/tags/$tarname"
+
+build() 
+{
+	unpack "${tardir}/$tarname"
+	
+	cd "$srcdir"
+	
+	# Set sane permissions
+	chmod -R u+w,go-w,a+rX-s .
+
+	rm -rf BUILD
+	mkdir BUILD
+	cd BUILD
+	
+	CPPFLAGS="$QICPPFLAGS" CFLAGS="$QICFLAGS" LDFLAGS="$QILDFLAGS" \
+	meson setup $configure_args ..
+	
+	ninja -j2
+	DESTDIR="$destdir" ninja -j2 install
+	
+	cd ..
+}

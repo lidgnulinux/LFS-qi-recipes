@@ -6,7 +6,7 @@ set -e
 
 program=pulseaudio
 version=17.0
-release=0
+release=1
 description="featureful, general-purpose sound server"
 homepage="https://www.freedesktop.org/wiki/Software/PulseAudio/"
 license="LGPL-2.1-or-later"
@@ -27,7 +27,11 @@ build()
 	mkdir BUILD
 	cd BUILD
 
-	patch -p1 -d .. < "${worktree}/remove-once-test.patch"	
+	patch -p1 -d .. < ${worktree}/remove-once-test.patch	
+	patch -p1 -d .. < ${worktree}/volume-tests-fix.patch
+	patch -p1 -d .. < ${worktree}/alsa-ucm-assert-1.patch
+	patch -p1 -d .. < ${worktree}/alsa-ucm-assert-2.patch
+
 	CPPFLAGS="$QICPPFLAGS" CFLAGS="$QICFLAGS" LDFLAGS="$QILDFLAGS" \
 	meson setup $configure_args \
 		-Dman=true \
@@ -38,7 +42,7 @@ build()
 		-Dalsa=enabled \
 		-Dasyncns=enabled \
 		-Davahi=disabled \
-		-Dbluez5=disabled \
+		-Dbluez5=enabled \
 		-Ddbus=enabled \
 		-Dfftw=disabled \
 		-Dglib=enabled \

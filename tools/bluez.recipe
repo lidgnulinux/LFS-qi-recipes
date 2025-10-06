@@ -1,0 +1,62 @@
+# Build recipe for bluez.
+#
+# Exit immediately on any error
+set -e
+
+program=bluez
+version=5.84
+release=0
+description="Tools for the Bluetooth protocol stack"
+homepage="https://www.bluez.org/"
+license="GPL-2.0-or-later AND BSD-2-Clause AND MIT"
+
+tarname=bluez-$version.tar.xz
+fetch="https://www.kernel.org/pub/linux/bluetooth/$tarname"
+
+build() 
+{
+	unpack "${tardir}/$tarname"
+	
+	cd "$srcdir"
+	
+	# Set sane permissions
+	chmod -R u+w,go-w,a+rX-s .
+
+	patch -p1 -i ${worktree}/001-bcm43xx-Add-bcm43xx-3wire-variant.patch
+	patch -p1 -i ${worktree}/002-bcm43xx-The-UART-speed-must-be-reset-after-the-firmw.patch
+	patch -p1 -i ${worktree}/003-Increase-firmware-load-timeout-to-30s.patch
+	patch -p1 -i ${worktree}/004-Move-the-43xx-firmware-into-lib-firmware.patch
+	patch -p1 -i ${worktree}/005-hostname-Use-phone-class-for-handhelds.patch
+	patch -p1 -i ${worktree}/disable-lock-test.patch
+	patch -p1 -i ${worktree}/fix-endianness.patch
+	patch -p1 -i ${worktree}/test-mesh-crypto.patch
+	patch -p1 -i ${worktree}/disable-test-vcp.patch
+	patch -p1 -i ${worktree}/Revert-client-Port-mgmt-menu-to-pre_run.patch
+
+	./configure \
+		--prefix=/usr \
+		--sysconfdir=/etc \
+		--mandir=/usr/share/man \
+		--localstatedir=/var \
+		--libexecdir=/usr/libexec \
+		--disable-systemd \
+		--enable-library \
+		--enable-deprecated \
+		--enable-hid2hci \
+		--enable-mesh \
+		--enable-sixaxis \
+		--enable-btpclient \
+		--enable-experimental \
+		--with-dbusconfdir=/usr/share
+
+	make -j3 
+	make DESTDIR="$destdir" install install-pluginLTLIBRARIES
+
+	install -D -m644 src/main.conf "$destdir"/etc/bluetooth/main.conf
+
+	install -Dm755 tools/btmgmt -t "$destdir"/usr/bin/
+	install -Dm755 attrib/gatttool -t "$destdir"/usr/bin/
+
+	install -Dm644 "${worktree}"/org.bluez.obex.service \
+		"$destdir"/usr/share/dbus-1/services/org.bluez.obex.service
+}

@@ -3,7 +3,7 @@
 set -e
 
 program=pipewire
-version=1.4.7
+version=1.4.8
 release=0
 description="Multimedia processing graphs"
 homepage="https://pipewire.org/"
@@ -40,7 +40,7 @@ build() {
                 -Dlv2=disabled \
                 -Dlibcamera=disabled \
                 -Droc=disabled \
-                -Dbluez5-codec-lc3=disabled \
+                -Dbluez5-codec-lc3=enabled \
                 -Dbluez5-backend-native-mm=disabled \
                 -Dsession-managers=[] \
                 ..

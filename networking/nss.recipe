@@ -4,7 +4,7 @@
 set -e
 
 program=nss
-version=3_113
+version=3_116
 pkgversion=$(echo $version | tr _ .)
 release=0
 pkgcategory=networking
@@ -43,16 +43,6 @@ build()
 
     # Set sane permissions
     chmod -R u+w,go-w,a+rX-s .
-
-    # Set specific options for the architecture
-    case $arch in
-    amd64 | x32 )
-        arch_options='USE_64=1'
-        ;;
-    i586)
-        arch_options='USE_64=0'
-        ;;
-    esac
 
     unset -v CFLAGS CXXFLAGS
 

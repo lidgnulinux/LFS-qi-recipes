@@ -4,16 +4,9 @@
 set -e
 
 program=p11-kit
-version=0.25.5
+version=0.25.10
 release=0
-
-# Define a category for the output of the package name
 pkgcategory=networking
-
-tarname=${program}-${version}.tar.xz
-
-# Remote source(s)
-fetch=https://github.com/p11-glue/p11-kit/releases/download/${version}/$tarname
 
 description="
 Provides a way to load and enumerate PKCS#11 modules.
@@ -28,6 +21,9 @@ components or libraries living in the same process.
 
 homepage=https://p11-glue.github.io/p11-glue/p11-kit.html
 license="BSD 3-clause"
+
+tarname=${program}-${version}.tar.xz
+fetch=https://github.com/p11-glue/p11-kit/releases/download/${version}/$tarname
 
 build()
 {
@@ -44,6 +40,7 @@ build()
 	
 	CPPFLAGS="$QICPPFLAGS" CFLAGS="$QICFLAGS" LDFLAGS="$QILDFLAGS" \
 	meson setup $configure_args \
+		--buildtype=release \
 		-Dbackend_max_links=4 \
 		-Dlibffi=enabled \
 		-Dtest="false" \

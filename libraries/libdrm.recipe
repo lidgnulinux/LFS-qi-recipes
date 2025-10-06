@@ -4,7 +4,7 @@
 set -e
 
 program=libdrm
-version=2.4.124
+version=2.4.125
 release=0
 
 # Define a category for the output of the package name
@@ -47,6 +47,7 @@ build()
     meson setup $configure_args \
      --libdir=/usr/lib \
      -Dintel=enabled \
+     -Dnouveau=enabled \
      --buildtype=release \
      --strip \
      -Dudev=true \

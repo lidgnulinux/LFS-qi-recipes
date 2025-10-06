@@ -4,15 +4,12 @@
 set -e
 
 program=fontconfig
-version=2.16.0
+version=2.17.1
 release=0
-
-# Define a category for the output of the package name
 pkgcategory=x-libs
-
-# The installation of this package replaces to
 replace=fontconfig-pass1
-
+homepage=https://www.freedesktop.org/wiki/Software/fontconfig/
+license=Custom
 description="
 Library for font configuration.
 
@@ -20,13 +17,8 @@ The fontconfig package is a library for configuring and customizing
 font access.
 "
 
-homepage=https://www.freedesktop.org/wiki/Software/fontconfig/
-license=Custom
-
 tarname=${program}-${version}.tar.xz
-
-# Remote source(s)
-fetch=https://www.freedesktop.org/software/fontconfig/release/$tarname
+fetch=https://gitlab.freedesktop.org/api/v4/projects/890/packages/generic/fontconfig/$version/$tarname
 
 # Source documentation
 docs="AUTHORS COPYING ChangeLog NEWS README"
@@ -43,7 +35,7 @@ build() {
     ./configure CPPFLAGS="$QICPPFLAGS" \
     CFLAGS="$QICFLAGS" LDFLAGS="$QILDFLAGS" \
     $configure_args \
-    --libdir=/usr/lib${libSuffix} \
+    --libdir=/usr/lib \
     --mandir=$mandir \
     --with-docdir=$docsdir \
     --disable-static \
@@ -51,6 +43,6 @@ build() {
     --disable-docs \
     --build="$(gcc -dumpmachine)"
 
-    make -j${jobs} V=1
-    make -j${jobs} DESTDIR="$destdir" install-strip
+    make -j3
+    make -j3 DESTDIR="$destdir" install
 }

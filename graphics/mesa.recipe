@@ -4,7 +4,7 @@
 set -e
 
 program=mesa
-version=25.2.2
+version=25.2.3
 release=0
 pkgcategory=xorg_mesa
 
@@ -50,7 +50,7 @@ build()
      -Dglx=dri \
      -Dplatforms=x11,wayland \
      -Dgallium-drivers=i915,crocus,nouveau \
-     -Dvulkan-drivers="swrast,intel" \
+     -Dvulkan-drivers="" \
      -Dlmsensors=enabled \
      -Degl=enabled \
      -Dgles1=enabled \

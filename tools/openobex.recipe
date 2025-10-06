@@ -1,0 +1,36 @@
+# Build recipe for openobex.
+#
+# Exit immediately on any error
+set -e
+
+program=openobex
+version=1.7.2
+release=0
+description="Implementation of the OBject EXchange (OBEX) protocol"
+homepage="http://dev.zuckschwerdt.org/openobex/"
+license="GPL-2.0-or-later AND LGPL-2.1-or-later"
+
+tarname=openobex-$version-Source.tar.gz
+fetch="https://downloads.sourceforge.net/project/openobex/openobex/$version/$tarname"
+
+srcdir=openobex-$version-Source
+
+build() 
+{
+	unpack "${tardir}/$tarname"
+	
+	cd "$srcdir"
+	
+	# Set sane permissions
+	chmod -R u+w,go-w,a+rX-s .
+
+	cmake -B build -G Ninja \
+		-DCMAKE_BUILD_TYPE=MinSizeRel \
+		-DCMAKE_INSTALL_PREFIX=/usr \
+		-DCMAKE_INSTALL_LIBDIR=/usr/lib \
+		-DCMAKE_POLICY_VERSION_MINIMUM=3.5 \
+		-DCMAKE_SKIP_RPATH=ON
+	cmake --build build --target all openobex-apps
+
+	DESTDIR="$destdir" cmake --install build
+}

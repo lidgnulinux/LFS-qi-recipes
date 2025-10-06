@@ -1,0 +1,49 @@
+# Build recipe for tcl.
+#
+# Exit immediately on any error
+set -e
+
+program=tcl
+version=8.6.17
+_major=${version%.*}
+release=1
+description="The Tcl scripting language"
+homepage="https://www.tcl-lang.org/"
+license="TCL"
+
+tarname=tcl$version-src.tar.gz
+fetch="https://downloads.sourceforge.net/sourceforge/tcl/$tarname"
+
+srcdir=tcl$version/unix
+
+build() 
+{
+	unpack "${tardir}/$tarname"
+	
+	cd "$srcdir"
+	
+	# Set sane permissions
+	chmod -R u+w,go-w,a+rX-s .
+
+	rm -r ../pkgs/sqlite3*
+
+	./configure \
+		--prefix=/usr \
+		--libdir=/usr/lib \
+		--sysconfdir=/etc \
+		--mandir=/usr/share/man \
+		--localstatedir=/var \
+		--with-system-sqlite \
+		--enable-64bit
+
+	make 
+	make INSTALL_ROOT="$destdir" install 
+
+	ln -sf tclsh$_major "$destdir"/usr/bin/tclsh
+	install -Dm644 ../license.terms \
+		"$destdir"/usr/share/licenses/$program/LICENSE
+
+	local location="$(pwd)"
+	find "$destdir" -name '*Config.sh' -print0 |
+		xargs -0 sed -i -e "s#${location}#/sources#"
+}

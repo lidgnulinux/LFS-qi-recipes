@@ -4,7 +4,7 @@
 set -e
 
 program=aom
-version=3.12.1
+version=3.13.1
 release=0
 description="Alliance for Open Media (AOM) AV1 codec SDK"
 homepage="https://aomedia.org/"

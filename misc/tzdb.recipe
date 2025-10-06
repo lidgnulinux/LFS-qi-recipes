@@ -1,0 +1,49 @@
+# Build recipe for tzdb.
+#
+# Exit immediately on any error
+set -e
+
+program=tzdb
+version=2025b
+release=0
+description="Time zone database."
+homepage="https://www.iana.org/time-zones"
+license="Public domain | BSD"
+
+tarname=${program}-${version}.tar.lz
+fetch="https://data.iana.org/time-zones/releases/$tarname"
+
+build() 
+{
+	unpack "${tardir}/$tarname"
+	
+	cd "$srcdir"
+	
+	# Set sane permissions
+	chmod -R u+w,go-w,a+rX-s .
+
+	make -j${jobs} CPPFLAGS="$QICPPFLAGS" \
+	 CFLAGS="$QICFLAGS" LDFLAGS="$QILDFLAGS -static" \
+	 TOPDIR=/ \
+	 TZDIR=/etc/zoneinfo \
+	 ETCDIR=/usr/sbin \
+	 LIBDIR=/usr/lib \
+	 KSHELL="/bin/sh -" \
+	 DESTDIR="$destdir" install
+	
+	rm -f \
+	 "${destdir}/usr/bin/tzselect" \
+	 "${destdir}/etc/localtime" \
+	 "${destdir}/etc/zoneinfo-posix"
+	
+	# Create .nograft to copy via post-installation the time zone files
+	# instead of being linked to the package directory; this is to ensure
+	# that the database is always up to date after a package update.  :-)
+	
+	find "${destdir}"/etc/zoneinfo* -type d -print | \
+	 while read -r directory
+	 do
+	     ( cd -- "$directory" && touch .nograft )
+	 done
+
+}

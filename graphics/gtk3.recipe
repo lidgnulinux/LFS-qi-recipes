@@ -4,7 +4,7 @@
 set -e
 
 program=gtk+
-version=3.24.49
+version=3.24.50
 release=0
 
 # Define a category for the output of the package name
@@ -42,6 +42,9 @@ build()
     # Set sane permissions
     chmod -R u+w,go-w,a+rX-s .
 
+    patch -p1 -i ${worktree}/5628.patch
+    patch -p1 -i ${worktree}/events-Compress-touch-update-events.patch
+
     # Set default backends, detect CUPS
     print_backends=file,lpr
 
@@ -72,8 +75,8 @@ build()
      ..
 
     unset -v print_backends
-    ninja -j${jobs}
-    DESTDIR="$destdir" ninja -j${jobs} install
+    ninja -j4
+    DESTDIR="$destdir" ninja -j2 install
 
     cd ..
 

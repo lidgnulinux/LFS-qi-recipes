@@ -4,8 +4,8 @@
 set -e
 
 program=coreutils
-version=9.7
-release=2
+version=9.8
+release=0
 
 # Define a category for the output of the package name
 pkgcategory=tools

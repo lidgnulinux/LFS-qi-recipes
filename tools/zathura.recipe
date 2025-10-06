@@ -5,7 +5,7 @@
 set -e
 
 program=zathura
-version=0.5.8
+version=0.5.12
 release=0
 description="zathura - highly customizable and functional document viewer"
 homepage="https://pwmt.org/projects/zathura/"
@@ -28,7 +28,13 @@ build()
 	cd BUILD
 	
 	CPPFLAGS="$QICPPFLAGS" CFLAGS="$QICFLAGS" LDFLAGS="$QILDFLAGS" \
-	meson setup $configure_args ..
+	meson setup $configure_args \
+		-Dseccomp=enabled \
+		-Dlandlock=enabled \
+		-Dmanpages=disabled \
+		-Dtests=disabled \
+		-Dconvert-icon=disabled \
+		..
 	
 	ninja -j2
 	DESTDIR="$destdir" ninja -j2 install

@@ -4,8 +4,8 @@
 set -e
 
 program=nspr
-version=4.36
-pkgver=4.36
+version=4.37
+pkgver=4.37
 release=0
 
 # Define a category for the output of the package name
@@ -14,7 +14,7 @@ pkgcategory=networking
 tarname=${program}-${version}.tar.gz
 
 # Remote source(s)
-fetch=https://ftp.mozilla.org/pub/mozilla.org/nspr/releases/v$pkgver/src/nspr-$pkgver.tar.gz
+fetch=https://archive.mozilla.org/pub/nspr/releases/v4.37/src/$tarname
 
 description="
 Netscape portable runtime functions.
@@ -25,7 +25,6 @@ API for system level and libc like functions.
 
 homepage=https://www.mozilla.org/projects/nspr/about-nspr.html
 license="MPL v2.0, GPLv2+"
-jobs=2
 
 # Source documentation
 docs="LICENSE"
@@ -48,20 +47,10 @@ build()
     # (Thanks to "Beyond Linux From Scratch")
     sed -i 's#$(LIBRARY) ##' config/rules.mk
 
-    # Set specific options for the architecture
-    case $arch in
-    amd64)
-        arch_options="--enable-64bit"
-        ;;
-    x32)
-        arch_options="--enable-64bit --enable-x32"
-        ;;
-    esac
-
     ./configure CPPFLAGS="$QICPPFLAGS" \
     CFLAGS="$QICFLAGS" LDFLAGS="$QILDFLAGS" \
      $configure_args \
-     --libdir=/usr/lib${libSuffix} \
+     --libdir=/usr/lib \
      --infodir=$infodir \
      --mandir=$mandir \
      --docdir=$docsdir \
@@ -71,6 +60,6 @@ build()
      --enable-64bit
 
     unset -v arch_options
-    make -j${jobs} V=1
-    make -j${jobs} DESTDIR="$destdir" install
+    make -j3 V=1
+    make -j3 DESTDIR="$destdir" install
 }

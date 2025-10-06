@@ -4,26 +4,20 @@
 set -e
 
 program=nghttp2
-version=1.65.0
+version=1.67.1
 release=0
-
-# Define a category for the output of the package name
 pkgcategory=networking
-
-tarname=${program}-${version}.tar.bz2
-
-# Remote source(s)
-fetch=https://github.com/nghttp2/nghttp2/releases/download/v${version}/$tarname
-
 description="
 HTTP/2 C library.
 
 This is an implementation of the Hypertext Transfer Protocol version 2 in
 C.  The framing layer of HTTP/2 is implemented as a reusable C library.
 "
-
 homepage=https://nghttp2.org/
 license=MIT
+
+tarname=${program}-${version}.tar.bz2
+fetch=https://github.com/nghttp2/nghttp2/releases/download/v${version}/$tarname
 
 # Source documentation
 docs="AUTHORS COPYING ChangeLog NEWS README.rst"
@@ -42,7 +36,7 @@ build()
     CFLAGS="$QICFLAGS" CXXFLAGS="$QICXXFLAGS" \
     LDFLAGS="$QILDFLAGS" \
      $configure_args \
-     --libdir=/usr/lib${libSuffix} \
+     --libdir=/usr/lib \
      --infodir=$infodir \
      --mandir=$mandir \
      --docdir=$docsdir \
@@ -60,8 +54,9 @@ build()
      --without-libxml2 \
      --without-mruby \
      --without-neverbleed \
+     --without-cunit \
      --build="$(gcc -dumpmachine)"
 
-    make -j${jobs} V=1
-    make -j${jobs} DESTDIR="$destdir" install
+    make -j2
+    make -j2 DESTDIR="$destdir" install
 }
