@@ -4,21 +4,15 @@
 set -e
 
 program=lftp
-version=4.9.2
-release=2
-
-# Define a category for the output of the package name
-pkgcategory=cli-tool
-
-tarname=${program}-${version}.tar.xz
-
-# Remote source(s)
-fetch=https://lftp.yar.ru/ftp/$tarname
-
+version=4.9.3
+release=0
+pkgcategory=tools
 description="Sophisticated ftp/http client"
-
 homepage=https://lftp.tech
 license="GPL-3.0-or-later"
+
+tarname=${program}-${version}.tar.xz
+fetch=https://lftp.yar.ru/ftp/$tarname
 
 build()
 {
@@ -29,20 +23,18 @@ build()
     # Set sane permissions
     chmod -R u+w,go-w,a+rX-s .
 	
-    patch -p0 < ${worktree}/lftp/patch-src_lftp__ssl.cc
-    patch -p1 < ${worktree}/lftp/gcc14.patch
-
     autoreconf -vif
     ./configure \
 	--prefix=/usr \
 	--sysconfdir=/etc \
-	--with-openssl \
+	--without-openssl \
 	--with-modules \
+	--with-gnutls \
 	--disable-nls \
 	--disable-static \
 	--enable-threads=posix
     
-    make
+    make -j2
     make DESTDIR="$destdir" install
     rm -f "$destdir"/usr/lib/charset.alias
 }

@@ -4,15 +4,14 @@
 set -e
 
 program=openssh
-version=10.0p1
+pkgname=openssh-static
+version=10.1p1
 release=0
-
-# Define a category for the output of the package name
 pkgcategory=networking
+homepage=https://www.openssh.com
+license=Custom
 
 tarname=${program}-${version}.tar.gz
-
-# Remote source(s)
 fetch=https://ftp.openbsd.org/pub/OpenBSD/OpenSSH/portable/$tarname
 
 description="
@@ -25,11 +24,6 @@ a large suite of secure tunneling capabilities, several authentication
 methods, and sophisticated configuration options.
 "
 
-homepage=https://www.openssh.com
-license=Custom
-
-# Source documentation
-# docs="CREDITS ChangeLog LICENCE OVERVIEW PROTOCOL* README* TODO"
 docsdir="${docdir}/${program}-${version}"
 jobs=2
 
@@ -43,7 +37,7 @@ build()
     chmod -R u+w,go-w,a+rX-s .
 
     ./configure CPPFLAGS="$QICPPFLAGS" \
-    CFLAGS="$QICFLAGS" LDFLAGS="$QILDFLAGS" \
+    CFLAGS="$QICFLAGS" LDFLAGS="$QILDFLAGS -static" \
      $configure_args \
      --sysconfdir=/etc/ssh \
      --with-default-path=/usr/bin \
