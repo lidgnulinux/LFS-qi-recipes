@@ -4,15 +4,13 @@
 set -e
 
 program=gdk-pixbuf
-version=2.42.12
-release=3
-
-# Define a category for the output of the package name
+version=2.44.3
+release=0
 pkgcategory=x-libs
+homepage=https://developer.gnome.org/gdk-pixbuf/stable/
+license=LGPLv2+
 
 tarname=${program}-${version}.tar.xz
-
-# Remote source(s)
 fetch="https://download.gnome.org/sources/gdk-pixbuf/${version%.*}/$tarname"
 
 description="
@@ -22,13 +20,6 @@ The library provides image loading and saving facilities, fast scaling
 and compositing of pixbufs, simple animation loading (i.e. animated
 GIFs), and rendering the libart image buffer.
 "
-
-homepage=https://developer.gnome.org/gdk-pixbuf/stable/
-license=LGPLv2+
-
-# Source documentation
-docs="COPYING NEWS"
-docsdir="${docdir}/${program}-${version}"
 
 build()
 {
@@ -52,10 +43,11 @@ build()
      --wrap-mode=nofallback \
      -Dman=false \
      -Dinstalled_tests=false \
+     -Dglycin=disabled \
      ..
 
-    ninja -j${jobs}
-    DESTDIR="$destdir" ninja -j${jobs} install
+    ninja -j3
+    DESTDIR="$destdir" ninja -j3 install
 
     cd ..
 }
