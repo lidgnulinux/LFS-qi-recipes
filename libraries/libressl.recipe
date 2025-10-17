@@ -4,15 +4,11 @@
 set -e
 
 program=libressl
-version=4.1.0
+version=4.2.0
 release=0
-
-# Define a category for the output of the package name
 pkgcategory=networking
 
 tarname=${program}-${version}.tar.gz
-
-# Remote source(s)
 fetch=https://ftp.openbsd.org/pub/OpenBSD/LibreSSL/$tarname
 
 description="
@@ -58,7 +54,7 @@ build()
      --build="$(gcc -dumpmachine)"
 
     make -j${jobs} V=1
-    make -j${jobs} DESTDIR="$destdir" install-strip
+    make -j${jobs} DESTDIR="$destdir" install
 
     # This is provided by the ca-certificates package
     rm -f "${destdir}/etc/ssl/cert.pem"
