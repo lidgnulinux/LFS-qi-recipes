@@ -59,15 +59,10 @@ rm -rf $SRCNAM-$VERSION
 tar xf $CWD/$SRCNAM-$VERSION.tar.xz || exit 1
 cd $SRCNAM-$VERSION || exit 1
 
-# Fix python3 path in cgi.py.
-sed -i '1s|^#.*/usr/local/bin/python|#!/usr/bin/python3|' Lib/cgi.py
-
 # apply some patches
 patch -p0 < "$CWD/patches/patch-Modules__hashopenssl_c"
-patch -p0 < "$CWD/patches/patch-Modules__ssl_c"
 patch -p1 < "$CWD/patches/musl-find_library.patch"
-patch -p1 < "$CWD/patches/test_posix-nodev-disable.patch"
-patch -p1 < "$CWD/patches/fix-run_fileexflags-test.patch"
+patch -p1 < "$CWD/patches/musl-pgo-tests.patch"
 
 ## If system we're building on already has Python3 with pip in site-packages,
 ## ignore it and install pip anyway.
@@ -123,4 +118,4 @@ mkdir -p $PKG/install
 cat $CWD/slack-desc > $PKG/install/slack-desc
 
 cd $PKG
-/sbin/makepkg -l y -c n /var/cache/slack/amd64/python3-$VERSION-$ARCH-$BUILD.txz
+/sbin/makepkg-slackware -l y -c n /var/cache/slack/amd64/python3-$VERSION-$ARCH-$BUILD.txz
