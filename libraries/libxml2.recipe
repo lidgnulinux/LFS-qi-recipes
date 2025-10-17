@@ -4,17 +4,12 @@
 set -e
 
 program=libxml2
-version=2.13.8
-pkgver=2.13.8
+version=2.13.9
 release=0
-
-# Define a category for the output of the package name
 pkgcategory=libs
 
-tarname=libxml2-$pkgver.tar.xz
-
-# Remote source(s)
-fetch=https://download.gnome.org/sources/libxml2/${pkgver%.*}/$tarname
+tarname=libxml2-$version.tar.xz
+fetch=https://download.gnome.org/sources/libxml2/${version%.*}/$tarname
 
 description="
 A XML C parser library and toolkit.

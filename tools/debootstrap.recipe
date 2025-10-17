@@ -1,0 +1,30 @@
+# Build recipe for debootstrap.
+#
+# Exit immediately on any error
+set -e
+
+program=debootstrap
+version=1.0.141
+release=0
+description="Debian/Ubuntu bootstrap scripts"
+homepage="https://packages.qa.debian.org/d/debootstrap.html"
+license="MIT"
+
+tarname=debootstrap-$version.tar.bz2
+fetch="https://salsa.debian.org/installer-team/debootstrap/-/archive/$version/$tarname"
+
+build() 
+{
+	unpack "${tardir}/$tarname"
+	
+	cd "$srcdir"
+	
+	# Set sane permissions
+	chmod -R u+w,go-w,a+rX-s .
+
+	patch -p1 -i ${worktree}/auto-detect-arch.patch
+
+	make DESTDIR="$destdir" install 
+	install -Dm644 $program.8 \
+		"$destdir"/usr/share/man/man8/$program.8
+}
