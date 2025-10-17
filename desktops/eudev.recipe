@@ -5,7 +5,7 @@ set -e
 
 program=eudev
 version=3.2.14
-release=1
+release=3
 
 # Define a category for the output of the package name
 pkgcategory=boot
@@ -51,7 +51,7 @@ build()
      --with-rootlibexecdir=/lib/udev \
      --mandir=$mandir \
      --docdir=$docsdir \
-     --enable-static=no \
+     --enable-static=yes \
      --enable-shared=yes \
      --enable-hwdb \
      --enable-manpages \

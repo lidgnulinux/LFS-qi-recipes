@@ -4,8 +4,8 @@
 set -e
 
 program=libarchive
-version=3.8.1
-release=1
+version=3.8.2
+release=0
 
 # Define a category for the output of the package name
 pkgcategory=libs

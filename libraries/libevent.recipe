@@ -6,7 +6,7 @@ set -e
 program=libevent
 version=2.1.12
 _version=$version-stable
-release=1
+release=2
 description="An event notification library"
 homepage="https://libevent.org/"
 license="BSD-3-Clause"

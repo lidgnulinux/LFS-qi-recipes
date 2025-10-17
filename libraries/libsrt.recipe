@@ -6,7 +6,7 @@ set -e
 
 program=libsrt
 version=1.5.3
-release=1
+release=2
 description="Secure Reliable Transport (SRT)"
 homepage="https://www.srtalliance.org/"
 license="MPL-2.0"
@@ -31,6 +31,7 @@ build()
 		-DCMAKE_BUILD_TYPE=MinSizeRel \
 		-DENABLE_UNITTESTS="OFF" \
 		-DENABLE_TESTING="OFF" \
+		-DCMAKE_POLICY_VERSION_MINIMUM=3.5 \
 		-DENABLE_STATIC=OFF
 	cmake --build build
 

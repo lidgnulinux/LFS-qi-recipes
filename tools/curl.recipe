@@ -4,7 +4,7 @@
 set -e
 
 program=curl
-version=8.15.0
+version=8.16.0
 release=0
 pkgcategory=networking
 homepage=https://curl.haxx.se/
@@ -21,7 +21,7 @@ SMB, SMBS, SMTP, SMTPS, Telnet and TFTP.
 
 tarname=${program}-${version}.tar.xz
 fetch=https://curl.haxx.se/download/$tarname
-jobs=2
+jobs=3
 
 build()
 {

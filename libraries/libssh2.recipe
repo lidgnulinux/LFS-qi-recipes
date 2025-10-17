@@ -4,8 +4,8 @@
 set -e
 
 program=libssh2
-version=1.11.0
-release=1
+version=1.11.1
+release=0
 
 # Define a category for the output of the package name
 pkgcategory=libs

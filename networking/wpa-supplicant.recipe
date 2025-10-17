@@ -6,7 +6,7 @@ set -e
 program=wpa_supplicant
 pkgname=wpa-supplicant
 version=2.11
-release=0
+release=1
 
 # Define a category for the output of the package name
 pkgcategory=networking
@@ -46,7 +46,7 @@ build()
     chmod -R u+w,go-w,a+rX-s .
 
     cd wpa_supplicant
-    cat "${worktree}/archive/wpa_supplicant/buildconfig" > .config
+    cat "${worktree}/config" > .config
     make -j2 V=1 BINDIR=/usr/sbin
     make -j2 V=1 BINDIR=/usr/sbin DESTDIR="$destdir" install
 

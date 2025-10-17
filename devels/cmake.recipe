@@ -6,7 +6,7 @@ set -e
 program=cmake
 version=4.1.0
 _ver=${version/_rc/-rc}
-release=0
+release=1
 pkgcategory=devel
 description="Cross-platform open-source make system."
 homepage=https://www.cmake.org

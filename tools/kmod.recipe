@@ -5,15 +5,8 @@ set -e
 
 program=kmod
 version=34.2
-release=0
-
-# Define a category for the output of the package name
+release=1
 pkgcategory=kernel
-
-tarname=${program}-${version}.tar.xz
-
-# Remote source(s)
-fetch=https://kernel.org/pub/linux/utils/kernel/kmod/$tarname
 
 description="
 Linux kernel module handling.
@@ -25,6 +18,9 @@ aliases.
 
 homepage=https://git.kernel.org/?p=utils/kernel/kmod/kmod.git
 license=LGPLv2.1
+
+tarname=${program}-${version}.tar.xz
+fetch=https://kernel.org/pub/linux/utils/kernel/kmod/$tarname
 
 # Source documentation
 docs="COPYING NEWS README* TODO"

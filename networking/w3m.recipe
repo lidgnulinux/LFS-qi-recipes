@@ -6,7 +6,7 @@ set -e
 program=w3m
 version=0.5.3_git20250513
 _gitrev=a80300d5e7fba3e2f3b63b220b8fa431b9629741
-release=1
+release=2
 description="text-based web & gopher browser, as well as pager"
 homepage="https://sr.ht/~rkta/w3m/"
 license="MIT"

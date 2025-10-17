@@ -3,7 +3,7 @@
 set -e
 
 program=pipewire
-version=1.4.8
+version=1.4.9
 release=0
 description="Multimedia processing graphs"
 homepage="https://pipewire.org/"

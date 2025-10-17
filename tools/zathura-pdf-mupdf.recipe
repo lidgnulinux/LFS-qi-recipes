@@ -5,7 +5,7 @@ set -e
 
 program=zathura-pdf-mupdf
 version=0.4.4
-release=1
+release=4
 description="mupdf plugin to zathura"
 homepage="https://pwmt.org/projects/zathura-pdf-mupdf/"
 license="Zlib"

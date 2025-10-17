@@ -5,7 +5,7 @@ set -e
 
 program=ostree
 version=2025.4
-release=0
+release=1
 pkgcategory=libs
 description="Operating system and container binary deployment and upgrades"
 homepage=https://github.com/ostreedev/ostree
@@ -39,6 +39,6 @@ build()
 	--without-openssl \
 	--with-curl
 
-    make -j2
+    make -j3
     make DESTDIR="$destdir" install
 }

@@ -6,7 +6,7 @@ set -e
 program=lynx
 version=2.9.2
 _relver=${version/_p/rel.}
-release=2
+release=3
 
 # Define a category for the output of the package name
 pkgcategory=networking
