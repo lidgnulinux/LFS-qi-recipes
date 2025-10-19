@@ -5,7 +5,7 @@ set -e
 
 program=xcb-proto
 version=1.17.0
-release=0
+release=1
 
 # Define a category for the output of the package name
 pkgcategory=xorg_lib

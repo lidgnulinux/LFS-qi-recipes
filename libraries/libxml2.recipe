@@ -5,7 +5,7 @@ set -e
 
 program=libxml2
 version=2.13.9
-release=0
+release=1
 pkgcategory=libs
 
 tarname=libxml2-$version.tar.xz

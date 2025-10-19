@@ -5,7 +5,7 @@
 set -e
 
 program=tdb
-version=1.4.12
+version=1.4.14
 release=0
 description="The tdb library"
 homepage="https://tdb.samba.org/"

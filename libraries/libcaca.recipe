@@ -7,7 +7,7 @@ set -e
 program=libcaca
 version=0.99_beta20
 _ver=${version/_/.}
-release=0
+release=1
 description="graphics library that outputs text instead of pixels"
 homepage="http://caca.zoy.org/wiki/libcaca"
 license="WTFPL"

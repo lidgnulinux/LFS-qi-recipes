@@ -5,7 +5,7 @@ set -e
 
 program=libxslt
 version=1.1.43
-release=0
+release=1
 
 # Define a category for the output of the package name
 pkgcategory=libs

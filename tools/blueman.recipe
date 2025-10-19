@@ -5,7 +5,7 @@ set -e
 
 program=blueman
 version=2.4.6
-release=0
+release=1
 description="GTK+ Bluetooth Manager"
 homepage="https://github.com/blueman-project/blueman"
 license="GPL-3.0-or-later"

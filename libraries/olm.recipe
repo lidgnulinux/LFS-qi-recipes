@@ -5,7 +5,7 @@ set -e
 
 program=olm
 version=3.2.16
-release=0
+release=1
 description="Implementation of the olm and megolm cryptographic ratchets"
 homepage="https://gitlab.matrix.org/matrix-org/olm"
 license="Apache-2.0"
@@ -25,6 +25,7 @@ build()
 	cmake -B build -G Ninja \
 		-DCMAKE_BUILD_TYPE=RelWithDebInfo \
 		-DCMAKE_INSTALL_PREFIX=/usr \
+		-DCMAKE_POLICY_VERSION_MINIMUM=3.5 \
 		-DCMAKE_INSTALL_LIBDIR=lib
 	cmake --build build
 	cd python
