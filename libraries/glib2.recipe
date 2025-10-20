@@ -4,23 +4,18 @@
 set -e
 
 program=glib
-version=2.84.3
+pkgname=glib2
+version=2.86.0
 _gi_version=1.84.0
 release=1
-
-# Define a category for the output of the package name
 pkgcategory=libs
-
-# Set a custom name for this package
-pkgname=glib2
-
-# The installation of this package replaces to
 replace=glib2-pass1
+homepage=https://wiki.gnome.org/Projects/GLib
+license=LGPLv2+
 
 tarname=${program}-${version}.tar.xz
 targiname=gobject-introspection-$_gi_version.tar.xz
 
-# Remote source(s)
 fetch="
 https://download.gnome.org/sources/glib/${version%.*}/$tarname
 https://download.gnome.org/sources/gobject-introspection/${_gi_version%.*}/$targiname
@@ -35,13 +30,10 @@ portability wrappers, and interfaces for such runtime functionality
 as an event loop, threads, dynamic loading, and an object system.
 "
 
-homepage=https://wiki.gnome.org/Projects/GLib
-license=LGPLv2+
-
 # Source documentation
 docs="CODE_OF_CONDUCT.md CONTRIBUTING.md HACKING NEWS README.md SECURITY.md"
 docsdir="${docdir}/${pkgname}-${version}"
-jobs=2
+jobs=3
 
 build()
 {
@@ -51,6 +43,9 @@ build()
 	
 	# Set sane permissions
 	chmod -R u+w,go-w,a+rX-s .
+
+	patch -p1 -i ${worktree}/tests-machine-id.patch 
+	patch -p1 -i ${worktree}/flaky-tests.patch
 
 	export CFLAGS="$CFLAGS -ffat-lto-objects -O2"
 	export CXXFLAGS="$CXXFLAGS -O2"
