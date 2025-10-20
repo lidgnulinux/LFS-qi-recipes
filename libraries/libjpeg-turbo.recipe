@@ -4,15 +4,11 @@
 set -e
 
 program=libjpeg-turbo
-version=3.1.1
+version=3.1.2
 release=0
-
-# Define a category for the output of the package name
 pkgcategory=libs
 
 tarname=${program}-${version}.tar.gz
-
-# Remote source(s)
 fetch=https://github.com/libjpeg-turbo/libjpeg-turbo/releases/download/$version/$tarname
 
 description="
@@ -31,7 +27,7 @@ license="IJG | BSD, zlib"
 
 docs="ChangeLog.md LICENSE.md README.md README.ijg"
 docsdir="${docdir}/${program}-${version}"
-jobs=2
+jobs=3
 
 build()
 {
@@ -46,8 +42,6 @@ build()
     mkdir BUILD
     cd BUILD
 
-    CFLAGS="$CFLAGS -O2 -DNDEBUG -flto=auto" \
-    CXXFLAGS="$CXXFLAGS -O2 -DNDEBUG -flto=auto" \
     cmake \
      -DCMAKE_C_FLAGS_RELEASE:STRING="$QICFLAGS"       \
      -DCMAKE_EXE_LINKER_FLAGS:STRING="$QILDFLAGS"     \
