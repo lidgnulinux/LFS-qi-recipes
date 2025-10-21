@@ -5,7 +5,7 @@
 set -e
 
 program=nasm
-version=2.16.03
+version=3.01
 release=0
 description="80x86 assembler designed for portability and modularity"
 homepage="https://www.nasm.us"
@@ -13,8 +13,6 @@ license="BSD-2-Clause"
 
 tarname=${program}-${version}.tar.xz
 fetch="https://www.nasm.us/pub/nasm/releasebuilds/$version/$tarname"
-
-srcdir=
 
 build() 
 {
@@ -25,9 +23,11 @@ build()
 	# Set sane permissions
 	chmod -R u+w,go-w,a+rX-s .
 
+	patch -Np1 -i ${worktree}/nasm-3.01-musl.patch
+
 	./configure \
 		--prefix=/usr
 
-	make 
+	make -j3 
 	make DESTDIR="$destdir" install 
 }
