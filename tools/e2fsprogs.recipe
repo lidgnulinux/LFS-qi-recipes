@@ -4,7 +4,7 @@
 set -e
 
 program=e2fsprogs
-version=1.47.2
+version=1.47.3
 release=0
 description="Standard Ext2/3/4 filesystem utilities"
 homepage="https://e2fsprogs.sourceforge.net/"
@@ -22,6 +22,7 @@ build()
 	# Set sane permissions
 	chmod -R u+w,go-w,a+rX-s .
 
+	patch -p1 -i ${worktree}/fix-log-redir.patch
 	./configure \
 		--prefix=/usr \
 		--sysconfdir=/etc \
@@ -34,9 +35,8 @@ build()
 		--disable-uuidd \
 		--disable-libuuid \
 		--disable-libblkid \
-		--disable-nls \
-		--enable-lto
+		--disable-nls
 
-	make 
+	make -j3 
 	make DESTDIR="$destdir" install 
 }
