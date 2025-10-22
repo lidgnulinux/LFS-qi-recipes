@@ -4,7 +4,7 @@
 set -e
 
 program=libconfig
-version=1.7.3
+version=1.8.1
 release=0
 description="A simple library for manipulating structured configuration files"
 homepage="https://www.hyperrealm.com/libconfig/libconfig.html"
