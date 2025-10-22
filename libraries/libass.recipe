@@ -5,7 +5,7 @@
 set -e
 
 program=libass
-version=0.17.3
+version=0.17.4
 release=0
 description="Portable library for SSA/ASS subtitle rendering"
 homepage="https://github.com/libass/libass"
