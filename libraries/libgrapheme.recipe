@@ -4,7 +4,7 @@
 set -e
 
 program=libgrapheme
-version=2.0.1
+version=2.0.2
 release=0
 description="unicode string library"
 homepage="https://libs.suckless.org/libgrapheme"
