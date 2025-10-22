@@ -4,7 +4,7 @@
 set -e
 
 program=linux-pam
-version=1.7.0
+version=1.7.1
 release=0
 pkgcategory=libs
 description="Linux PAM (Pluggable Authentication Modules for Linux)"
