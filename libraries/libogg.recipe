@@ -4,8 +4,8 @@
 set -e
 
 program=libogg
-version=1.3.5
-release=1
+version=1.3.6
+release=0
 
 # Define a category for the output of the package name
 pkgcategory=libs
@@ -41,13 +41,13 @@ build()
     ./configure \
     CPPFLAGS="$QICPPFLAGS" CFLAGS="$QICFLAGS" LDFLAGS="$QILDFLAGS" \
      $configure_args \
-     --libdir=/usr/lib${libSuffix} \
+     --libdir=/usr/lib \
      --mandir=$mandir \
      --docdir=$docsdir \
      --enable-shared=yes \
      --enable-static=yes \
      --build="$(gcc -dumpmachine)"
 
-    make -j${jobs} V=1
-    make -j${jobs} DESTDIR="$destdir" install
+    make -j2 V=1
+    make -j2 DESTDIR="$destdir" install
 }
