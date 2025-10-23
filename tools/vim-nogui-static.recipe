@@ -4,7 +4,7 @@
 set -e
 
 program=vim
-version=9.1.1629 
+version=9.1.1868 
 release=0
 pkgname=vim-nogui-static
 pkgcategory=tools
