@@ -4,7 +4,7 @@
 set -e
 
 program=gdk-pixbuf
-version=2.44.3
+version=2.44.4
 release=0
 pkgcategory=x-libs
 homepage=https://developer.gnome.org/gdk-pixbuf/stable/
