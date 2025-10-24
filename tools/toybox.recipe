@@ -1,0 +1,29 @@
+# Build recipe for toybox.
+#
+# Exit immediately on any error
+set -e
+
+program=toybox
+version=0.8.13
+release=0
+description="all-in-one Linux command line."
+homepage="http://landley.net/toybox/"
+license="0BSD license"
+
+tarname=$version.tar.gz
+fetch="https://github.com/landley/toybox/archive/refs/tags/$tarname"
+
+build() 
+{
+	unpack "${tardir}/$tarname"
+	
+	cd "$srcdir"
+	
+	# Set sane permissions
+	chmod -R u+w,go-w,a+rX-s .
+
+	make defconfig 
+	LDFLAGS="--static" make -j2
+
+	install -D -m755 toybox $destdir/usr/bin/toybox
+}
