@@ -4,7 +4,7 @@
 set -e
 
 program=librsvg
-version=2.61.0
+version=2.61.2
 release=0
 
 # Define a category for the output of the package name
