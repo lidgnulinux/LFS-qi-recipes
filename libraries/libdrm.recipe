@@ -4,27 +4,15 @@
 set -e
 
 program=libdrm
-version=2.4.126
+version=2.4.127
 release=0
-
-# Define a category for the output of the package name
 pkgcategory=xorg_extra
-
-tarname=${program}-${version}.tar.xz
-
-# Remote source(s)
-fetch=https://dri.freedesktop.org/libdrm/$tarname
-
-description="
-Direct rendering manager.
-
-libdrm provides core library routines for the X Window System to
-directly interface with video hardware using the Linux Kernel's
-Direct Rendering Modules.
-"
-
+description="Userspace interface to kernel DRM services"
 homepage=https://cgit.freedesktop.org/mesa/drm/
 license=MIT
+
+tarname=${program}-${version}.tar.xz
+fetch=https://dri.freedesktop.org/libdrm/$tarname
 
 # Source documentation
 docsdir="${docdir}/${program}-${version}"
