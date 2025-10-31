@@ -4,16 +4,9 @@
 set -e
 
 program=gdb
-version=15.2
+version=16.3
 release=0
-
-# Define a category for the output of the package name
 pkgcategory=devel
-
-tarname=${program}-${version}.tar.gz
-
-# Remote source(s)
-fetch=https://ftp.gnu.org/gnu/gdb/$tarname
 
 description="
 The GNU debugger.
@@ -30,6 +23,9 @@ license="GPLv2+, GPLv3+, LGPLv2, LGPLv3"
 docs="COPYING* ChangeLog README*"
 docsdir="${docdir}/${program}-${version}"
 
+tarname=${program}-${version}.tar.xz
+fetch=https://mirrors.kernel.org/slackware/slackware-current/source/d/gdb//$tarname
+
 build()
 {
     unpack "${tardir}/$tarname"
@@ -39,11 +35,12 @@ build()
     # Set sane permissions
     chmod -R u+w,go-w,a+rX-s .
 
-    patch -Np1 < "${worktree}/gdb-15.2/gdb.gcore-sh.patch"
-    patch -Np1 < "${worktree}/gdb-15.2/gdb.s390x-use-elf-gdb_fpregset_t.patch"
-    patch -Np1 < "${worktree}/gdb-15.2/gdb.ppc-musl.patch"
-    patch -Np1 < "${worktree}/gdb-15.2/gdb.ppc-ptregs.patch"
-    patch -Np1 < "${worktree}/gdb-15.2/gdb.musl-signals.patch"
+    patch -Np1 < "${worktree}/gcore-sh.patch"
+    patch -Np1 < "${worktree}/s390x-use-elf-gdb_fpregset_t.patch"
+    patch -Np1 < "${worktree}/ppc-musl.patch"
+    patch -Np1 < "${worktree}/ppc-ptregs.patch"
+    patch -Np1 < "${worktree}/musl-signals.patch"
+    patch -Np1 < "${worktree}/gcc15.patch"
 
     # Create a separate build directory
     rm -rf BUILD
