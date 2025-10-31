@@ -65,8 +65,6 @@ build()
      -Drust_std=2021 \
      -Db_lto=false \
      -Dmicrosoft-clc=disabled \
-     -Dgallium-rusticl=true \
-     -Dgallium-extra-hud=true \
      -Dvideo-codecs=all \
      ..
 
