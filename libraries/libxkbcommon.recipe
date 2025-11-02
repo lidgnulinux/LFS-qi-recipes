@@ -4,7 +4,7 @@
 set -e
 
 program=libxkbcommon
-version=1.11.0
+version=1.12.2
 release=0
 pkgcategory=xorg_extra
 
@@ -31,8 +31,6 @@ build()
 	unpack "${tardir}/$tarname"
 	    
 	cd "$srcdir"
-	
-	patch -p1 -i ${worktree}/allow-skip-test.patch
 	
 	rm -rf BUILD
 	mkdir BUILD

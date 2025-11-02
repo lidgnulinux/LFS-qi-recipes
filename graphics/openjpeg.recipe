@@ -4,15 +4,11 @@
 set -e
 
 program=openjpeg
-version=2.5.3
-release=1
-
-# Define a category for the output of the package name
+version=2.5.4
+release=0
 pkgcategory=x-libs
 
 tarname=${program}-${version}.tar.gz
-
-# Remote source(s)
 fetch=https://github.com/uclouvain/openjpeg/archive/v${version}/$tarname
 
 description="
@@ -61,8 +57,8 @@ build()
      -DBUILD_STATIC_LIBS=OFF                          \
      -G Ninja ..
 
-    ninja -j${jobs}
-    DESTDIR="$destdir" ninja -j${jobs} install
+    ninja -j3
+    DESTDIR="$destdir" ninja -j3 install
 
     # Leave the temporary BUILD directory
     cd .. 
