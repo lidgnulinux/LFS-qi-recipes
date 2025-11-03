@@ -4,15 +4,11 @@
 set -e
 
 program=xinit
-version=1.4.3
+version=1.4.4
 release=0
-
-# Define a category for the output of the package name
 pkgcategory=xorg_app
 
 tarname=${program}-${version}.tar.gz
-
-# Remote source(s)
 fetch=https://www.x.org/releases/individual/app/$tarname
 
 description="
