@@ -1,0 +1,36 @@
+# Build recipe for .
+#
+# Exit immediately on any error
+set -e
+
+program=torsocks
+version=2.5.0
+release=0
+description="Wrapper to safely torify applications"
+homepage="https://gitlab.torproject.org/tpo/core/torsocks"
+license="GPL-2.0"
+
+tarname=torsocks-v$version.tar.gz
+fetch="https://gitlab.torproject.org/tpo/core/torsocks/-/archive/v$version/$tarname"
+
+srcdir=torsocks-v$version
+
+build() 
+{
+	unpack "${tardir}/$tarname"
+	
+	cd "$srcdir"
+	
+	# Set sane permissions
+	chmod -R u+w,go-w,a+rX-s .
+
+	./autogen.sh
+	./configure \
+		--prefix=/usr \
+		--sysconfdir=/etc \
+		--mandir=/usr/share/man \
+		--infodir=/usr/share/info
+
+	make -j3 
+	make DESTDIR="$destdir" install 
+}
