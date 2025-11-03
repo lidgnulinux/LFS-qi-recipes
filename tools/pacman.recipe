@@ -4,8 +4,8 @@
 set -e
 
 program=pacman
-version=7.0.0
-release=1
+version=7.1.0
+release=0
 description="A simple library-based package manager"
 homepage="https://www.archlinux.org/pacman/"
 license="GPL-2.0-or-later"
@@ -23,8 +23,6 @@ build()
 	# Set sane permissions
 	chmod -R u+w,go-w,a+rX-s .
 
-	patch -p0 -i ${worktree}/remove-extra-dash-git.patch
-	
 	rm -rf BUILD
 	mkdir BUILD
 	cd BUILD
