@@ -4,7 +4,7 @@
 set -e
 
 program=elfutils
-version=0.193
+version=0.194
 release=0
 description="Utilities and DSOs to handle ELF files and DWARF data"
 homepage="https://sourceware.org/elfutils/"
