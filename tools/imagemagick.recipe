@@ -4,9 +4,9 @@
 set -e
 
 program=imagemagick
-version=7.1.1.47
+version=7.1.2.3
 _pkgver=${version%.*}-${version##*.}
-release=1
+release=0
 description="Collection of tools and libraries for many image formats"
 homepage="https://imagemagick.org/"
 license="ImageMagick"
@@ -24,6 +24,8 @@ build()
 	
 	# Set sane permissions
 	chmod -R u+w,go-w,a+rX-s .
+
+	patch -p1 -i ${worktree}/revert-incorrect-distortion-change.patch
 
 	CFLAGS="$CFLAGS -O2" \
 	CXXFLAGS="$CXXFLAGS -O2" \
@@ -43,7 +45,7 @@ build()
 		--without-x \
 		--with-xml
 
-	make -j4 
+	make -j4
 	make DESTDIR="$destdir" install 
 
 	# if you have perl 5.32.0, use this instead !
