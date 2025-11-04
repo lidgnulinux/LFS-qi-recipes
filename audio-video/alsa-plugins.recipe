@@ -5,14 +5,10 @@ set -e
 
 program=alsa-plugins
 version=1.2.12
-release=1
-
-# Define a category for the output of the package name
+release=3
 pkgcategory=libs
 
 tarname=${program}-${version}.tar.bz2
-
-# Remote source(s)
 fetch=https://www.alsa-project.org/files/pub/plugins/$tarname
 
 description="

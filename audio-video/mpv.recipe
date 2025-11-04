@@ -7,7 +7,7 @@ set -e
 program=mpv
 version=0.40.0
 _gitrev=a0fba7be57f3822d967b04f0f6b6d6341e7516e7
-release=0
+release=4
 description="Video player based on MPlayer/mplayer2"
 homepage="https://mpv.io/"
 license="GPL-2.0-or-later"
@@ -31,12 +31,15 @@ build()
 	cd BUILD
 
 	patch -p1 -d .. < "${worktree}/meson-libcaca-version.patch"
+	patch -p1 -d .. < "${worktree}/ffmpeg8.patch"
+	patch -p1 -d .. < "${worktree}/0001-clipboard-wayland-prevent-reading-from-hung-up-fd.patch"
 	
 	CPPFLAGS="$QICPPFLAGS" CFLAGS="$QICFLAGS" LDFLAGS="$QILDFLAGS" \
 	meson setup $configure_args \
 		-Dalsa=enabled \
 		-Dbuild-date=false \
 		-Dcaca=enabled \
+		-Ddrm=enabled \
 		-Degl-drm=enabled \
 		-Degl-wayland=enabled \
 		-Degl-x11=enabled \
@@ -52,7 +55,7 @@ build()
 		-Dx11=enabled \
 		..
 	
-	ninja -j2
+	ninja -j3
 	DESTDIR="$destdir" ninja -j2 install
 	
 	cd ..

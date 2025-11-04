@@ -4,7 +4,7 @@
 set -e
 
 program=ffmpeg
-version=7.1.1
+version=8.0
 release=0
 description="Complete and free Internet live audio and video broadcasting solution for Linux/Unix"
 homepage="https://ffmpeg.org/"
@@ -21,6 +21,9 @@ build()
 	
 	# Set sane permissions
 	chmod -R u+w,go-w,a+rX-s .
+
+	patch -p1 < ${worktree}/add-av_stream_get_first_dts-for-chromium.patch 
+	patch -p1 < ${worktree}/0001-Revert-configure-rename-POSIX-ioctl-check.patch
 
 	./configure \
 		--prefix=/usr \
@@ -56,7 +59,6 @@ build()
 		--enable-libxml2 \
 		--enable-lto=auto \
 		--enable-pic \
-		--enable-postproc \
 		--enable-pthreads \
 		--enable-shared \
 		--enable-vaapi \

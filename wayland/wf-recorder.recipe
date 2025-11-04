@@ -5,14 +5,14 @@
 set -e
 
 program=wf-recorder
-version=0.5.0
+version=0.6.0
 release=0
 description="Screen recording for wlroots-based compositors"
 homepage="https://github.com/ammen99/wf-recorder"
 license="MIT"
 
-tarname=wf-recorder-$version.tar.xz
-fetch="https://github.com/ammen99/wf-recorder/releases/download/v$version/$tarname"
+tarname=v$version.tar.gz
+fetch="https://github.com/ammen99/wf-recorder/archive/v$version/$tarname"
 
 build() 
 {
@@ -22,8 +22,6 @@ build()
 	
 	# Set sane permissions
 	chmod -R u+w,go-w,a+rX-s .
-
-	patch -p1 -i ${worktree}/279.patch
 
 	rm -rf BUILD
 	mkdir BUILD
