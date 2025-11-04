@@ -4,18 +4,12 @@
 set -e
 
 program=freetype
-version=2.13.3
-release=1
-
-# Define a category for the output of the package name
+version=2.14.1
+release=0
 pkgcategory=x-libs
-
-# The installation of this package replaces to
 replace=freetype-pass1
 
 tarname=${program}-${version}.tar.gz
-
-# Remote source(s)
 fetch=https://download.savannah.gnu.org/releases/freetype/$tarname
 
 description="
@@ -36,26 +30,29 @@ docs="ChangeLog* README*"
 docsdir="${docdir}/${program}-${version}"
 
 build() {
-    unpack "${tardir}/$tarname"
+	unpack "${tardir}/$tarname"
+	
+	cd "$srcdir"
+	
+	# Set sane permissions
+	chmod -R u+w,go-w,a+rX-s .
+	
+	patch -p1 -i ${worktree}/freetype-2.14.1-deref-check.patch
+	patch -p1 -i ${worktree}/freetype-2.14.1-ubsan-overflow.patch
 
-    cd "$srcdir"
-
-    # Set sane permissions
-    chmod -R u+w,go-w,a+rX-s .
-
-    ./configure CPPFLAGS="$QICPPFLAGS" \
-    CFLAGS="$QICFLAGS" LDFLAGS="$QILDFLAGS" \
-     $configure_args \
-     --mandir=$mandir \
-     --docdir=$docsdir \
-     --disable-static \
-     --enable-shared \
-     --with-bzip2=yes \
-     --with-zlib=yes \
-     --with-png=yes \
-     --enable-freetype-config \
-     --build="$(gcc -dumpmachine)"
-
-    make -j${jobs} V=1
-    make -j${jobs} DESTDIR="$destdir" install
+	./configure CPPFLAGS="$QICPPFLAGS" \
+	CFLAGS="$QICFLAGS" LDFLAGS="$QILDFLAGS" \
+	 $configure_args \
+	 --mandir=$mandir \
+	 --docdir=$docsdir \
+	 --disable-static \
+	 --enable-shared \
+	 --with-bzip2=yes \
+	 --with-zlib=yes \
+	 --with-png=yes \
+	 --enable-freetype-config \
+	 --build="$(gcc -dumpmachine)"
+	
+	make -j${jobs} V=1
+	make -j${jobs} DESTDIR="$destdir" install
 }
