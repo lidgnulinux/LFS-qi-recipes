@@ -5,7 +5,7 @@
 set -e
 
 program=xwayland
-version=24.1.4
+version=24.1.9
 release=0
 description="Compact xserver to run under wayland for compatibility"
 homepage="https://www.x.org/wiki"
