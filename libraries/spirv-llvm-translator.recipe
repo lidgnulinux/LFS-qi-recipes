@@ -5,7 +5,7 @@ set -e
 
 program=spirv-llvm-translator
 _pkgname=SPIRV-LLVM-Translator
-version=20.1.5
+version=20.1.8
 release=0
 description="Library for bi-directional translation between SPIR-V and LLVM IR"
 homepage="https://github.com/KhronosGroup/SPIRV-LLVM-Translator"

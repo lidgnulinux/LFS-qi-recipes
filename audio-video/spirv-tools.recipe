@@ -4,7 +4,7 @@
 set -e
 
 program=spirv-tools
-version=1.4.313.0
+version=1.4.328.1
 release=0
 description="API and commands for processing SPIR-V modules"
 homepage="https://github.com/KhronosGroup/SPIRV-Tools"

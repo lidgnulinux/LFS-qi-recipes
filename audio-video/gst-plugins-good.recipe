@@ -5,7 +5,7 @@
 set -e
 
 program=gst-plugins-good
-version=1.26.0
+version=1.26.6
 release=0
 description="GStreamer streaming media framework good plug-ins"
 homepage="https://gstreamer.freedesktop.org"
@@ -30,7 +30,7 @@ build()
 	cd BUILD
 	
 	CPPFLAGS="$QICPPFLAGS" CFLAGS="$QICFLAGS" LDFLAGS="$QILDFLAGS" \
-	meson setup $configure_args \
+	ldpath="/usr/lib/gstreamer-1.0" meson setup $configure_args \
 		-Dpackage-name="GStreamer good plug-ins (Linux From Scratch)" \
 		-Dtests="disabled" \
 		..

@@ -4,8 +4,8 @@
 set -e
 
 program=gst-plugins-base
-version=1.26.5
-release=2
+version=1.26.6
+release=0
 description="GStreamer streaming media framework base plug-ins"
 homepage="https://gstreamer.freedesktop.org"
 license="GPL-2.0-or-later AND LGPL-2.0-or-later"
@@ -29,7 +29,7 @@ build()
 	cd BUILD
 	
 	CPPFLAGS="$QICPPFLAGS" CFLAGS="$QICFLAGS" LDFLAGS="$QILDFLAGS" \
-	meson setup $configure_args \
+	ldpath="/usr/lib/gstreamer-1.0" meson setup $configure_args \
 		-Dalsa=enabled \
 		-Dintrospection=enabled \
 		-Dpackage-name="GStreamer base plug-ins (Linux From Scratch)" \

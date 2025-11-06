@@ -4,7 +4,7 @@
 set -e
 
 program=gst-plugins-ugly
-version=1.26.3
+version=1.26.6
 release=0
 description="GStreamer streaming media framework ugly plug-ins"
 homepage="https://gstreamer.freedesktop.org"
@@ -29,7 +29,7 @@ build()
 	cd BUILD
 	
 	CPPFLAGS="$QICPPFLAGS" CFLAGS="$QICFLAGS" LDFLAGS="$QILDFLAGS" \
-	meson setup $configure_args \
+	ldpath="/usr/lib/gstreamer-1.0" meson setup $configure_args \
 		-Dpackage-name="GStreamer ugly plug-ins (Linux From Scratch)" \
 		-Dtests="disabled" \
 		..
