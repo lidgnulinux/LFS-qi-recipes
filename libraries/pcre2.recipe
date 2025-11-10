@@ -4,7 +4,7 @@
 set -e
 
 program=pcre2
-version=10.43
+version=10.47
 release=0
 
 # Define a category for the output of the package name
@@ -32,7 +32,7 @@ license=BSD
 
 # Source documentation
 docsdir="${docdir}/${program}-${version}"
-jobs=2
+jobs=3
 
 build()
 {
@@ -58,26 +58,6 @@ build()
      --build="$(gcc -dumpmachine)"
 
     make -j${jobs} V=1
-    make -j${jobs} DESTDIR="$destdir" install-strip
+    make -j${jobs} DESTDIR="$destdir" install
 
-    # Compress info documents deleting index file for the package
-    if test -d "${destdir}/$infodir"
-    then
-        rm -f "${destdir}/${infodir}/dir"
-        lzip -9 "${destdir}/${infodir}"/*
-    fi
-
-    # Compress and link man pages (if needed)
-    if test -d "${destdir}/$mandir"
-    then
-        (
-            cd "${destdir}/$mandir"
-            find . -type f -exec lzip -9 {} +
-            find . -type l | while read -r file
-            do
-                ln -sf "$(readlink -- "$file").lz" "${file}.lz"
-                rm -- "$file"
-            done
-        )
-    fi
 }
