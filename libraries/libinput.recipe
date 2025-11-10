@@ -4,7 +4,7 @@
 set -e
 
 program=libinput
-version=1.28.0
+version=1.29.2
 release=0
 
 # Define a category for the output of the package name
@@ -52,6 +52,7 @@ build()
      -Dtests=false \
      -Dlibwacom=false \
      -Ddebug-gui=false \
+     -Ddefault_library=both \
      ..
 
     ninja -j${jobs}
