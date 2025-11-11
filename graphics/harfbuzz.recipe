@@ -5,7 +5,7 @@ set -e
 
 program=harfbuzz
 pkgcategory=x-libs
-version=11.3.2
+version=12.2.0
 release=0
 homepage=https://www.freedesktop.org/wiki/Software/HarfBuzz/
 license=BSD
@@ -22,7 +22,7 @@ docsdir="${docdir}/${program}-${version}"
 tarname=${program}-${version}.tar.xz
 fetch="https://github.com/harfbuzz/harfbuzz/releases/download/${version}/$tarname"
 
-jobs=2
+jobs=4
 
 build()
 {
