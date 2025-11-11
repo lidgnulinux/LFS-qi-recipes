@@ -1,0 +1,32 @@
+# Build recipe for lowdown.
+#
+# Exit immediately on any error
+set -e
+
+program=lowdown
+version=2.0.2
+_version="${version//./_}"
+release=0
+description="Simple markdown translator"
+homepage="https://kristaps.bsd.lv/lowdown/"
+license="ISC"
+
+tarname=VERSION_$_version.tar.gz
+fetch="https://github.com/kristapsdz/lowdown/archive/refs/tags/$tarname"
+
+srcdir=lowdown-VERSION_$_version
+
+build() 
+{
+	unpack "${tardir}/$tarname"
+	
+	cd "$srcdir"
+	
+	# Set sane permissions
+	chmod -R u+w,go-w,a+rX-s .
+
+	./configure PREFIX=/usr MANDIR=/usr/share/man LDFLAGS="$LDFLAGS"
+	bmake
+
+	bmake DESTDIR="$destdir" install install_libs
+}
