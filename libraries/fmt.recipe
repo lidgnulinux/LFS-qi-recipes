@@ -4,7 +4,7 @@
 set -e
 
 program=fmt
-version=11.2.0
+version=12.1.0
 release=0
 description="Open-source formatting library for C++"
 homepage="https://fmt.dev/latest/index.html"
@@ -22,12 +22,20 @@ build()
 	# Set sane permissions
 	chmod -R u+w,go-w,a+rX-s .
 
-	cmake -B . -G Ninja \
+	cmake -B build-shared -G Ninja \
 		-DCMAKE_INSTALL_PREFIX=/usr \
 		-DCMAKE_INSTALL_LIBDIR=lib \
 		-DBUILD_SHARED_LIBS=True \
 		-DCMAKE_BUILD_TYPE=None
-	cmake --build .
+	cmake --build build-shared 
 
-	DESTDIR="$destdir" cmake --install .
+	cmake -B build-static -G Ninja \
+		-DCMAKE_INSTALL_PREFIX=/usr \
+		-DCMAKE_INSTALL_LIBDIR=lib \
+		-DBUILD_SHARED_LIBS=False \
+		-DCMAKE_BUILD_TYPE=None
+	cmake --build build-static 
+
+	DESTDIR="$destdir" cmake --install build-shared
+	DESTDIR="$destdir" cmake --install build-static
 }

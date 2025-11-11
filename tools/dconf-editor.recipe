@@ -4,7 +4,7 @@
 set -e
 
 program=dconf-editor
-version=45.0.1
+version=49.0
 release=0
 description="Dconf Editor is a viewer and editor of applications internal settings"
 homepage="https://wiki.gnome.org/Apps/DconfEditor"
