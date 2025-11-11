@@ -4,7 +4,7 @@
 set -e
 
 program=pango
-version=1.56.4
+version=1.57.0
 release=0
 pkgcategory=x-libs
 
