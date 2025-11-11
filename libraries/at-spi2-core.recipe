@@ -4,7 +4,7 @@
 set -e
 
 program=at-spi2-core
-version=2.56.4
+version=2.58.1
 release=0
 pkgcategory=x-libs
 homepage=https://wiki.gnome.org/Accessibility/
@@ -23,6 +23,7 @@ docsdir="${docdir}/${program}-${version}"
 
 tarname=${program}-${version}.tar.xz
 fetch="https://download.gnome.org/sources/at-spi2-core/${version%.*}/$tarname"
+jobs=4
 
 build()
 {
