@@ -4,7 +4,7 @@
 set -e
 
 program=icu4c
-version=77_1
+version=78_1
 release=0
 
 # Set custom name and custom version for the package
@@ -14,10 +14,10 @@ pkgversion="$(echo $version | tr _ .)"
 # Define a category for the output of the package name
 pkgcategory=libs
 
-tarname=${program}-${version}-src.tgz
+tarname=${program}-${pkgversion}-sources.tgz
 
 # Remote source(s)
-fetch="https://github.com/unicode-org/icu/releases/download/release-$(printf $version | tr _ -)/$tarname"
+fetch="https://github.com/unicode-org/icu/releases/download/release-$pkgversion/$tarname"
 
 description="
 International Components for Unicode.
@@ -37,7 +37,7 @@ docsdir="${docdir}/${program}-${version}"
 
 # The source has a custom source directory
 srcdir=icu
-jobs=2
+jobs=4
 
 build()
 {
@@ -84,4 +84,3 @@ build()
         )
     fi
 }
-

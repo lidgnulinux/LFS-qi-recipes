@@ -5,8 +5,8 @@
 set -e
 
 program=vte3
-version=0.80.0
-release=1
+version=0.82.1
+release=0
 description="Virtual Terminal Emulator library"
 homepage="https://gitlab.gnome.org/GNOME/vte"
 license="LGPL-2.0-or-later"
@@ -37,7 +37,7 @@ build()
 		-D_systemd=false \
 		..
 	
-	ninja -j2
+	ninja -j4
 	DESTDIR="$destdir" ninja -j2 install
 	
 	cd ..
