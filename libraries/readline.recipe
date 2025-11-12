@@ -4,7 +4,8 @@
 set -e
 
 program=readline
-version=8.3
+version=8.3.1
+_myver=${version%.*}
 release=0
 pkgcategory=libs
 description="
@@ -17,12 +18,13 @@ such as GNU bash.  It provides line-editing capabilities.
 homepage=https://www.gnu.org/software/readline
 license=GPLv3+
 
-tarname=${program}-${version}.tar.gz
+tarname=${program}-${_myver}.tar.gz
 fetch=https://ftp.gnu.org/gnu/readline/$tarname
 
 docs="CHANGELOG CHANGES COPYING NEWS README USAGE"
 docsdir="${docdir}/${program}-${version}"
-srcdir=
+jobs=3
+srcdir=readline-$_myver
 
 build()
 {
@@ -33,8 +35,9 @@ build()
     # Set sane permissions
     chmod -R u+w,go-w,a+rX-s .
 
-    # To avoid underlink against -lncursesw
+    patch -Np0 -i "${worktree}/display-null-prompt.patch"
     patch -Np0 -i "${worktree}/fix-ncurses-underlinking.patch"
+    patch -Np0 -i "${worktree}/readline83-001"
 
     # Reinstalling Readline will cause the old libraries to be moved to
     # <libraryname>.old, this avoid printing a harmful message about
