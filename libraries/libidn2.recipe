@@ -4,8 +4,8 @@
 set -e
 
 program=libidn2
-version=2.3.7
-release=1
+version=2.3.8
+release=0
 
 # Define a category for the output of the package name
 pkgcategory=libs
@@ -44,11 +44,11 @@ build()
      --infodir=$infodir \
      --mandir=$mandir \
      --docdir=$docsdir \
-     --enable-static=no \
+     --enable-static=yes \
      --enable-shared=yes \
      --disable-doc \
      --build="$(gcc -dumpmachine)"
 
-    make -j${jobs} V=1
-    make -j${jobs} DESTDIR="$destdir" install
+    make -j4 V=1
+    make -j4 DESTDIR="$destdir" install
 }
