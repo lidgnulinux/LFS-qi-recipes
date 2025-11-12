@@ -4,16 +4,12 @@
 set -e
 
 program=libuv
-version=v1.50.0
+version=v1.51.0
 pkgversion="${version#v*}"
 release=0
-
-# Define a category for the output of the package name
 pkgcategory=libs
 
 tarname=${program}-${version}.tar.gz
-
-# Remote source(s)
 fetch=https://dist.libuv.org/dist/${version}/$tarname
 
 homepage=https://www.libuv.org
@@ -53,7 +49,7 @@ build()
      --build="$(gcc -dumpmachine)"
 
     make -j${jobs} V=1
-    make -j${jobs} DESTDIR="$destdir" install-strip
+    make -j${jobs} DESTDIR="$destdir" install
 
     # Compress and link man pages (if needed)
     if test -d "${destdir}/$mandir"
